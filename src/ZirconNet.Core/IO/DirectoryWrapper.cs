@@ -1,8 +1,12 @@
-﻿using System.Security.AccessControl;
+﻿using System.Runtime.Versioning;
+using System.Security.AccessControl;
 using System.Security.Principal;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
+#if NET6_0
+[SupportedOSPlatform("Windows")]
+#endif
 public class DirectoryWrapper : FileSystemInfo
 {
     protected DirectoryInfo _directoryInfo;

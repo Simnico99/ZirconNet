@@ -3,6 +3,9 @@ using Newtonsoft.Json.Linq;
 using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
+#if NET6_0
+[SupportedOSPlatform("Windows")]
+#endif
 public class JsonFileWrapper : FileWrapper
 {
     private JObject? _fileContent;

@@ -1,21 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net472;net48;netcoreapp3.1;net5.0-windows;net6.0-windows</TargetFrameworks>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-    <LangVersion>10</LangVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<LangVersion>10</LangVersion>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Simnico99</Authors>
+		<Description>These are libraries I use in alot of projects so I made theme a NuGet package to stop having to copy code all over the place.</Description>
+		<Copyright>Copyright (c) 2022 Simnico99</Copyright>
+		<PackageProjectUrl>https://github.com/Simnico99/ZirconNet</PackageProjectUrl>
+		<PackageIcon>ZirconNetLogo - 128x128.png</PackageIcon>
+		<PackageReadmeFile>ReadmeNuget.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Simnico99/ZirconNet</RepositoryUrl>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-  </ItemGroup>
+	<ItemGroup>
+	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\..\ReadmeNuget.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ZirconNet.Core\ZirconNet.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ZirconNet.Core\ZirconNet.Core.csproj" />
+	</ItemGroup>
 
 </Project>

@@ -1,4 +1,9 @@
-﻿namespace ZirconNet.Core.IO;
+﻿using System.Runtime.Versioning;
+
+namespace ZirconNet.Core.IO;
+#if NET6_0
+[SupportedOSPlatform("Windows")]
+#endif
 public class FileWrapper : FileSystemInfo
 {
     protected FileInfo _fileInfo;
@@ -51,7 +56,7 @@ public class FileWrapper : FileSystemInfo
 
     public async Task CopyToDirectoryAsync(DirectoryWrapper directory)
     {
-        FileInfo finalPath = new(directory.FolderInformation.FullName + @$"\{Name}");
+        FileInfo finalPath = new(directory.FullName + @$"\{Name}");
         Delete(finalPath);
         while (IsFileLocked(_fileInfo))
         {
