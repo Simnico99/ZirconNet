@@ -1,0 +1,38 @@
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Pack All'
+  condition: eq(variables['buildTag'], False)
+  inputs:
+    command: pack
+    configuration: Release
+    packDirectory: '$(Build.ArtifactStagingDirectory)/packages'
+    nobuild: true
+    packagesToPack: 'src\**\*.csproj;!src\**\+(MicaWPF.Demo)*.csproj'
+
+- task: NuGetCommand@2
+  displayName: Push to Artifacts All
+  condition: and(succeeded(), eq(variables['buildTag'], false))
+  inputs:
+    command: 'push'
+    nuGetFeedType: 'internal'
+    packagesToPush: '**/*.nupkg'
+    publishVstsFeed: '54a199f8-9bc3-479f-affc-91a4138f5c0e'
+    allowPackageConflicts: true
+
+- task: NuGetCommand@2
+  displayName: Push to NuGet (ZirconNet.Core)
+  condition: and(succeeded(), eq(variables['buildTag'], true))
+  inputs:
+    command: 'push'
+    packagesToPush: '**/+(ZirconNet)*.nupkg;!**/*.symbols.nupkg;!**/+(ZirconNet.WPF)*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NugetConnection'
+
+- task: NuGetCommand@2
+  displayName: Push to NuGet (ZirconNet.WPF)
+  condition: and(succeeded(), eq(variables['buildTag'], true))
+  inputs:
+    command: 'push'
+    packagesToPush: '**/+(ZirconNet.WPF)*.nupkg;!**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NugetConnection'

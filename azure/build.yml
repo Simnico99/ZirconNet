@@ -1,0 +1,107 @@
+steps:
+- pwsh: |
+        $url = "https://azuresearch-usnc.nuget.org/query?q=ZirconNet.Core&prerelease=false"
+        $packageInfo = Invoke-RestMethod -Uri $url -Headers @{Authorization = "Bearer $env:SYSTEM_ACCESSTOKEN"}
+        Write-Host "Pipeline = $($packageInfo | ConvertTo-Json -Depth 100)"
+        $versionList;
+        foreach ($versionlocal in $packageInfo.data.versions)
+        {
+              $versionList += [version[]]$versionlocal.version
+        }
+        $sortedVersions = $versionList | Sort-Object -Descending | foreach {$_.ToString()}
+        $version = $sortedVersions[0]
+        Write-Host $version
+        $productVersionBeta = “$version.$(Build.BuildId)-Beta”
+        Write-Host "##vso[task.setvariable variable=packageVersion]$productVersionBeta"
+        Write-Host $productVersionBeta
+  displayName: "Computing alpha version"
+  condition: eq(variables['buildTag'], False)
+
+- pwsh: |
+        $tags = git tag --sort=-creatordate
+        [string] $tag = $tags[0]
+        Write-Host "##vso[task.setvariable variable=packageVersion]$tag"
+        Write-Host $tag
+  displayName: "Computing release version"
+  condition: eq(variables['buildTag'], True)
+
+- task: NuGetToolInstaller@1
+  displayName: 'Installing Nuget 6.0.x'
+  inputs:
+    versionSpec: '6.0.x'
+
+- task: UseDotNet@2
+  displayName: 'Use .Net Core 3.1.x'
+  inputs:
+    packageType: 'sdk'
+    version: '3.1.x'
+    includePreviewVersions: false
+
+- task: UseDotNet@2
+  displayName: 'Use .Net 5.0.x'
+  inputs:
+    packageType: 'sdk'
+    version: '5.0.x'
+    includePreviewVersions: false
+
+- task: UseDotNet@2
+  displayName: 'Use .Net 6.0.x'
+  inputs:
+    packageType: 'sdk'
+    version: '6.0.x'
+    includePreviewVersions: false
+
+- task: DotNetCoreCLI@2
+  displayName: .Net Restore
+  inputs:
+    command: restore
+    projects: '**\*!(Demo).csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: .Net Build (Alpha)
+  condition: eq(variables['buildTag'], False)
+  inputs:
+    command: 'build'
+    configuration: Release
+    projects: '**\*!(Demo).csproj'
+    arguments: '-c Release --no-restore'
+    versioningScheme: byEnvVar
+    versionEnvVar: '$(productVersionBeta)'
+
+- task: DotNetCoreCLI@2
+  displayName: .Net Build (Release)
+  condition: eq(variables['buildTag'], True)
+  inputs:
+    command: 'build'
+    configuration: Release
+    projects: '**\*!(Demo).csproj'
+    arguments: '-c Release --no-restore'
+    versioningScheme: byEnvVar
+    versionEnvVar: '$(finalReleaseVersion)'
+
+- task: ado-discord-webhook@1
+  displayName: Publish test results
+  condition: succeededOrFailed()
+  inputs:
+    channelId: '892075724847079494'
+    webhookKey: 'S3CPGp0vqpF-azkSH-LSxjUf47h3LrTliK7M7QZlJV2GacMn1sQe4OVvpqrItEVd1sBf'
+    name: 'Azure DevOps'
+    avatar: 'https://cdn.iconscout.com/icon/free/png-256/azure-devops-3628645-3029870.png'
+    messageType: 'embeds'
+    embeds: |
+      [{
+            "title": "Azure Build Pipeline",
+            "description": "Build [$(Build.BuildNumber)](https://dev.azure.com/ZirconCloud/web/build.aspx?builduri=$(Build.BuildUri)) $(Agent.JobStatus)\n",
+            "fields": [
+              {
+                "name": "Project",
+                "value": "MicaWPF",
+                "inline": true
+              },
+              {
+                "name": "Id",
+                "value": "$(Build.BuildId)",
+                "inline": true
+              }
+            ]
+          }]
