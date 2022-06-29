@@ -95,7 +95,7 @@ steps:
             "fields": [
               {
                 "name": "Project",
-                "value": "MicaWPF",
+                "value": "ZirconNet",
                 "inline": true
               },
               {
