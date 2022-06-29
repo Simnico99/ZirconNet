@@ -1,5 +1,5 @@
 ﻿namespace ZirconNet.Core.Events;
-public class Subscription : IDisposable
+public sealed class Subscription : IDisposable
 {
     private readonly Action _removeMethod;
 

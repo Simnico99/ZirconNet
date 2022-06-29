@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
-#if NET6_0
+#if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
 public class JsonFileWrapper : FileWrapper
@@ -155,11 +155,13 @@ public class JsonFileWrapper : FileWrapper
         }
     }
 
+#if NET5_0_OR_GREATER
     public async Task WriteAndFlushAsync()
     {
         if (_fileContent is not null)
         {
-            await Task.Run(() => File.WriteAllText(FullName, _fileContent.ToString()));
+            await File.WriteAllTextAsync(FullName, _fileContent.ToString());
         }
     }
+#endif
 }

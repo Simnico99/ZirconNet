@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Versioning;
 
 namespace ZirconNet.Core.IO;
-#if NET6_0
+#if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
 public class FileWrapper : FileSystemInfo

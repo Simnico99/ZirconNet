@@ -4,7 +4,7 @@ using System.Security.Principal;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
-#if NET6_0
+#if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
 public class DirectoryWrapper : FileSystemInfo
@@ -44,29 +44,23 @@ public class DirectoryWrapper : FileSystemInfo
 
             var currentUser = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new(currentUser);
-            foreach (AuthorizationRule rule in rules)
+            foreach (AuthorizationRule? rule in rules)
             {
-                if (rule is not FileSystemAccessRule fsAccessRule)
+                if (rule is not FileSystemAccessRule fsAccessRule || fsAccessRule.FileSystemRights != FileSystemRights.FullControl || rule.IdentityReference is null)
                 {
                     continue;
                 }
 
-                if (fsAccessRule.FileSystemRights == FileSystemRights.FullControl && rule.IdentityReference is not null)
-                {
-                    var ntAccount = (NTAccount)rule.IdentityReference;
-                    if (ntAccount == null)
-                    {
-                        continue;
-                    }
+                var ntAccount = (NTAccount)rule.IdentityReference;
 
-                    if (principal.IsInRole(ntAccount.Value))
-                    {
-                        if (ntAccount.Value == @"BUILTIN\Utilisateurs")
-                        {
-                            return true;
-                        }
-                        continue;
-                    }
+                if (ntAccount == null || !principal.IsInRole(ntAccount.Value))
+                {
+                    continue;
+                }
+
+                if (ntAccount.Value == @"BUILTIN\Utilisateurs")
+                {
+                    return true;
                 }
             }
             return false;
