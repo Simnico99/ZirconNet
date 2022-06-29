@@ -1,10 +1,10 @@
 ﻿namespace ZirconNet.Core.Events;
 public class WeakEvent<T> : IWeakEvent<T>
 {
-    private readonly object _locker = new();
-    private readonly List<(Type EventType, Delegate MethodToCall)> _eventRegistrations = new();
+    protected readonly object _locker = new();
+    protected readonly List<(Type EventType, Delegate MethodToCall)> _eventRegistrations = new();
 
-    public Subscription Subscribe(Action<T> action)
+    public virtual Subscription Subscribe(Action<T> action)
     {
         if (action is null)
         {
@@ -12,6 +12,7 @@ public class WeakEvent<T> : IWeakEvent<T>
         }
 
         _eventRegistrations.Add((typeof(T), action));
+
         return new Subscription(() =>
         {
             lock (_locker)
@@ -21,17 +22,20 @@ public class WeakEvent<T> : IWeakEvent<T>
         });
     }
 
-    public void Publish(T data)
+    public virtual Task PublishAsync(T data)
     {
-        lock (_locker)
+        return Task.Run(() =>
         {
-            foreach (var (EventType, MethodToCall) in _eventRegistrations)
+            lock (_locker)
             {
-                if (EventType == typeof(T))
+                foreach (var (EventType, MethodToCall) in _eventRegistrations)
                 {
-                    ((Action<T>)MethodToCall)(data);
+                    if (EventType == typeof(T))
+                    {
+                        ((Action<T>)MethodToCall)(data);
+                    }
                 }
             }
-        }
+        });
     }
 }
