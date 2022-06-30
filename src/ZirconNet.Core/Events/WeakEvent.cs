@@ -24,7 +24,7 @@ public class WeakEvent<T> : IWeakEvent<T>
         });
     }
 
-    public virtual ConfiguredTaskAwaitable PublishAsync(T data, bool awaitAllCalls = false)
+    public virtual ConfiguredTaskAwaitable PublishAsync(T data, bool configureAwait = false)
     {
         return Task.Run(() =>
         {
@@ -38,6 +38,6 @@ public class WeakEvent<T> : IWeakEvent<T>
                     }
                 }
             }
-        }).ConfigureAwait(awaitAllCalls);
+        }).ConfigureAwait(configureAwait);
     }
 }
