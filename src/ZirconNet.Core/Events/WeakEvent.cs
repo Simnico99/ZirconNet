@@ -1,4 +1,6 @@
-﻿namespace ZirconNet.Core.Events;
+﻿using System.Runtime.CompilerServices;
+
+namespace ZirconNet.Core.Events;
 public class WeakEvent<T> : IWeakEvent<T>
 {
     protected readonly object _locker = new();
@@ -22,7 +24,7 @@ public class WeakEvent<T> : IWeakEvent<T>
         });
     }
 
-    public virtual Task PublishAsync(T data)
+    public virtual ConfiguredTaskAwaitable PublishAsync(T data)
     {
         return Task.Run(() =>
         {
@@ -36,6 +38,6 @@ public class WeakEvent<T> : IWeakEvent<T>
                     }
                 }
             }
-        });
+        }).ConfigureAwait(false);
     }
 }

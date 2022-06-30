@@ -97,9 +97,9 @@ public class DirectoryWrapper : FileSystemInfo
             foreach (var file in _directoryInfo.GetFiles())
             {
                 var fileWrapper = new FileWrapper(file);
-                _ = CopyingFile.PublishAsync(fileWrapper);
+                await CopyingFile.PublishAsync(fileWrapper);
                 await fileWrapper.CopyToDirectoryAsync(destination);
-                _ = CopiedFile.PublishAsync(fileWrapper);
+                await CopiedFile.PublishAsync(fileWrapper);
             }
 
             foreach (var folder in _directoryInfo.GetDirectories())
