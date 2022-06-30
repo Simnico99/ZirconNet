@@ -3,7 +3,8 @@
 <a href="https://www.nuget.org/packages/ZirconNet.Core/latest">![NuGet](https://img.shields.io/nuget/v/ZirconNet.Core.svg?style=flat&logo=NuGet)</a>
 <a href="https://www.nuget.org/packages/ZirconNet.Core/latest/prerelease">![NuGet(preview)](https://img.shields.io/nuget/vpre/ZirconNet.Core.svg?style=flat&logo=NuGet)</a>
 <a href="https://www.nuget.org/packages/ZirconNet.Core/">![NuGet(download)](https://img.shields.io/nuget/dt/ZirconNet.Core.svg?style=flat&logo=NuGet)</a>
-<a href="https://www.codefactor.io/repository/github/simnico99/micawpf/overview/main">![CodeFactor](https://img.shields.io/codefactor/grade/github/Simnico99/ZirconNet/main?logo=codefactor&logoColor=%23ffff)</a><br/>
+<a href="https://www.codefactor.io/repository/github/simnico99/micawpf/overview/main">![CodeFactor](https://img.shields.io/codefactor/grade/github/Simnico99/ZirconNet/main?logo=codefactor&logoColor=%23ffff)</a>
+<a href="https://dev.azure.com/ZirconCloud/ZirconNet/_build">![Azure Pipelines](https://dev.azure.com/ZirconCloud/ZirconNet/_apis/build/status/Simnico99.ZirconNet?branchName=main)</a><br/>
 <a href="https://github.com/Simnico99/ZirconNet/graphs/contributors">![Contributors](https://img.shields.io/github/contributors/Simnico99/ZirconNet?style=flat)</a>
 <a href="https://github.com/Simnico99/ZirconNet/network/members">![Forks](https://img.shields.io/github/forks/Simnico99/ZirconNet?style=flat)</a>
 <a href="https://github.com/Simnico99/ZirconNet/stargazers">![Stargazers](https://img.shields.io/github/stars/Simnico99/ZirconNet?style=flat)</a>
