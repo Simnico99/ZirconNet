@@ -6,7 +6,6 @@ public class IocPage : Page
 {
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
-
         var currentDataContexts = GetPageDataContexts(servicesProvider, services);
         var fields = new List<DynamicClassField>();
 
@@ -23,26 +22,33 @@ public class IocPage : Page
         var dynamicClass = new DynamicClass(fields);
         DataContext = dynamicClass;
     }
+
     private IEnumerable<KeyValuePair<string?, ViewModelBase?>> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
         foreach (var service in services)
         {
-            if (service.ServiceType.BaseType == typeof(ViewModelBase))
+            if (service.ServiceType.BaseType != typeof(ViewModelBase))
             {
-                var viewModel = (ViewModelBase?)servicesProvider.GetService(service.ServiceType);
-                var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
-                if (attribute is not null and PageDataContextAttribute pageDataContextAttribute)
-                {
-                    if (pageDataContextAttribute.PagesToBindName is null)
-                    {
-                        yield return new(viewModel?.GetType().Name, viewModel);
-                    }
+                continue;
+            }
 
-                    if (pageDataContextAttribute.PagesToBindName is not null && pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
-                    {
-                        yield return new(viewModel?.GetType().Name, viewModel);
-                    }
-                }
+            var viewModel = (ViewModelBase?)servicesProvider.GetService(service.ServiceType);
+            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
+
+            if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
+            {
+                continue;
+            }
+
+            if (pageDataContextAttribute.PagesToBindName is null)
+            {
+                yield return new(viewModel?.GetType().Name, viewModel);
+                continue;
+            }
+
+            if (pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
+            {
+                yield return new(viewModel?.GetType().Name, viewModel);
             }
         }
     }

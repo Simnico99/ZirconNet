@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace ZirconNet.WPF.Dispatcher;
+﻿namespace ZirconNet.WPF.Dispatcher;
 
 public interface IMainThreadDispatcher
 {

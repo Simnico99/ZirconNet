@@ -4,12 +4,10 @@
 public class PageDataContextAttribute : Attribute
 {
     public IEnumerable<string>? PagesToBindName { get; }
-
     public PageDataContextAttribute() { }
 
     public PageDataContextAttribute(params Type[]? pagesToBind)
     {
-
         if (pagesToBind?.Length < 0 || pagesToBind is null)
         {
             return;

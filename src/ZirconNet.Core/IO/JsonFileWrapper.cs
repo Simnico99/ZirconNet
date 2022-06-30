@@ -29,7 +29,6 @@ public class JsonFileWrapper : FileWrapper
 
                 jsonObject?.Add(new JProperty(fieldToAdd, value));
                 _fileContent = jsonObject;
-
             }
         }
     }

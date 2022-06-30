@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace ZirconNet.WPF.Dispatcher;
 public sealed class MainThreadDispatcher : IMainThreadDispatcher
@@ -46,6 +45,4 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
 
         return await _dispatcher.InvokeAsync(func);
     }
-
 }
-
