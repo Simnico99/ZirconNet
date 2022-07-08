@@ -1,5 +1,6 @@
 ﻿using ZirconNet.Core.Runtime;
 using ZirconNet.WPF.DependencyInjection;
+using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page
@@ -27,7 +28,7 @@ public class IocPage : Page
     {
         foreach (var service in services)
         {
-            if (service.ServiceType.GetType() != typeof(ViewModel))
+            if (!service.ServiceType.IsSameOrSubclassOf(typeof(ViewModel)))
             {
                 continue;
             }
