@@ -15,6 +15,8 @@ public class AwaitableViewModelBase : ObservableObject
 
     public void IsReady() => ReadyEvent.PublishAsync(this);
 
+    public void NotifyPropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
+
     public Task WaitForReadyAsync(CancellationToken cancellationToken = default)
     {
         if (_startupTcs!.Task.IsCompleted)
