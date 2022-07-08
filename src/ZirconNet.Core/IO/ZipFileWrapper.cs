@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
+#if NET5_0_OR_GREATER
+[SupportedOSPlatform("Windows")]
+#endif
 public class ZipFileWrapperinternal : FileWrapper
 {
     public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();

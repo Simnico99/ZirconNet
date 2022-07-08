@@ -31,7 +31,7 @@ public class AwaitableViewModelBase : ObservableObject
                 ((TaskCompletionSource<object>)state).TrySetResult(new object());
             }
         }, _startupTcs);
-        return _startupTcs!.Task.ContinueWith((Task<object> _) => registration.Dispose());
+        return _startupTcs!.Task.ContinueWith((Task<object> _) => registration.Dispose(), cancellationToken);
     }
 
     internal void RegisterViewModelReady()
