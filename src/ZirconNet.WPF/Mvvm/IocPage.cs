@@ -23,16 +23,16 @@ public class IocPage : Page
         DataContext = dynamicClass;
     }
 
-    private IEnumerable<KeyValuePair<string?, AwaitableViewModelBase?>> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
+    private IEnumerable<KeyValuePair<string?, ViewModel?>> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
         foreach (var service in services)
         {
-            if (service.ServiceType.BaseType != typeof(AwaitableViewModelBase))
+            if (service.ServiceType.BaseType != typeof(ViewModel))
             {
                 continue;
             }
 
-            var viewModel = (AwaitableViewModelBase?)servicesProvider.GetService(service.ServiceType);
+            var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
             var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
 
             if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))

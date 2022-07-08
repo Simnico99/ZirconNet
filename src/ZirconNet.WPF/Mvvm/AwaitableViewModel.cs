@@ -1,21 +1,21 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
-using System.Threading;
+﻿using System.Threading;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.WPF.Mvvm;
-public class AwaitableViewModelBase : ObservableObject
+public class AwaitableViewModel : ViewModel
 {
-    public IWeakEvent<AwaitableViewModelBase> ReadyEvent { get; } = new WeakEvent<AwaitableViewModelBase>();
+    public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>();
     private TaskCompletionSource<object>? _startupTcs;
 
-    public AwaitableViewModelBase()
+    public AwaitableViewModel()
     {
         RegisterViewModelReady();
     }
 
-    public void IsReady() => ReadyEvent.PublishAsync(this);
-
-    public void NotifyPropertyChanged(string propertyName) => OnPropertyChanged(propertyName);
+    public void IsReady()
+    {
+        ReadyEvent.PublishAsync(this);
+    }
 
     public Task WaitForReadyAsync(CancellationToken cancellationToken = default)
     {
