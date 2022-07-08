@@ -27,7 +27,7 @@ public class IocPage : Page
     {
         foreach (var service in services)
         {
-            if (service.ServiceType.BaseType != typeof(ViewModel))
+            if (service.ServiceType.GetType() != typeof(ViewModel))
             {
                 continue;
             }
