@@ -10,14 +10,14 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
-public class ZipFileWrapperinternal : FileWrapper
+public class ZipFileWrapper : FileWrapper
 {
     public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
     public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();
 
 
-    public ZipFileWrapperinternal(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
-    public ZipFileWrapperinternal(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
+    public ZipFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
+    public ZipFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
 
     public async Task UnzipAsync(string extractionPath)
     {
