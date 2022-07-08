@@ -25,15 +25,6 @@ public class DirectoryWrapper : FileSystemInfo
         _directoryInfo = createDirectory ? Create(directory.FullName, overwrite) : directory;
     }
 
-    private static void SetAccess(DirectoryInfo directory)
-    {
-        var fSecurity = directory.GetAccessControl();
-        fSecurity.AddAccessRule(new FileSystemAccessRule("Utilisateurs", FileSystemRights.FullControl, InheritanceFlags.ObjectInherit, PropagationFlags.InheritOnly, AccessControlType.Allow));
-        fSecurity.AddAccessRule(new FileSystemAccessRule("Utilisateurs", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit, PropagationFlags.InheritOnly, AccessControlType.Allow));
-        fSecurity.AddAccessRule(new FileSystemAccessRule("Utilisateurs", FileSystemRights.FullControl, InheritanceFlags.None, PropagationFlags.InheritOnly, AccessControlType.Allow));
-        directory.SetAccessControl(fSecurity);
-    }
-
     public bool IsDirectoryWritable()
     {
         try
@@ -74,7 +65,7 @@ public class DirectoryWrapper : FileSystemInfo
     {
         if (Directory.Exists(path) && overwrite)
         {
-            new DirectoryInfo(path).Delete();
+            new DirectoryInfo(path).Delete(true);
         }
 
         if (Directory.Exists(path) && !overwrite)
@@ -84,7 +75,6 @@ public class DirectoryWrapper : FileSystemInfo
 
         Directory.CreateDirectory(path);
         DirectoryInfo directory = new(path);
-        SetAccess(directory);
 
         return directory;
     }
