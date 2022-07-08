@@ -19,7 +19,7 @@ public class ZipFileWrapperinternal : FileWrapper
     public ZipFileWrapperinternal(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
     public ZipFileWrapperinternal(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
 
-    public async Task UnzipAsync(DirectoryInfo extractionPath)
+    public async Task UnzipAsync(string extractionPath)
     {
 
         using var archive = ZipFile.OpenRead(FullName);
@@ -30,7 +30,7 @@ public class ZipFileWrapperinternal : FileWrapper
             if (!zipArchiveEntryNormalizedName.EndsWith(@"\", StringComparison.InvariantCulture) && !string.IsNullOrWhiteSpace(zipArchiveEntry.Name))
             {
                 var extractionName = $@"\{zipArchiveEntryNormalizedName.Replace(FullName, "")}";
-                var extractionPathFullName = extractionPath.FullName + $@"\{zipArchiveEntryNormalizedName.Replace(FullName, "")}";
+                var extractionPathFullName = extractionPath + $@"\{zipArchiveEntryNormalizedName.Replace(FullName, "")}";
 
                 await Extracting.PublishAsync(extractionName);
 
@@ -45,7 +45,7 @@ public class ZipFileWrapperinternal : FileWrapper
             else
             {
                 var extractionName = $@"\{zipArchiveEntryNormalizedName.Replace(FullName, "")}";
-                var extractionPathFullName = extractionPath.FullName + extractionName;
+                var extractionPathFullName = extractionPath + extractionName;
 
                 await Extracting.PublishAsync(extractionName);
                 Directory.CreateDirectory(extractionPathFullName);
