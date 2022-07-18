@@ -99,7 +99,7 @@ public class JsonFileWrapper : FileWrapper
         return false;
     }
 
-    private async Task LoadFile(bool forceRead = false)
+    public async Task LoadFileAsync(bool forceRead = false)
     {
         await _asyncLock.Lock(async () =>
         {
@@ -110,21 +110,34 @@ public class JsonFileWrapper : FileWrapper
                 {
                     _fileContent = JObject.Parse(await r.ReadToEndAsync());
                 }
-                catch (Exception ex) when (ex is IOException or JsonException)
+                catch (Exception ex) when (ex is IOException or JsonException or JsonReaderException)
                 {
                     _fileContent = JObject.Parse("{  }");
-                }
-                finally
-                {
-                    r?.Close();
                 }
             }
         });
     }
 
+    public void LoadFile(bool forceRead = false)
+    {
+        if ((_fileContent == null || forceRead) && !IsFileLocked(_fileInfo))
+        {
+            using StreamReader r = new(FullName);
+            try
+            {
+                _fileContent = JObject.Parse(r.ReadToEnd());
+            }
+            catch (Exception ex) when (ex is IOException or JsonException or JsonReaderException)
+            {
+                _fileContent = JObject.Parse("{  }");
+            }
+        }
+    }
+
+
     public async Task<(T? Result, bool Success)> ReadKeyAsync<T>(string fieldName, bool forceRead = false)
     {
-        await LoadFile(forceRead);
+        await LoadFileAsync(forceRead);
 
         if (_fileContent?[fieldName] is not null)
         {

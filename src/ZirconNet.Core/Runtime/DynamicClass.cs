@@ -8,7 +8,17 @@ public class DynamicClass : DynamicObject
     public DynamicClass(List<DynamicClassField> fields)
     {
         _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
-        fields.ForEach(x => _fields.Add(x.FieldName, new KeyValuePair<Type, object?>(x.FieldType, x.Value)));
+        foreach (var field in fields)
+        {
+            try
+            {
+                var first = _fields.Single(x => x.Key == field.FieldName);
+            }
+            catch (Exception ex) when (ex is ArgumentNullException or InvalidOperationException)
+            {
+                _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
+            }
+        }
     }
 
     public override bool TrySetMember(SetMemberBinder binder, object? value)
