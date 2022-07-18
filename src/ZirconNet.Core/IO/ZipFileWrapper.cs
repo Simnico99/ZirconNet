@@ -9,8 +9,6 @@ public class ZipFileWrapper : FileWrapper
 {
     public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
     public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();
-
-
     public ZipFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
     public ZipFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
 
@@ -52,7 +50,6 @@ public class ZipFileWrapper : FileWrapper
 
     public int Count()
     {
-
         using var archive = ZipFile.OpenRead(FullName);
         var count = archive.Entries.Count;
         archive.Dispose();
@@ -60,4 +57,3 @@ public class ZipFileWrapper : FileWrapper
         return count;
     }
 }
-
