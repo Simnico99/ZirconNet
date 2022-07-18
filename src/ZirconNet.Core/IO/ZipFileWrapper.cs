@@ -14,7 +14,6 @@ public class ZipFileWrapper : FileWrapper
 
     public async Task UnzipAsync(string extractionPath)
     {
-
         using var archive = ZipFile.OpenRead(FullName);
         foreach (var zipArchiveEntry in archive.Entries)
         {
