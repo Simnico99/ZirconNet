@@ -103,5 +103,35 @@ public class FileWrapper : FileSystemInfo
             _fileInfo.Delete();
         }
     }
+
+    public StreamWriter AppendText() 
+    {
+        return _fileInfo.AppendText();
+    }
+
+    public StreamWriter CreateText()
+    {
+        return _fileInfo.CreateText();
+    }
+
+    public StreamReader OpenText()
+    {
+        return _fileInfo.OpenText();
+    }
+
+    public FileStream Open(FileMode fileMode, FileAccess access = default, FileShare share = default)
+    {
+        return _fileInfo.Open(fileMode, access, share);
+    }
+
+    public FileStream OpenRead()
+    {
+        return _fileInfo.OpenRead();
+    }
+
+    public FileStream OpenWrite()
+    {
+        return _fileInfo.OpenWrite();
+    }
 }
 

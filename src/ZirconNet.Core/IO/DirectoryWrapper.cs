@@ -106,4 +106,35 @@ public class DirectoryWrapper : FileSystemInfo
             _directoryInfo.Delete(true);
         }
     }
+
+    public IEnumerable<FileWrapper> EnumerateFiles() 
+    {
+        foreach (var file in _directoryInfo.EnumerateFiles())
+        { 
+            yield return new FileWrapper(file, false);
+        }
+    }
+
+    public IEnumerable<DirectoryWrapper> EnumerateDirectories()
+    {
+        foreach (var directory in _directoryInfo.EnumerateDirectories())
+        {
+            yield return new DirectoryWrapper(directory, false);
+        }
+    }
+
+    public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos() 
+    {
+        return _directoryInfo.EnumerateFileSystemInfos();
+    }
+
+    public DirectorySecurity GetAccessControl() 
+    {
+        return _directoryInfo.GetAccessControl();
+    }
+
+    public void SetAccessControl(DirectorySecurity directorySecurity)
+    {
+        _directoryInfo.SetAccessControl(directorySecurity);
+    }
 }
