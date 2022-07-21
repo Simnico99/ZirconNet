@@ -25,37 +25,14 @@ public class DirectoryWrapper : FileSystemInfo
         _directoryInfo = createDirectory ? Create(directory.FullName, overwrite) : directory;
     }
 
-    public bool IsDirectoryWritable()
+    public bool CanModify()
     {
         try
         {
-            var acl = _directoryInfo.GetAccessControl();
-            var rules = acl.GetAccessRules(true, true, typeof(NTAccount));
-
-            var currentUser = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new(currentUser);
-            foreach (AuthorizationRule? rule in rules)
-            {
-                if (rule is not FileSystemAccessRule fsAccessRule || fsAccessRule.FileSystemRights != FileSystemRights.FullControl || rule.IdentityReference is null)
-                {
-                    continue;
-                }
-
-                var ntAccount = (NTAccount)rule.IdentityReference;
-
-                if (ntAccount == null || !principal.IsInRole(ntAccount.Value))
-                {
-                    continue;
-                }
-
-                if (ntAccount.Value == @"BUILTIN\Utilisateurs")
-                {
-                    return true;
-                }
-            }
-            return false;
+            _ = _directoryInfo.GetAccessControl(AccessControlSections.All);
+            return true;
         }
-        catch (UnauthorizedAccessException)
+        catch (PrivilegeNotHeldException)
         {
             return false;
         }
@@ -107,10 +84,10 @@ public class DirectoryWrapper : FileSystemInfo
         }
     }
 
-    public IEnumerable<FileWrapper> EnumerateFiles() 
+    public IEnumerable<FileWrapper> EnumerateFiles()
     {
         foreach (var file in _directoryInfo.EnumerateFiles())
-        { 
+        {
             yield return new FileWrapper(file, false);
         }
     }
@@ -123,12 +100,36 @@ public class DirectoryWrapper : FileSystemInfo
         }
     }
 
-    public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos() 
+    public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos()
     {
         return _directoryInfo.EnumerateFileSystemInfos();
     }
 
-    public DirectorySecurity GetAccessControl() 
+    public DirectoryWrapper[] GetDirectories()
+    {
+        var directoryWrappers = new DirectoryWrapper[_directoryInfo.GetDirectories().Length];
+        var directoryInfos = _directoryInfo.GetDirectories();
+        for (var i = 0; i < directoryInfos.Length; i++)
+        {
+            var directoryInfo = directoryInfos[i];
+            directoryWrappers[i] = new DirectoryWrapper(directoryInfo, false);
+        }
+        return directoryWrappers;
+    }
+
+    public FileWrapper[] GetFiles()
+    {
+        var fileWrappers = new FileWrapper[_directoryInfo.GetFiles().Length];
+        var filedInfos = _directoryInfo.GetFiles();
+        for (var i = 0; i < filedInfos.Length; i++)
+        {
+            var fileInfo = filedInfos[i];
+            fileWrappers[i] = new FileWrapper(fileInfo, false);
+        }
+        return fileWrappers;
+    }
+
+    public DirectorySecurity GetAccessControl()
     {
         return _directoryInfo.GetAccessControl();
     }
