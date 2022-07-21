@@ -83,9 +83,9 @@ public class JsonFileWrapper : FileWrapper
         return _fileContent;
     }
 
-    public void AddJsonObject(JObject jobject)
+    public void MergeJsonObject(JObject jobject)
     {
-        _fileContent?.Add(jobject);
+        _fileContent?.Merge(jobject);
     }
 
     private async Task<bool> IsFileLockedAsync()
