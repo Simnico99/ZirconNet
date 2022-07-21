@@ -25,19 +25,6 @@ public class DirectoryWrapper : FileSystemInfo
         _directoryInfo = createDirectory ? Create(directory.FullName, overwrite) : directory;
     }
 
-    public bool CanModify()
-    {
-        try
-        {
-            _ = _directoryInfo.GetAccessControl(AccessControlSections.All);
-            return true;
-        }
-        catch (PrivilegeNotHeldException)
-        {
-            return false;
-        }
-    }
-
     private static DirectoryInfo Create(string path, bool overwrite = false)
     {
         if (Directory.Exists(path) && overwrite)

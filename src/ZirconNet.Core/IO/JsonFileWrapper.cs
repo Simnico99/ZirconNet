@@ -73,6 +73,21 @@ public class JsonFileWrapper : FileWrapper
         }
     }
 
+    public JObject GetJsonObject()
+    {
+        if (_fileContent is null)
+        {
+            return new();
+        }
+
+        return _fileContent;
+    }
+
+    public void AddJsonObject(JObject jobject)
+    {
+        _fileContent?.Add(jobject);
+    }
+
     private async Task<bool> IsFileLockedAsync()
     {
         var canContinue = false;
