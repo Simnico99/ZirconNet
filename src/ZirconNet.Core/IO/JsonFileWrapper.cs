@@ -114,6 +114,11 @@ public class JsonFileWrapper : FileWrapper
         return false;
     }
 
+    public void Clear() 
+    {
+        _fileContent = new();
+    }
+
     public async Task LoadFileAsync(bool forceRead = false)
     {
         await _asyncLock.Lock(async () =>
