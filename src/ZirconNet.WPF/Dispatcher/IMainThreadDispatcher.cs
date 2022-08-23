@@ -3,6 +3,6 @@
 public interface IMainThreadDispatcher
 {
     void Invoke(Action action);
-    Task InvokeAsync(Action action);
-    Task<T> InvokeAsync<T>(Func<T> func);
+    ValueTask InvokeAsync(Action action);
+    ValueTask<T> InvokeAsync<T>(Func<T> func);
 }

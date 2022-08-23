@@ -11,14 +11,15 @@ public class JarFileWrapper : FileWrapper
 
     public Process Run()
     {
-        Process clientProcess = new();
-
-        clientProcess.StartInfo = new ProcessStartInfo
+        Process clientProcess = new()
         {
-            FileName = "java",
-            Arguments = $@"-jar {FullName} ",
-            UseShellExecute = false,
-            CreateNoWindow = true
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "java",
+                Arguments = $@"-jar {FullName} ",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
         };
         clientProcess.Start();
 

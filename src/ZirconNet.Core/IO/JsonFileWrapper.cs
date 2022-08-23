@@ -154,7 +154,7 @@ public class JsonFileWrapper : FileWrapper
         }
     }
 
-    public async Task<(T? Result, bool Success)> ReadKeyAsync<T>(string fieldName, bool forceRead = false)
+    public async ValueTask<(T? Result, bool Success)> ReadKeyAsync<T>(string fieldName, bool forceRead = false)
     {
         await LoadFileAsync(forceRead);
 

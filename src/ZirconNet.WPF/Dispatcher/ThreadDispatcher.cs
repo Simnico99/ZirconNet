@@ -1,23 +1,33 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
-public sealed class MainThreadDispatcher : IMainThreadDispatcher
+public class ThreadDispatcher
 {
+    private static readonly ThreadDispatcher _instance = new();
+    public static ThreadDispatcher GetCurrent => _instance;
+
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
+    
 
-    public MainThreadDispatcher()
+    private ThreadDispatcher()
     {
-        _mainThreadId = Environment.CurrentManagedThreadId;
+        _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
         _dispatcher = Application.Current.Dispatcher;
     }
 
     public void Invoke(Action action)
     {
-        if (Environment.CurrentManagedThreadId == _mainThreadId)
+        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
         {
             action();
-
             return;
         }
 
@@ -26,10 +36,9 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
 
     public async ValueTask InvokeAsync(Action action)
     {
-        if (Environment.CurrentManagedThreadId == _mainThreadId)
+        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
         {
             action();
-
             return;
         }
 
@@ -38,7 +47,7 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
 
     public async ValueTask<T> InvokeAsync<T>(Func<T> func)
     {
-        if (Environment.CurrentManagedThreadId == _mainThreadId)
+        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
         {
             return func();
         }
