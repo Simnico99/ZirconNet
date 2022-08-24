@@ -24,6 +24,7 @@ public class AsyncQueue
 
         _queuedActions.AddThreadSafe(actionToRun);
         await _semaphoreSlim.WaitAsync();
+
         _ = Task.Run(async () =>
         {
             try

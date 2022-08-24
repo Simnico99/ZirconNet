@@ -40,4 +40,21 @@ public class WeakEvent<T> : IWeakEvent<T>
             }
         }).ConfigureAwait(configureAwait);
     }
+
+    public virtual void Publish(T data)
+    {
+        _ = Task.Run(() =>
+        {
+            lock (_locker)
+            {
+                foreach (var (EventType, MethodToCall) in _eventRegistrations)
+                {
+                    if (EventType == typeof(T))
+                    {
+                        ((Action<T>)MethodToCall)(data);
+                    }
+                }
+            }
+        });
+    }
 }

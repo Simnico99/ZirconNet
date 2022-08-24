@@ -11,7 +11,7 @@ namespace ZirconNet.WPF.Dispatcher;
 public class ThreadDispatcher
 {
     private static readonly ThreadDispatcher _instance = new();
-    public static ThreadDispatcher GetCurrent => _instance;
+    public static ThreadDispatcher Current => _instance;
 
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
