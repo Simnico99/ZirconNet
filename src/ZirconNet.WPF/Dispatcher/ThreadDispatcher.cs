@@ -16,7 +16,6 @@ public class ThreadDispatcher
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     
-
     private ThreadDispatcher()
     {
         _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
