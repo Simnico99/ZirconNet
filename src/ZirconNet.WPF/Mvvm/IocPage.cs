@@ -46,18 +46,14 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindType is null || pageDataContextAttribute.PagesToBindType.Length <= 0)
+            if (pageDataContextAttribute.PagesToBindName is null)
             {
                 yield return viewModel;
                 continue;
             }
-            
-            foreach(var type in pageDataContextAttribute.PagesToBindType)
+            if (pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
             {
-                if (type.IsSameOrSubclassOf(GetType()))
-                {
-                    yield return viewModel;
-                }
+                yield return viewModel;
             }
         }
     }
