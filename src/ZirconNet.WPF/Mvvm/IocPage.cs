@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page
 {
-    private static KeyValuePair<Type, ViewModel>[] _servicesCache = Array.Empty<KeyValuePair<Type, ViewModel>>();
+    private static ViewModel[] _servicesCache = Array.Empty<ViewModel>();
 
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
@@ -16,14 +16,15 @@ public class IocPage : Page
         for (var i = 0; i < currentDataContexts.Length; i++)
         {
             var context = currentDataContexts[i];
-            fields[i] = new DynamicClassField(context.Key.Name, context.Key, context.Value);
+            var contextType = context.GetType();
+            fields[i] = new DynamicClassField(contextType.Name, contextType, context);
         }
 
-        var dynamicClass = new DynamicClass(in fields);
+        var dynamicClass = new DynamicClass(fields);
         DataContext = dynamicClass;
     }
 
-    private IEnumerable<KeyValuePair<Type, ViewModel>> GetPagesDataContextInternal(IServiceProvider servicesProvider, IServiceCollection services)
+    private IEnumerable<ViewModel> GetPagesDataContextInternal(IServiceProvider servicesProvider, IServiceCollection services)
     {
         foreach (var service in services)
         {
@@ -45,20 +46,23 @@ public class IocPage : Page
                 continue;
             }
 
-            if(pageDataContextAttribute.PagesToBindName is null)
+            if (pageDataContextAttribute.PagesToBindType is null)
             {
-                yield return new(viewModel.GetType(), viewModel);
+                yield return viewModel;
                 continue;
             }
-
-            if (pageDataContextAttribute.PagesToBindName.Contains(GetType()))
+            
+            foreach(var types in pageDataContextAttribute.PagesToBindType)
             {
-                yield return new(viewModel.GetType(), viewModel);
+                if (types.GetType() == GetType())
+                {
+                    yield return viewModel;
+                }
             }
         }
     }
 
-    public KeyValuePair<Type, ViewModel>[] GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
+    public ViewModel[] GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
         if (_servicesCache.Length <= 0)
         {
