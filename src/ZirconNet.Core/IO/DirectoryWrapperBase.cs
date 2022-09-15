@@ -58,9 +58,10 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
             foreach (var folder in _directoryInfo.GetDirectories())
             {
                 var folderModel = new DirectoryWrapper(folder, false);
-                folderModel.CopyingFile.Subscribe((x) => CopyingFile.PublishAsync(x));
-                folderModel.CopiedFile.Subscribe((x) => CopiedFile.PublishAsync(x));
-                await folderModel.CopyContentAsync(destination);
+
+                using (folderModel.CopyingFile.Subscribe((x) => CopyingFile.PublishAsync(x)))
+                using (folderModel.CopiedFile.Subscribe((x) => CopiedFile.PublishAsync(x)))
+                    await folderModel.CopyContentAsync(destination);
             }
         }
     }

@@ -37,6 +37,6 @@ public abstract class AwaitableViewModel : ViewModel
     internal void RegisterViewModelReady()
     {
         _startupTcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-        ReadyEvent.Subscribe((_) => _startupTcs!.TrySetResult(new object()));
+        using (ReadyEvent.Subscribe((_) => _startupTcs!.TrySetResult(new object()))) { };
     }
 }
