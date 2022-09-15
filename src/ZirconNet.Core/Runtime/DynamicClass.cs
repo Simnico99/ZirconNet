@@ -21,7 +21,7 @@ public sealed class DynamicClass : DynamicObject
         }
     }
 
-    public DynamicClass(DynamicClassField[] fields)
+    public DynamicClass(in DynamicClassField[] fields)
     {
         _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
         foreach (var field in fields)

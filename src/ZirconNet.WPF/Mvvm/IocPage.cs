@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page
 {
-    private static KeyValuePair<Type, ViewModel>[]? _servicesCache = null;
+    private static KeyValuePair<Type, ViewModel>[] _servicesCache = Array.Empty<KeyValuePair<Type, ViewModel>>();
 
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
@@ -19,7 +19,7 @@ public class IocPage : Page
             fields[i] = new DynamicClassField(context.Key.Name, context.Key, context.Value);
         }
 
-        var dynamicClass = new DynamicClass(fields);
+        var dynamicClass = new DynamicClass(in fields);
         DataContext = dynamicClass;
     }
 
@@ -45,7 +45,13 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindName is null || pageDataContextAttribute.PagesToBindName.Contains(GetType()))
+            if(pageDataContextAttribute.PagesToBindName is null)
+            {
+                yield return new(viewModel.GetType(), viewModel);
+                continue;
+            }
+
+            if (pageDataContextAttribute.PagesToBindName.Contains(GetType()))
             {
                 yield return new(viewModel.GetType(), viewModel);
             }
@@ -54,9 +60,10 @@ public class IocPage : Page
 
     public KeyValuePair<Type, ViewModel>[] GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
-        if (_servicesCache is null)
+        if (_servicesCache.Length <= 0)
         {
-            return _servicesCache = GetPagesDataContextInternal(servicesProvider, services).ToArray();
+            _servicesCache = GetPagesDataContextInternal(servicesProvider, services).ToArray();
+            return _servicesCache;
         }
         return _servicesCache;
     }
