@@ -46,7 +46,7 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindType is null)
+            if (pageDataContextAttribute.PagesToBindType.Length <= 0)
             {
                 yield return viewModel;
                 continue;
@@ -54,7 +54,7 @@ public class IocPage : Page
             
             foreach(var type in pageDataContextAttribute.PagesToBindType)
             {
-                if (type.Name == GetType().Name)
+                if (type.IsSameOrSubclassOf(GetType()))
                 {
                     yield return viewModel;
                 }
