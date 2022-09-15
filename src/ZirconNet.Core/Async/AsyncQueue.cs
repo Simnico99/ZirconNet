@@ -29,8 +29,7 @@ public sealed class AsyncQueue
         {
             try
             {
-                var runningTask = actionToRun.Invoke();
-                await runningTask;
+                await actionToRun.Invoke();
             }
             finally
             {

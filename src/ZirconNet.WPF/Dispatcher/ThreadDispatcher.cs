@@ -41,7 +41,7 @@ public sealed class ThreadDispatcher
             return;
         }
 
-        await _dispatcher.InvokeAsync(action).Task;
+        await _dispatcher.InvokeAsync(action);
     }
 
     public async ValueTask<T> InvokeAsync<T>(Func<T> func)

@@ -16,7 +16,7 @@ public class IocPage : Page
             var contextModel = context.Value;
             if (contextModel is not null && contextName is not null)
             {
-                fields.Add(new DynamicClassField(contextName, contextModel.GetType(), contextModel));
+                fields.Add(new DynamicClassField(contextName.Name, contextModel.GetType(), contextModel));
             }
         }
 
@@ -24,7 +24,7 @@ public class IocPage : Page
         DataContext = dynamicClass;
     }
 
-    private IEnumerable<KeyValuePair<string?, ViewModel?>> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
+    private IEnumerable<KeyValuePair<Type?, ViewModel?>> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
         foreach (var service in services)
         {
@@ -43,13 +43,13 @@ public class IocPage : Page
 
             if (pageDataContextAttribute.PagesToBindName is null)
             {
-                yield return new(viewModel?.GetType().Name, viewModel);
+                yield return new(viewModel?.GetType(), viewModel);
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
+            if (pageDataContextAttribute.PagesToBindName.Contains(GetType()))
             {
-                yield return new(viewModel?.GetType().Name, viewModel);
+                yield return new(viewModel?.GetType(), viewModel);
             }
         }
     }

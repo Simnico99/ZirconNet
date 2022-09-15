@@ -1,7 +1,7 @@
 ﻿namespace ZirconNet.Core.Extensions;
-public static class ListExtension
+public static class CollectionExtension
 {
-    public static void AddThreadSafe<T>(this IList<T> list, T value)
+    public static void AddThreadSafe<T>(this ICollection<T> list, T value)
     {
         lock (list)
         {
@@ -9,7 +9,7 @@ public static class ListExtension
         }
     }
 
-    public static void RemoveThreadSafe<T>(this IList<T> list, T value)
+    public static void RemoveThreadSafe<T>(this ICollection<T> list, T value)
     {
         lock (list)
         {
@@ -17,7 +17,7 @@ public static class ListExtension
         }
     }
 
-    public static int CountThreadSafe<T>(this IList<T> list)
+    public static int CountThreadSafe<T>(this ICollection<T> list)
     {
         lock (list)
         {
