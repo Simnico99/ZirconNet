@@ -1,5 +1,5 @@
 ﻿namespace ZirconNet.Core.Runtime;
-public struct DynamicClassField
+public readonly struct DynamicClassField
 {
     public DynamicClassField(string name, Type type, object? value = null)
     {
