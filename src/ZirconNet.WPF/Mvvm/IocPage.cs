@@ -34,7 +34,7 @@ public class IocPage : Page
             }
 
             var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
-            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
+            var attribute = service.ServiceType.GetType().GetCustomAttribute<PageDataContextAttribute>();
 
             if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
             {
@@ -46,7 +46,7 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindType.Length <= 0)
+            if (pageDataContextAttribute.PagesToBindType is null || pageDataContextAttribute.PagesToBindType.Length <= 0)
             {
                 yield return viewModel;
                 continue;
