@@ -2,7 +2,7 @@
 using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Async;
-public class AsyncQueue
+public sealed class AsyncQueue
 {
     private readonly SemaphoreSlim _semaphoreSlim;
     private readonly SemaphoreSlim _lockSemaphore = new(1, 1);

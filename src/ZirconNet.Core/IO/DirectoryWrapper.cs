@@ -6,9 +6,9 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
-public class DirectoryWrapper : FileSystemInfo
+public sealed class DirectoryWrapper : FileSystemInfo
 {
-    protected DirectoryInfo _directoryInfo;
+    private readonly DirectoryInfo _directoryInfo;
     public override string FullName => _directoryInfo.FullName;
     public override string Name => _directoryInfo.Name;
     public override bool Exists => _directoryInfo.Exists;

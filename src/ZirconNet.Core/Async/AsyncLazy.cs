@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace ZirconNet.Core.Async;
-public class AsyncLazy<T> : Lazy<Task<T>>
+public sealed class AsyncLazy<T> : Lazy<Task<T>>
 {
     public AsyncLazy(Func<T> valueFactory) :
         base(() => Task.Factory.StartNew(valueFactory))

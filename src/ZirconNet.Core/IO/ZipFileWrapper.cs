@@ -5,7 +5,7 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
-public class ZipFileWrapper : FileWrapper
+public sealed class ZipFileWrapper : FileWrapper
 {
     public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
     public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();

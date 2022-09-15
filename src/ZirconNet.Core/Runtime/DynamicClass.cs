@@ -1,7 +1,7 @@
 ﻿using System.Dynamic;
 
 namespace ZirconNet.Core.Runtime;
-public class DynamicClass : DynamicObject
+public sealed class DynamicClass : DynamicObject
 {
     private readonly Dictionary<string, KeyValuePair<Type, object?>> _fields;
 

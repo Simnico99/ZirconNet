@@ -1,5 +1,5 @@
 ﻿namespace ZirconNet.Core.Runtime;
-public class DynamicClassField
+public sealed class DynamicClassField
 {
     public DynamicClassField(string name, Type type, object? value = null)
     {

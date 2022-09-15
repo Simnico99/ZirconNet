@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
-public class ThreadDispatcher
+public sealed class ThreadDispatcher
 {
     private static readonly ThreadDispatcher _instance = new();
     public static ThreadDispatcher Current => _instance;
