@@ -52,9 +52,9 @@ public class IocPage : Page
                 continue;
             }
             
-            foreach(var types in pageDataContextAttribute.PagesToBindType)
+            foreach(var type in pageDataContextAttribute.PagesToBindType)
             {
-                if (types.GetType() == GetType())
+                if (type.Name == GetType().Name)
                 {
                     yield return viewModel;
                 }
