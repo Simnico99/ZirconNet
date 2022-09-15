@@ -16,7 +16,7 @@ public class IocPage : Page
         for (var i = 0; i < currentDataContexts.Length; i++)
         {
             var context = currentDataContexts[i];
-            fields[i] = new DynamicClassField(context.Key.Name, context.Value.GetType(), context.Value);
+            fields[i] = new DynamicClassField(context.Key.Name, context.Key, context.Value);
         }
 
         var dynamicClass = new DynamicClass(in fields);
@@ -45,13 +45,7 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindName is null)
-            {
-                yield return new(viewModel.GetType(), viewModel);
-                continue;
-            }
-
-            if (pageDataContextAttribute.PagesToBindName.Contains(GetType()))
+            if (pageDataContextAttribute.PagesToBindName is null || pageDataContextAttribute.PagesToBindName.Contains(GetType()))
             {
                 yield return new(viewModel.GetType(), viewModel);
             }
