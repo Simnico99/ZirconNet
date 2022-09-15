@@ -6,7 +6,7 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
-public sealed class JsonFileWrapper : FileWrapper
+public sealed class JsonFileWrapper : FileWrapperBase
 {
     private JObject? _fileContent;
     private static readonly AsyncLock _asyncLock = new();

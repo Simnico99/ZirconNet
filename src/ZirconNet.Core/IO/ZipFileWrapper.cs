@@ -5,7 +5,7 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
-public sealed class ZipFileWrapper : FileWrapper
+public sealed class ZipFileWrapper : FileWrapperBase
 {
     private const char _slash = '/';
     private const char _backSlash = '\\';
