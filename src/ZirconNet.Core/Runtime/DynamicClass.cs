@@ -26,14 +26,7 @@ public sealed class DynamicClass : DynamicObject
         _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
         foreach (var field in fields)
         {
-            try
-            {
-                var first = _fields.Single(x => x.Key == field.FieldName);
-            }
-            catch (Exception ex) when (ex is ArgumentNullException or InvalidOperationException)
-            {
-                _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
-            }
+            _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
         }
     }
 
