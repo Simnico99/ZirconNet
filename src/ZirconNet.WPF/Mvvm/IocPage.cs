@@ -19,7 +19,7 @@ public class IocPage : Page
             fields[i] = new DynamicClassField(context.Key.Name, context.Key, context.Value);
         }
 
-        var dynamicClass = new DynamicClass(in fields);
+        var dynamicClass = new DynamicClass(fields);
         DataContext = dynamicClass;
     }
 
