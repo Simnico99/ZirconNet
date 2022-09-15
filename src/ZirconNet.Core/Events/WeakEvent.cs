@@ -5,7 +5,6 @@ public sealed class WeakEvent : WeakEventBase, IWeakEvent
 {
     public Subscription Subscribe(Action action)
     {
-
         return SubscribeInternal<byte>((_) => action());
     }
 
