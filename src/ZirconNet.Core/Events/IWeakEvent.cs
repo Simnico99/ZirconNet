@@ -1,14 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Events;
-
-public interface IWeakEvent<T>
-{
-    void Publish(T data);
-    ConfiguredTaskAwaitable PublishAsync(T data, bool awaitAllCalls = false);
-    Subscription Subscribe(Action<T> action);
-}
-
 public interface IWeakEvent
 {
     void Publish();
