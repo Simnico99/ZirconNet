@@ -3,7 +3,7 @@ using ZirconNet.WPF.DependencyInjection;
 using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.WPF.Mvvm;
-public sealed class IocPage : Page
+public class IocPage : Page
 {
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
