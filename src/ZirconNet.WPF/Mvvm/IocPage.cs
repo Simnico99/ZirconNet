@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page
 {
-    private static KeyValuePair<Type, ViewModel>[]? _servicesCache;
+    private static KeyValuePair<Type, ViewModel>[]? _servicesCache = null;
 
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
