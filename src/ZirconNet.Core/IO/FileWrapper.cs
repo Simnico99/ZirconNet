@@ -7,4 +7,3 @@ public sealed class FileWrapper : FileWrapperBase
     public FileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
     public FileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
 }
-

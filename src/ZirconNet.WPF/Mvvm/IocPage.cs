@@ -73,7 +73,6 @@ public class IocPage : Page
     {
         foreach (var service in services)
         {
-
             if (!service.ServiceType.IsSameOrSubclassOf(typeof(ViewModel)))
             {
                 continue;
