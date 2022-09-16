@@ -46,7 +46,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
             {
                 var jsonObject = _fileContent is not null ? _fileContent : JObject.Parse("{  }");
 
-                jsonObject.Remove(fieldToDelete);
+                _ = jsonObject.Remove(fieldToDelete);
                 _fileContent = jsonObject;
             }
         }
@@ -114,7 +114,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         return false;
     }
 
-    public void Clear() 
+    public void Clear()
     {
         _fileContent = new();
     }

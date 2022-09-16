@@ -15,6 +15,6 @@ public sealed class WeakEvent<T> : WeakEventBase, IWeakEvent<T>
 
     public void Publish(T data)
     {
-        PublishAsync(data);
+        _ = PublishAsync(data);
     }
 }

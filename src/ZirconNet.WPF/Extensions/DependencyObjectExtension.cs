@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Windows;
 using System.Windows.Media;
-using System.Windows;
 
 namespace ZirconNet.WPF.Extensions;
 public static class DependencyObjectExtension
@@ -56,7 +51,7 @@ public static class DependencyObjectExtension
                 yield return t;
             }
 
-            foreach (T childOfChild in FindLogicalChildren<T>(child))
+            foreach (var childOfChild in FindLogicalChildren<T>(child))
             {
                 yield return childOfChild;
             }

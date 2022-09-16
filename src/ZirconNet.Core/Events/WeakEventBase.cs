@@ -20,7 +20,7 @@ public abstract class WeakEventBase
         {
             lock (_locker)
             {
-                _eventRegistrations.Remove((typeof(T), action));
+                _ = _eventRegistrations.Remove((typeof(T), action));
             }
         });
     }

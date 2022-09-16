@@ -42,7 +42,7 @@ public sealed class ZipFileWrapper : FileWrapperBase
                 var extractionPathFullName = extractionPath + extractionName;
 
                 await Extracting.PublishAsync(extractionName);
-                Directory.CreateDirectory(extractionPathFullName);
+                _ = Directory.CreateDirectory(extractionPathFullName);
                 await Extracted.PublishAsync(extractionName);
             }
         }

@@ -1,5 +1,4 @@
 ﻿using System.Security.AccessControl;
-using System.Security.Principal;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
@@ -37,10 +36,8 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
             return new DirectoryInfo(path);
         }
 
-        Directory.CreateDirectory(path);
-        DirectoryInfo directory = new(path);
 
-        return directory;
+        return Directory.CreateDirectory(path);
     }
 
     public async Task CopyContentAsync(IDirectoryWrapperBase destination)
@@ -61,7 +58,9 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
                 using (folderModel.CopyingFile.Subscribe((x) => CopyingFile.PublishAsync(x)))
                 using (folderModel.CopiedFile.Subscribe((x) => CopiedFile.PublishAsync(x)))
+                {
                     await folderModel.CopyContentAsync(destination);
+                }
             }
         }
     }

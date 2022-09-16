@@ -13,7 +13,7 @@ public sealed class AsyncLock
         }
         finally
         {
-            _semaphore?.Release();
+            _ = (_semaphore?.Release());
         }
     }
 
@@ -26,7 +26,7 @@ public sealed class AsyncLock
         }
         finally
         {
-            _semaphore?.Release();
+            _ = (_semaphore?.Release());
         }
     }
 }

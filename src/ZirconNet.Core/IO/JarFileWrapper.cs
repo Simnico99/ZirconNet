@@ -21,7 +21,7 @@ public sealed class JarFileWrapper : FileWrapperBase
                 CreateNoWindow = true
             }
         };
-        clientProcess.Start();
+        _ = clientProcess.Start();
 
         return clientProcess;
     }

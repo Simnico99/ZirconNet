@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows;
 
 namespace ZirconNet.WPF.Dispatcher;
 public sealed class ThreadDispatcher
 {
-    private static readonly ThreadDispatcher _instance = new();
-    public static ThreadDispatcher Current => _instance;
+    public static ThreadDispatcher Current { get; } = new();
 
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
-    
+
     private ThreadDispatcher()
     {
         _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;

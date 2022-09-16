@@ -13,7 +13,7 @@ public static class CollectionExtension
     {
         lock (list)
         {
-            list.Remove(value);
+            _ = list.Remove(value);
         }
     }
 

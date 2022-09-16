@@ -33,12 +33,12 @@ public sealed class AsyncQueue
             }
             finally
             {
-                _semaphoreSlim.Release();
+                _ = _semaphoreSlim.Release();
                 _queuedActions.RemoveThreadSafe(actionToRun);
 
                 if (_queuedActions.CountThreadSafe() == 0)
                 {
-                    _lockSemaphore.Release();
+                    _ = _lockSemaphore.Release();
                 }
             }
         });
@@ -57,7 +57,7 @@ public sealed class AsyncQueue
         try
         {
             await _lockSemaphore.WaitAsync();
-            _lockSemaphore.Release();
+            _ = _lockSemaphore.Release();
         }
         catch (SemaphoreFullException e)
         {

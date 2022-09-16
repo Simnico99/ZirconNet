@@ -14,7 +14,7 @@ public abstract class AwaitableViewModel : ViewModel
 
     public void IsReady()
     {
-        ReadyEvent.PublishAsync(this);
+        _ = ReadyEvent.PublishAsync(this);
     }
 
     public Task WaitForReadyAsync(CancellationToken cancellationToken = default)
@@ -28,7 +28,7 @@ public abstract class AwaitableViewModel : ViewModel
         {
             if (state != null)
             {
-                ((TaskCompletionSource<object>)state).TrySetResult(new object());
+                _ = ((TaskCompletionSource<object>)state).TrySetResult(new object());
             }
         }, _startupTcs);
         return _startupTcs!.Task.ContinueWith((Task<object> _) => registration.Dispose(), cancellationToken);

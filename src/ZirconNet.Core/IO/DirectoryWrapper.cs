@@ -1,8 +1,4 @@
-﻿using System.Security.AccessControl;
-using System.Security.Principal;
-using ZirconNet.Core.Events;
-
-namespace ZirconNet.Core.IO;
+﻿namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
