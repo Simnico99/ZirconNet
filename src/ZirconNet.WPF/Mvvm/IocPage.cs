@@ -56,12 +56,12 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindName is null)
+            if (pageDataContextAttribute.PagesToBindType is null)
             {
                 viewModels.Add(viewModel);
                 continue;
             }
-            if (pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
+            if (pageDataContextAttribute.PagesToBindType.Contains(GetType()))
             {
                 viewModels.Add(viewModel);
             }
@@ -91,14 +91,18 @@ public class IocPage : Page
                 continue;
             }
 
-            if (pageDataContextAttribute.PagesToBindName is null)
+            if (pageDataContextAttribute.PagesToBindType is null)
             {
                 yield return viewModel;
                 continue;
             }
-            if (pageDataContextAttribute.PagesToBindName.Contains(GetType().Name))
+            foreach (var type in pageDataContextAttribute.PagesToBindType)
             {
-                yield return viewModel;
+                if (type == GetType())
+                {
+                    yield return viewModel;
+                    continue;
+                }
             }
         }
 #endif

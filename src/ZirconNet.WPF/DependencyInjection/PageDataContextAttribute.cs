@@ -3,7 +3,7 @@
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class PageDataContextAttribute : Attribute
 {
-    public IEnumerable<string>? PagesToBindName { get; }
+    public Type[]? PagesToBindType { get; }
     public PageDataContextAttribute() { }
 
     public PageDataContextAttribute(params Type[] pagesToBind)
@@ -12,6 +12,6 @@ public sealed class PageDataContextAttribute : Attribute
         {
             return;
         }
-        PagesToBindName = pagesToBind.Select(x => x.Name).ToList();
+        PagesToBindType = pagesToBind;
     }
 }
