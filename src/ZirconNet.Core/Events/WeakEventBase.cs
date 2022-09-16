@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace ZirconNet.Core.Events;
 public abstract class WeakEventBase
@@ -30,6 +31,15 @@ public abstract class WeakEventBase
         {
             lock (_locker)
             {
+#if NET5_0_OR_GREATER
+                foreach (var (EventType, MethodToCall) in CollectionsMarshal.AsSpan(_eventRegistrations))
+                {
+                    if (EventType == typeof(T))
+                    {
+                        ((Action<T>)MethodToCall)(data);
+                    }
+                }
+#else
                 foreach (var (EventType, MethodToCall) in _eventRegistrations)
                 {
                     if (EventType == typeof(T))
@@ -37,6 +47,7 @@ public abstract class WeakEventBase
                         ((Action<T>)MethodToCall)(data);
                     }
                 }
+#endif
             }
         }).ConfigureAwait(configureAwait);
     }
@@ -47,6 +58,15 @@ public abstract class WeakEventBase
         {
             lock (_locker)
             {
+#if NET5_0_OR_GREATER
+                foreach (var (EventType, MethodToCall) in CollectionsMarshal.AsSpan(_eventRegistrations))
+                {
+                    if (EventType == typeof(T))
+                    {
+                        ((Action<T>)MethodToCall)(data);
+                    }
+                }
+#else
                 foreach (var (EventType, MethodToCall) in _eventRegistrations)
                 {
                     if (EventType == typeof(T))
@@ -54,6 +74,7 @@ public abstract class WeakEventBase
                         ((Action<T>)MethodToCall)(data);
                     }
                 }
+#endif
             }
         });
     }

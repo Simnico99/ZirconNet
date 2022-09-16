@@ -26,7 +26,6 @@ public sealed class DynamicClass : DynamicObject
         _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
         foreach (var field in fields)
         {
-
                 _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
         }
     }
