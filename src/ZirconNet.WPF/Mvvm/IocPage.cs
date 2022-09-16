@@ -3,6 +3,7 @@ using ZirconNet.WPF.DependencyInjection;
 using ZirconNet.Core.Extensions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page
@@ -44,7 +45,7 @@ public class IocPage : Page
             }
 
             var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
-            var attribute = service.ServiceType.GetType().GetCustomAttribute<PageDataContextAttribute>();
+            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
 
             if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
             {
@@ -79,7 +80,7 @@ public class IocPage : Page
             }
 
             var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
-            var attribute = service.ServiceType.GetType().GetCustomAttribute<PageDataContextAttribute>();
+            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
 
             if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
             {
