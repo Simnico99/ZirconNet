@@ -24,7 +24,7 @@ public sealed class ThreadDispatcher
 
     public void Invoke(Action action)
     {
-        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
+        if (_mainThreadId == Environment.CurrentManagedThreadId)
         {
             action();
             return;
@@ -35,7 +35,7 @@ public sealed class ThreadDispatcher
 
     public async ValueTask InvokeAsync(Action action)
     {
-        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
+        if (_mainThreadId == Environment.CurrentManagedThreadId)
         {
             action();
             return;
@@ -46,7 +46,7 @@ public sealed class ThreadDispatcher
 
     public async ValueTask<T> InvokeAsync<T>(Func<T> func)
     {
-        if (_mainThreadId == Thread.CurrentThread.ManagedThreadId)
+        if (_mainThreadId == Environment.CurrentManagedThreadId)
         {
             return func();
         }
