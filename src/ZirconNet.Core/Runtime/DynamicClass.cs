@@ -5,23 +5,7 @@ public sealed class DynamicClass : DynamicObject
 {
     private readonly Dictionary<string, KeyValuePair<Type, object?>> _fields;
 
-    public DynamicClass(List<DynamicClassField> fields)
-    {
-        _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
-        foreach (var field in fields)
-        {
-            try
-            {
-                var first = _fields.Single(x => x.Key == field.FieldName);
-            }
-            catch (Exception ex) when (ex is ArgumentNullException or InvalidOperationException)
-            {
-                _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
-            }
-        }
-    }
-
-    public DynamicClass(DynamicClassField[] fields)
+    public DynamicClass(IEnumerable<DynamicClassField> fields)
     {
         _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
         foreach (var field in fields)
@@ -48,22 +32,5 @@ public sealed class DynamicClass : DynamicObject
     {
         result = _fields[binder.Name].Value;
         return true;
-    }
-    public void SetFieldValue(string fieldName, object value)
-    {
-        var currentField = _fields.FirstOrDefault(x => x.Key == fieldName);
-        if (value.GetType() == currentField.Value.Key)
-        {
-            var newValue = new KeyValuePair<Type, object?>(currentField.Value.Key, value);
-            var key = _fields.Where(pair => pair.Key == fieldName)
-                                .Select(pair => pair.Key)
-                                .FirstOrDefault();
-            if (key is not null)
-            {
-                _fields[key] = newValue;
-            }
-            return;
-        }
-        throw new ArgumentException($"{value} type ({value?.GetType()}) is not the same as the Field ({currentField.Value.Key})", nameof(value));
     }
 }

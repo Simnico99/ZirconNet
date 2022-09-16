@@ -10,67 +10,11 @@ public class IocPage : Page
 {
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)
     {
-        var currentDataContexts = GetPageDataContexts(servicesProvider, services);
-        var i = 0;
-#if NET5_0_OR_GREATER
-        var fields = new DynamicClassField[currentDataContexts.Count];
-        foreach (var dataContext in CollectionsMarshal.AsSpan<ViewModel>(currentDataContexts))
-        {
-            var contextType = dataContext.GetType();
-            fields[i++] = new DynamicClassField(contextType.Name, contextType, dataContext);
-        }
-#else
-        var fields = new DynamicClassField[currentDataContexts.Count()];
-        foreach (var dataContext in currentDataContexts)
-        {
-            var contextType = dataContext.GetType();
-            fields[i++] = new DynamicClassField(contextType.Name, contextType, dataContext);
-        }
-#endif
-
-        var dynamicClass = new DynamicClass(fields);
+        var dynamicClass = new DynamicClass(GetPageDataContexts(servicesProvider, services));
         DataContext = dynamicClass;
     }
 
-#if NET5_0_OR_GREATER
-    private List<ViewModel> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
-    {
-        var viewModels = new List<ViewModel>();
-
-        foreach (var service in CollectionsMarshal.AsSpan(services.ToList()))
-        {
-            if (!service.ServiceType.IsSameOrSubclassOf(typeof(ViewModel)))
-            {
-                continue;
-            }
-
-            var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
-            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
-
-            if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
-            {
-                continue;
-            }
-
-            if (viewModel is null)
-            {
-                continue;
-            }
-
-            if (pageDataContextAttribute.PagesToBindType is null)
-            {
-                viewModels.Add(viewModel);
-                continue;
-            }
-            if (pageDataContextAttribute.PagesToBindType.Contains(GetType()))
-            {
-                viewModels.Add(viewModel);
-            }
-        }
-
-        return viewModels;
-#else
-    private IEnumerable<ViewModel> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
+    private IEnumerable<DynamicClassField> GetPageDataContexts(IServiceProvider servicesProvider, IServiceCollection services)
     {
         foreach (var service in services)
         {
@@ -79,33 +23,20 @@ public class IocPage : Page
                 continue;
             }
 
-            var viewModel = (ViewModel?)servicesProvider.GetService(service.ServiceType);
-            var attribute = viewModel?.GetType().GetCustomAttribute<PageDataContextAttribute>();
+            var viewModel = (ViewModel)servicesProvider.GetRequiredService(service.ServiceType);
+            var viewModelType = viewModel.GetType();
+            var attribute = viewModelType.GetCustomAttribute<PageDataContextAttribute>();
 
-            if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute))
+            if (attribute is not (not null and PageDataContextAttribute pageDataContextAttribute) || viewModel is null)
             {
                 continue;
             }
 
-            if (viewModel is null)
+            if (pageDataContextAttribute.PagesToBindType.Length <= 0 || pageDataContextAttribute.PagesToBindType.Contains(GetType()))
             {
+                yield return new DynamicClassField(viewModelType.Name, viewModelType, viewModel);
                 continue;
-            }
-
-            if (pageDataContextAttribute.PagesToBindType is null)
-            {
-                yield return viewModel;
-                continue;
-            }
-            foreach (var type in pageDataContextAttribute.PagesToBindType)
-            {
-                if (type == GetType())
-                {
-                    yield return viewModel;
-                    continue;
-                }
             }
         }
-#endif
     }
 }
