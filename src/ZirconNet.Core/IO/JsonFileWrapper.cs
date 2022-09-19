@@ -9,7 +9,7 @@ namespace ZirconNet.Core.IO;
 public sealed class JsonFileWrapper : FileWrapperBase
 {
     private JObject? _fileContent;
-    private static readonly AsyncLock _asyncLock = new();
+    private static readonly LockAsync _asyncLock = new();
 
     public JsonFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
     public JsonFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }

@@ -2,14 +2,14 @@
 using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Async;
-public sealed class AsyncQueue
+public sealed class QueueAsync
 {
     private readonly SemaphoreSlim _semaphoreSlim;
     private readonly SemaphoreSlim _lockSemaphore = new(1, 1);
     private readonly List<Func<Task>> _queuedActions = new();
     private readonly ILogger? _logger;
 
-    public AsyncQueue(int maximumThreads = 8, ILogger? logger = null)
+    public QueueAsync(int maximumThreads = 8, ILogger? logger = null)
     {
         _semaphoreSlim = new(maximumThreads);
         _logger = logger;

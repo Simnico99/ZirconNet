@@ -1,6 +1,6 @@
 ﻿namespace ZirconNet.Core.Async;
 
-public sealed class AsyncLock
+public sealed class LockAsync
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
 
