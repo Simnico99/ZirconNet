@@ -15,12 +15,12 @@ public static class AddBackgroundServiceExtension
     /// <typeparam name="T">The type to add.</typeparam>
     /// <param name="services">The service collection.</param>
     /// <returns>The service collection.</returns>
-    public static IServiceCollection AddBackgroundServices<T>(this IServiceCollection services) 
-        where T : BackgroundService
+    public static IServiceCollection AddBackgroundServices<TImplementation>(this IServiceCollection services) 
+        where TImplementation : BackgroundService
     {
-        services.AddSingleton<T>();
-        services.AddSingleton<BackgroundService, T>(x => x.GetRequiredService<T>());
-        services.AddSingleton<IHostedService, T>(x => x.GetRequiredService<T>());
+        services.AddSingleton<TImplementation>();
+        services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
+        services.AddSingleton<IHostedService, TImplementation>(x => x.GetRequiredService<TImplementation>());
 
         return services;
     }
@@ -29,13 +29,13 @@ public static class AddBackgroundServiceExtension
     /// Register the Services with itself, the provided interface, <see cref="IHostedService"/> and <see cref="BackgroundService"/>.
     /// </summary>
     /// <typeparam name="T">The type to add.</typeparam>
-    /// <param name="services">The service collection.</param>
-    /// <returns>The service collection.</returns>
+    /// <param name="services">The provided <see cref="IServiceCollection"/>.</param>
+    /// <returns>The provided <see cref="IServiceCollection"/></returns>
     public static IServiceCollection AddBackgroundServices<TService, TImplementation>(this IServiceCollection services) 
         where TService : class 
         where TImplementation : BackgroundService, TService
     {
-        services.AddSingleton<TService>();
+        services.AddSingleton<TImplementation>();
         services.AddSingleton<TService, TImplementation>(x => x.GetRequiredService<TImplementation>());
         services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
         services.AddSingleton<IHostedService, TImplementation>(x => x.GetRequiredService<TImplementation>());
