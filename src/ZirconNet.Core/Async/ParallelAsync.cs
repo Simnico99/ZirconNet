@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 namespace ZirconNet.Core.Async;
 public static class ParallelAsync
 {
-    public static Task ForEach<T>(this IEnumerable<T> source, ParallelOptions parallelOptions, Func<T, Task> body)
+    public static Task ForEach<T>(this IEnumerable<T> source, in ParallelAsyncOptions parallelOptions, Func<T, Task> body)
     {
+        var maxDegreeOfParallelism = parallelOptions.MaxDegreeOfParallelism;
+
         if (parallelOptions.MaxDegreeOfParallelism <= 0)
         {
-            parallelOptions.MaxDegreeOfParallelism = Environment.ProcessorCount;
+            maxDegreeOfParallelism = Environment.ProcessorCount;
         }
 
         async Task AwaitPartition(IEnumerator<T> partition)
