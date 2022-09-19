@@ -36,7 +36,6 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
             return new DirectoryInfo(path);
         }
 
-
         return Directory.CreateDirectory(path);
     }
 
