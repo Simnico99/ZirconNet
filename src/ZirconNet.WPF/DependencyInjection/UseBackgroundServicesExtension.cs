@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using ZirconNet.WPF.Dispatcher;
 
 namespace ZirconNet.WPF.DependencyInjection;
 public static class UseBackgroundServicesExtension
@@ -13,17 +14,17 @@ public static class UseBackgroundServicesExtension
 
     public static IHostBuilder UseBackgroundServices(this IHostBuilder builder) 
     {
-        builder.ConfigureServices((context, services) =>
-        {
-            foreach(var service in services)
+        builder.ConfigureServices((_, services) => ThreadDispatcher.Current.Invoke(() =>
             {
-                if (service is IHostedService hostedService)
+                foreach (var service in services)
                 {
-                    _taskFactory.StartNew(async () => await hostedService.StartAsync(_cts.Token));
-                    _runningHostedServices.Add(hostedService);
+                    if (service is IHostedService hostedService)
+                    {
+                        _taskFactory.StartNew(async () => await hostedService.StartAsync(_cts.Token));
+                        _runningHostedServices.Add(hostedService);
+                    }
                 }
-            }
-        });
+            }));
        
         Application.Current.Exit += CurrentExit;
         return builder;
