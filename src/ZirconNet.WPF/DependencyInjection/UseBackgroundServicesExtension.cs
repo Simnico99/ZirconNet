@@ -16,17 +16,20 @@ public static class UseBackgroundServicesExtension
     {
         ThreadDispatcher.Current.Invoke(() => builder.ConfigureServices((_, services) =>
             {
-                foreach (var service in services)
+                ThreadDispatcher.Current.Invoke(() =>
                 {
-                    if (service is IHostedService hostedService)
+                    foreach (var service in services)
                     {
-                        _taskFactory.StartNew(async () => await hostedService.StartAsync(_cts.Token));
-                        _runningHostedServices.Add(hostedService);
+                        if (service is IHostedService hostedService)
+                        {
+                            _taskFactory.StartNew(async () => await hostedService.StartAsync(_cts.Token));
+                            _runningHostedServices.Add(hostedService);
+                        }
                     }
-                }
-
-                Application.Current.Exit += CurrentExit;
+                });
             }));
+
+        Application.Current.Exit += CurrentExit;
 
         return builder;
     }
