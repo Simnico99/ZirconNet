@@ -12,9 +12,9 @@ public static class UseBackgroundServicesExtension
     private static readonly TaskFactory _taskFactory = new(_cts.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, null);
     private static readonly List<IHostedService> _runningHostedServices = new();
 
-    public static IHostBuilder UseBackgroundServices(this IHostBuilder builder) 
+    public static IHostBuilder UseBackgroundServices(this IHostBuilder builder)
     {
-        builder.ConfigureServices((_, services) => ThreadDispatcher.Current.Invoke(() =>
+        ThreadDispatcher.Current.Invoke(() => builder.ConfigureServices((_, services) =>
             {
                 foreach (var service in services)
                 {
@@ -24,9 +24,10 @@ public static class UseBackgroundServicesExtension
                         _runningHostedServices.Add(hostedService);
                     }
                 }
+
+                Application.Current.Exit += CurrentExit;
             }));
-       
-        Application.Current.Exit += CurrentExit;
+
         return builder;
     }
 
