@@ -26,7 +26,7 @@ steps:
     packagesToPush: '**/+(ZirconNet.WPF)*.nupkg;!**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NugetConnection'
-    
+
 - task: NuGetCommand@2
   displayName: Push to NuGet (ZirconNet.Console)
   condition: and(succeeded(), eq(variables['buildTag'], true))
