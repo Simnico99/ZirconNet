@@ -7,14 +7,14 @@ steps:
     configuration: Release
     packDirectory: '$(Build.ArtifactStagingDirectory)/packages'
     nobuild: true
-    packagesToPack: 'src\**\*.csproj;!src\**\+(MicaWPF.Demo)*.csproj'
+    packagesToPack: 'src\**\*.csproj;'
 
 - task: NuGetCommand@2
   displayName: Push to NuGet (ZirconNet.Core)
   condition: and(succeeded(), eq(variables['buildTag'], true))
   inputs:
     command: 'push'
-    packagesToPush: '**/+(ZirconNet)*.nupkg;!**/*.symbols.nupkg;!**/+(ZirconNet.WPF)*.nupkg'
+    packagesToPush: '**/+(ZirconNet.Core)*.nupkg;!**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NugetConnection'
 
@@ -24,5 +24,14 @@ steps:
   inputs:
     command: 'push'
     packagesToPush: '**/+(ZirconNet.WPF)*.nupkg;!**/*.symbols.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'NugetConnection'
+    
+- task: NuGetCommand@2
+  displayName: Push to NuGet (ZirconNet.Console)
+  condition: and(succeeded(), eq(variables['buildTag'], true))
+  inputs:
+    command: 'push'
+    packagesToPush: '**/+(ZirconNet.Console)*.nupkg;!**/*.symbols.nupkg'
     nuGetFeedType: 'external'
     publishFeedCredentials: 'NugetConnection'

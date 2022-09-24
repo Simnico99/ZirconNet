@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZirconNet.WPF.DependencyInjection;
+namespace ZirconNet.Core.DependencyInjection;
 public static class AddBackgroundServiceExtension
 {
     /// <summary>
