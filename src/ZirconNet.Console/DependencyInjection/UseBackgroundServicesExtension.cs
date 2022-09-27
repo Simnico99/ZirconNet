@@ -1,10 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Windows;
+﻿using Microsoft.Extensions.Hosting;
 
-namespace ZirconNet.WPF.DependencyInjection;
+namespace ZirconNet.Console.DependencyInjection;
 public static class UseBackgroundServicesExtension
 {
     private static readonly CancellationTokenSource _cts = new();
