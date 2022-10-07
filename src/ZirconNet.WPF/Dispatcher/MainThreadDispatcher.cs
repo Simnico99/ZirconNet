@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
 public sealed class MainThreadDispatcher : IMainThreadDispatcher
@@ -12,7 +13,7 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
         _dispatcher = Application.Current.Dispatcher;
     }
 
-    public void Invoke(Action action)
+    public void Invoke(Action action, DispatcherPriority dispatcherPriority = DispatcherPriority.Send)
     {
         if (Environment.CurrentManagedThreadId == _mainThreadId)
         {
@@ -21,10 +22,10 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
             return;
         }
 
-        _dispatcher.Invoke(action);
+        _dispatcher.Invoke(action, dispatcherPriority);
     }
 
-    public async ValueTask InvokeAsync(Action action)
+    public async ValueTask InvokeAsync(Action action, DispatcherPriority dispatcherPriority = DispatcherPriority.Send)
     {
         if (Environment.CurrentManagedThreadId == _mainThreadId)
         {
@@ -33,16 +34,16 @@ public sealed class MainThreadDispatcher : IMainThreadDispatcher
             return;
         }
 
-        await _dispatcher.InvokeAsync(action);
+        await _dispatcher.InvokeAsync(action, dispatcherPriority);
     }
 
-    public async ValueTask<T> InvokeAsync<T>(Func<T> func)
+    public async ValueTask<T> InvokeAsync<T>(Func<T> func, DispatcherPriority dispatcherPriority = DispatcherPriority.Send)
     {
         if (Environment.CurrentManagedThreadId == _mainThreadId)
         {
             return func();
         }
 
-        return await _dispatcher.InvokeAsync(func);
+        return await _dispatcher.InvokeAsync(func, dispatcherPriority);
     }
 }
