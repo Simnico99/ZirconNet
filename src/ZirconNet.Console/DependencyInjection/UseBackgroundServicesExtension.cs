@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZirconNet.Console.DependencyInjection;
 public static class UseBackgroundServicesExtension
@@ -10,16 +11,16 @@ public static class UseBackgroundServicesExtension
     public static IHostBuilder UseBackgroundServices(this IHostBuilder builder)
     {
         builder.ConfigureServices((_, services) =>
+        {
+            foreach (var service in services)
             {
-                foreach (var service in services)
+                if (service is IHostedService hostedService)
                 {
-                    if (service is IHostedService hostedService)
-                    {
-                        _taskFactory.StartNew(async () => await hostedService.StartAsync(_cts.Token));
-                        _runningHostedServices.Add(hostedService);
-                    }
+                    _taskFactory.StartNew(() => hostedService.StartAsync(_cts.Token), TaskCreationOptions.RunContinuationsAsynchronously | TaskCreationOptions.LongRunning);
+                    _runningHostedServices.Add(hostedService);
                 }
-            });
+            }
+        });
 
         return builder;
     }
