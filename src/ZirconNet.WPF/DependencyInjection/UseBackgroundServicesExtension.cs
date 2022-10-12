@@ -14,20 +14,19 @@ public static class UseBackgroundServicesExtension
 
     public static IHostBuilder UseBackgroundServices(this IHostBuilder builder)
     {
-        builder.ConfigureServices((_, services) =>
+        builder.ConfigureServices((context, services) =>
         {
             foreach (var service in services)
             {
                 if (service is IHostedService hostedService)
                 {
-                    _taskFactory.StartNew(() => hostedService.StartAsync(_cts.Token), TaskCreationOptions.RunContinuationsAsynchronously | TaskCreationOptions.LongRunning);
+                    _ = Task.Run(() => hostedService.StartAsync(_cts.Token));
                     _runningHostedServices.Add(hostedService);
                 }
             }
         });
 
         Application.Current.Exit += CurrentExit;
-
         return builder;
     }
 
