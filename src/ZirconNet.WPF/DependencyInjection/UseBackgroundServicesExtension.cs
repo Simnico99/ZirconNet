@@ -9,22 +9,21 @@ namespace ZirconNet.WPF.DependencyInjection;
 public static class UseBackgroundServicesExtension
 {
     private static readonly CancellationTokenSource _cts = new();
-    private static readonly TaskFactory _taskFactory = new(_cts.Token, TaskCreationOptions.LongRunning, TaskContinuationOptions.None, null);
     private static readonly List<IHostedService> _runningHostedServices = new();
 
     public static IHostBuilder UseBackgroundServices(this IHostBuilder builder)
     {
-        builder.ConfigureServices((context, services) =>
+        builder.ConfigureServices((context, services) => Task.Run(() =>
         {
             foreach (var service in services)
             {
                 if (service is IHostedService hostedService)
                 {
-                    _ = Task.Run(() => hostedService.StartAsync(_cts.Token));
+                    hostedService.StartAsync(_cts.Token);
                     _runningHostedServices.Add(hostedService);
                 }
             }
-        });
+        }));
 
         Application.Current.Exit += CurrentExit;
         return builder;
