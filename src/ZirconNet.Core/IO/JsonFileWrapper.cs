@@ -1,6 +1,5 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using ZirconNet.Core.Async;
+﻿using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
@@ -8,7 +7,7 @@ namespace ZirconNet.Core.IO;
 #endif
 public sealed class JsonFileWrapper : FileWrapperBase
 {
-    private JObject? _fileContent;
+    private JsonObject? _fileContent;
     private static readonly LockAsync _asyncLock = new();
 
     public JsonFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
@@ -25,10 +24,9 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToAdd] is null)
             {
-                var jsonObject = _fileContent is not null ? _fileContent : JObject.Parse("{  }");
+                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
 
-                jsonObject?.Add(new JProperty(fieldToAdd, value));
-                _fileContent = jsonObject;
+                _fileContent?.Add(fieldToAdd, value.ToString());
             }
         }
     }
@@ -44,10 +42,9 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToDelete] is not null)
             {
-                var jsonObject = _fileContent is not null ? _fileContent : JObject.Parse("{  }");
+                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
 
-                _ = jsonObject.Remove(fieldToDelete);
-                _fileContent = jsonObject;
+                _fileContent?.Remove(fieldToDelete);
             }
         }
     }
@@ -64,7 +61,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
             if (_fileContent?[fieldToModify] is not null)
             {
                 var token = _fileContent[fieldToModify];
-                token?.Replace(JToken.FromObject(value));
+                token?.AsObject().Remove(fieldToModify);
             }
             else
             {
@@ -73,7 +70,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         }
     }
 
-    public JObject GetJsonObject()
+    public JsonObject GetJsonObject()
     {
         if (_fileContent is null)
         {
@@ -83,9 +80,9 @@ public sealed class JsonFileWrapper : FileWrapperBase
         return _fileContent;
     }
 
-    public void MergeJsonObject(JObject jobject)
+    public void MergeJsonObject(JsonObject jobject)
     {
-        _fileContent?.Merge(jobject);
+        _fileContent?.Concat(jobject);
     }
 
     private async Task<bool> IsFileLockedAsync()
@@ -97,7 +94,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (count >= 10)
             {
-                throw new IOException($"The process cannot access the file: '{FullName}' because it is being used by another process.!");
+                throw new IOException($"The current process cannot access the file: '{FullName}' because it is being used by another process.!");
             }
             count++;
 
@@ -128,11 +125,11 @@ public sealed class JsonFileWrapper : FileWrapperBase
                 using StreamReader r = new(FullName);
                 try
                 {
-                    _fileContent = JObject.Parse(await r.ReadToEndAsync());
+                    _fileContent = JsonNode.Parse(await r.ReadToEndAsync())?.AsObject();
                 }
-                catch (Exception ex) when (ex is IOException or JsonException or JsonReaderException)
+                catch (Exception ex) when (ex is IOException or JsonException)
                 {
-                    _fileContent = JObject.Parse("{  }");
+                    _fileContent = JsonNode.Parse("{  }")?.AsObject();
                 }
             }
         });
@@ -145,11 +142,11 @@ public sealed class JsonFileWrapper : FileWrapperBase
             using StreamReader r = new(FullName);
             try
             {
-                _fileContent = JObject.Parse(r.ReadToEnd());
+                _fileContent = JsonNode.Parse(r.ReadToEnd())?.AsObject();
             }
-            catch (Exception ex) when (ex is IOException or JsonException or JsonReaderException)
+            catch (Exception ex) when (ex is IOException or JsonException)
             {
-                _fileContent = JObject.Parse("{  }");
+                _fileContent = JsonNode.Parse("{  }")?.AsObject();
             }
         }
     }
@@ -165,8 +162,8 @@ public sealed class JsonFileWrapper : FileWrapperBase
                 var field = _fileContent?[fieldName];
                 if (field is not null)
                 {
-                    var content = field.ToObject<T?>();
-                    return (content, true);
+                    var success = field.AsValue().TryGetValue<T>(out var content);
+                    return (content, success);
                 }
             }
             catch (FormatException)
