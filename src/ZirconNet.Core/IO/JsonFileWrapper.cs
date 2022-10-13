@@ -60,8 +60,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToModify] is not null)
             {
-                var token = _fileContent[fieldToModify];
-                token?.AsObject().Remove(fieldToModify);
+                _fileContent.AsObject().Remove(fieldToModify);
             }
             else
             {
