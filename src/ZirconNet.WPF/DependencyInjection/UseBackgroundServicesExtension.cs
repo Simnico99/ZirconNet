@@ -19,7 +19,7 @@ public static class UseBackgroundServicesExtension
             {
                 if (service is IHostedService hostedService)
                 {
-                    hostedService.StartAsync(_cts.Token);
+                    Task.Run(async () => await hostedService.StartAsync(_cts.Token));
                     _runningHostedServices.Add(hostedService);
                 }
             }
