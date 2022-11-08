@@ -9,8 +9,13 @@ public sealed class QueueAsync
     private readonly List<Func<Task>> _queuedActions = new();
     private readonly ILogger? _logger;
 
-    public QueueAsync(int maximumThreads = 8, ILogger? logger = null)
+    public QueueAsync(int maximumThreads = -1, ILogger? logger = null)
     {
+        if (maximumThreads <= 0)
+        {
+            maximumThreads = Environment.ProcessorCount;
+        }
+
         _semaphoreSlim = new(maximumThreads);
         _logger = logger;
     }
@@ -44,6 +49,12 @@ public sealed class QueueAsync
         });
     }
 
+    /// <summary>
+    /// Add a task to the running queue.
+    /// </summary>
+    /// <param name="actionToRun">The current task to run.</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The current running action</returns>
     public async Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
@@ -52,6 +63,11 @@ public sealed class QueueAsync
         }
     }
 
+    /// <summary>
+    /// Wait for the current queued items to reach 0.
+    /// </summary>
+    /// <returns>The current task that wait the queue to end.</returns>
+    /// <exception cref="SemaphoreFullException"></exception>
     public async Task WaitForQueueEnd()
     {
         try
