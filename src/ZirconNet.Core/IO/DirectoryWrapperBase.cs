@@ -1,5 +1,4 @@
 ﻿using System.Security.AccessControl;
-using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
@@ -31,12 +30,7 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
             new DirectoryInfo(path).Delete(true);
         }
 
-        if (Directory.Exists(path) && !overwrite)
-        {
-            return new DirectoryInfo(path);
-        }
-
-        return Directory.CreateDirectory(path);
+        return Directory.Exists(path) && !overwrite ? new DirectoryInfo(path) : Directory.CreateDirectory(path);
     }
 
     public async Task CopyContentAsync(IDirectoryWrapperBase destination)

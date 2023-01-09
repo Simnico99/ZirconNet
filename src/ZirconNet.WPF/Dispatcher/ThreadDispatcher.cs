@@ -39,11 +39,6 @@ public sealed class ThreadDispatcher
 
     public async ValueTask<T> InvokeAsync<T>(Func<T> func, DispatcherPriority dispatcherPriority = DispatcherPriority.Send)
     {
-        if (_mainThreadId == Environment.CurrentManagedThreadId)
-        {
-            return func();
-        }
-
-        return await _dispatcher.InvokeAsync(func, dispatcherPriority);
+        return _mainThreadId == Environment.CurrentManagedThreadId ? func() : await _dispatcher.InvokeAsync(func, dispatcherPriority);
     }
 }

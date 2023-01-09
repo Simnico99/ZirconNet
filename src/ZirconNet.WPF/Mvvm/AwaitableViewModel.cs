@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using ZirconNet.Core.Events;
+﻿using ZirconNet.Core.Events;
 
 namespace ZirconNet.WPF.Mvvm;
 public abstract class AwaitableViewModel : ViewModel

@@ -1,6 +1,6 @@
 ﻿using ZirconNet.Core.Extensions;
 using ZirconNet.Core.Runtime;
-using ZirconNet.WPF.DependencyInjection;
+using ZirconNet.WPF.Hosting;
 
 namespace ZirconNet.WPF.Mvvm;
 public class IocPage : Page

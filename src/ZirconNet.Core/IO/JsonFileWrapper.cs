@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Nodes;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
@@ -44,7 +44,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
             {
                 _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
 
-                _fileContent?.Remove(fieldToDelete);
+                _ = (_fileContent?.Remove(fieldToDelete));
             }
         }
     }
@@ -60,7 +60,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToModify] is not null)
             {
-                _fileContent.AsObject().Remove(fieldToModify);
+                _ = _fileContent.AsObject().Remove(fieldToModify);
             }
             else
             {
@@ -71,17 +71,12 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public JsonObject GetJsonObject()
     {
-        if (_fileContent is null)
-        {
-            return new();
-        }
-
-        return _fileContent;
+        return _fileContent is null ? (new()) : _fileContent;
     }
 
     public void MergeJsonObject(JsonObject jobject)
     {
-        _fileContent?.Concat(jobject);
+        _ = (_fileContent?.Concat(jobject));
     }
 
     private async Task<bool> IsFileLockedAsync()

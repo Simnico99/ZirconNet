@@ -1,5 +1,4 @@
 ﻿using System.IO.Compression;
-using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER

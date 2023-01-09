@@ -1,4 +1,4 @@
-﻿namespace ZirconNet.WPF.DependencyInjection;
+﻿namespace ZirconNet.WPF.Hosting;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class PageDataContextAttribute : Attribute

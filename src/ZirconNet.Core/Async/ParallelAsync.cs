@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 
 namespace ZirconNet.Core.Async;
 public static class ParallelAsync
@@ -26,12 +21,9 @@ public static class ParallelAsync
             }
         }
 
-        if (parallelOptions.CancellationToken.IsCancellationRequested)
-        {
-            throw new TaskCanceledException();
-        }
-
-        return Task.WhenAll(Partitioner
+        return parallelOptions.CancellationToken.IsCancellationRequested
+            ? throw new TaskCanceledException()
+            : Task.WhenAll(Partitioner
                 .Create(source)
                 .GetPartitions(parallelOptions.MaxDegreeOfParallelism)
                 .AsParallel()

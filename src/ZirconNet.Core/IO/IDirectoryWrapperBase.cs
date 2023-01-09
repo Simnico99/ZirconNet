@@ -1,5 +1,4 @@
 ﻿using System.Security.AccessControl;
-using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
 
