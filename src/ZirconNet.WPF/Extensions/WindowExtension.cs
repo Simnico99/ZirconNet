@@ -18,4 +18,3 @@ public static class WindowExtension
         return completion.Task;
     }
 }
-
