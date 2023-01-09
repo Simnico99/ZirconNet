@@ -8,17 +8,16 @@ namespace ZirconNet.Core.Hosting;
 /// </summary>
 public class HostApplicationLifetimeHandler
 {
-    private static readonly CancellationTokenSource _tokenSource = new();
     private readonly IHostApplicationLifetime _hostApplicationLifetime;
     private readonly IServiceProvider _services;
+    public CancellationToken Token { get; }
 
-    public static CancellationToken Token { get; } = _tokenSource.Token;
     public HostApplicationLifetimeHandler(IHostApplicationLifetime hostApplicationLifetime, IServiceProvider services)
     {
         _hostApplicationLifetime = hostApplicationLifetime;
         _services = services;
 
-        RegisterHostedServicesForShutdown();
+        Token = _hostApplicationLifetime.ApplicationStopping;
     }
 
     internal void RegisterHostedServicesForShutdown()

@@ -14,13 +14,16 @@ public static class UseBackgroundServicesExtension
         {
             _ = services.AddSingleton<HostApplicationLifetimeHandler>();
 
-            foreach (var service in services)
+            var serviceProvider = services.BuildServiceProvider();
+            var hostApplicationLifetimeHandler = serviceProvider.GetRequiredService<HostApplicationLifetimeHandler>();
+            var hostedServices = serviceProvider.GetServices<IHostedService>();
+
+            foreach (var hostedService in hostedServices)
             {
-                if (service is IHostedService hostedService)
-                {
-                    _ = Task.Run(async () => await hostedService.StartAsync(HostApplicationLifetimeHandler.Token));
-                }
+                    _ = Task.Run(async () => await hostedService.StartAsync(hostApplicationLifetimeHandler.Token));
             }
+
+            hostApplicationLifetimeHandler.RegisterHostedServicesForShutdown();
         }));
 
         return builder;
