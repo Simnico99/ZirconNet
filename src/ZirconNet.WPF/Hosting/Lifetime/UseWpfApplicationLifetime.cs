@@ -49,15 +49,13 @@ public static class UseWpfApplicationLifetimeExtension
     public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default) where T : Window 
     {
         builder.ConfigureServices(services => services.AddSingleton<T>());
-        var host = builder.UseWpfApplicationLifetime().Build();
+        using var host = builder.UseWpfApplicationLifetime().Build();
 
         var window = host.Services.GetRequiredService<T>();
 
-        using var appTask = host.StartAsync(cancellationToken); 
-
         return Task.Run(async () =>
         {
-            await appTask;
+            await host.StartAsync(cancellationToken);
             await window.ShowDialogAsync();
             await host.StopAsync();
             host?.Dispose();
@@ -75,15 +73,12 @@ public static class UseWpfApplicationLifetimeExtension
     public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, CancellationToken cancellationToken = default) where T : Window
     {
         builder.ConfigureServices(services => services.AddSingleton<T>());
-        var host = builder.UseWpfApplicationLifetime(configureOptions).Build();
-
+        using var host = builder.UseWpfApplicationLifetime(configureOptions).Build();
         var window = host.Services.GetRequiredService<T>();
-
-        using var appTask = host.StartAsync(cancellationToken); 
 
         return Task.Run(async () =>
         {
-            await appTask;
+            await host.StartAsync(cancellationToken);
             await window.ShowDialogAsync();
             await host.StopAsync();
             host?.Dispose();
