@@ -23,6 +23,10 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+
 	<ItemGroup>
 	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png">
 	    <Pack>True</Pack>
