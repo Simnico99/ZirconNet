@@ -59,6 +59,7 @@ public static class UseWpfApplicationLifetimeExtension
         {
             await appTask;
             await window.ShowDialogAsync();
+            await host.StopAsync();
             host?.Dispose();
         });
     }
@@ -84,6 +85,7 @@ public static class UseWpfApplicationLifetimeExtension
         {
             await appTask;
             await window.ShowDialogAsync();
+            await host.StopAsync();
             host?.Dispose();
         });
     }
