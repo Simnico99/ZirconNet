@@ -6,6 +6,7 @@ namespace ZirconNet.Core.Hosting;
 /// <summary>
 /// Handles the IHostApplicationLifetime so it stop background services on stop etc...
 /// </summary>
+[Obsolete("Shouldn't be used.")]
 public class HostApplicationLifetimeHandler
 {
     private readonly IHostApplicationLifetime _hostApplicationLifetime;

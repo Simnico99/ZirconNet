@@ -6,6 +6,7 @@ namespace ZirconNet.Core.Hosting;
 /// <summary>
 /// Start all background services and register them for IHostApplicationLifetime stop.
 /// </summary>
+[Obsolete("UseBackgroundServices is depreceted use AddBackgroundService instead.")]
 public static class UseBackgroundServicesExtension
 {
     public static IHostBuilder UseBackgroundServices(this IHostBuilder builder)
