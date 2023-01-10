@@ -83,13 +83,11 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
         _ = _shutdownBlock.Set();
 
         AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
-        Application.Current.Exit -= OnProcessExit;
     }
 
     private void RegisterShutdownHandlers()
     {
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-        Application.Current.Exit += OnProcessExit;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
