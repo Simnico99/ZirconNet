@@ -10,6 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7CF4E855-B8C1-4976-9C56-CA19915B007A}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		azure\build.yml = azure\build.yml
+		azure\deploy.yml = azure\deploy.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZirconNet.Console", "src\ZirconNet.Console\ZirconNet.Console.csproj", "{B4263499-9A0D-40D5-B38D-EFAD661A72B9}"
