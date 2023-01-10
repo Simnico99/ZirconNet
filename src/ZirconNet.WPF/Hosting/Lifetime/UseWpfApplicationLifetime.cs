@@ -53,7 +53,7 @@ public static class UseWpfApplicationLifetimeExtension
 
         var window = host.Services.GetRequiredService<T>();
 
-        var appTask = host.StartAsync(cancellationToken); 
+        using var appTask = host.StartAsync(cancellationToken); 
 
         return Task.Run(async () =>
         {
@@ -79,7 +79,7 @@ public static class UseWpfApplicationLifetimeExtension
 
         var window = host.Services.GetRequiredService<T>();
 
-        var appTask = host.StartAsync(cancellationToken); 
+        using var appTask = host.StartAsync(cancellationToken); 
 
         return Task.Run(async () =>
         {
