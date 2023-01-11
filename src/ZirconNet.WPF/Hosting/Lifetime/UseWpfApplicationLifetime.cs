@@ -46,20 +46,10 @@ public static class UseWpfApplicationLifetimeExtension
     /// <param name="window">The <see cref="Window" /> mainwindows to show and wait to close.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
-    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default) where T : Window 
+    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default) where T : Window
     {
-        builder.ConfigureServices(services => services.AddSingleton<T>());
-
-        return Task.Run(async () =>
-        {
-            using var host = builder.UseWpfApplicationLifetime().Build();
-            var window = host.Services.GetRequiredService<T>();
-
-            await host.StartAsync(cancellationToken);
-            await Application.Current.Dispatcher.Invoke(async () => await window.ShowDialogAsync());
-            await host.StopAsync();
-            host?.Dispose();
-        });
+        builder.UseWpfApplicationLifetime();
+        return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
     }
 
     /// <summary>
@@ -72,17 +62,22 @@ public static class UseWpfApplicationLifetimeExtension
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
     public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, CancellationToken cancellationToken = default) where T : Window
     {
+        builder.UseWpfApplicationLifetime(configureOptions);
+        return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
+    }
+
+    private static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken) where T : Window
+    {
         builder.ConfigureServices(services => services.AddSingleton<T>());
 
-        return Task.Run(async () =>
-        {
-            using var host = builder.UseWpfApplicationLifetime(configureOptions).Build();
-            var window = host.Services.GetRequiredService<T>();
+        using var host = builder.Build();
+        var window = host.Services.GetRequiredService<T>();
 
-            await host.StartAsync(cancellationToken);
-            await Application.Current.Dispatcher.Invoke(async () => await window.ShowDialogAsync());
-            await host.StopAsync();
-            host?.Dispose();
-        });
+        var startTask = host.StartAsync(cancellationToken);
+        var dialogTask = window.ShowDialogAsync();
+        var stopTask = host.StopAsync();
+        host?.Dispose();
+
+        return Task.Factory.ContinueWhenAll(new Task[] { startTask, dialogTask, stopTask }, async (tasks) => { foreach (var task in tasks) { await task; } });
     }
 }

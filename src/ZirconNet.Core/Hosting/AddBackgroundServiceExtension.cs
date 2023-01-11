@@ -15,16 +15,7 @@ public static class AddBackgroundServiceExtension
         where TImplementation : BackgroundService
     {
         _ = services.AddSingleton<TImplementation>();
-        _ = services.AddSingleton<BackgroundService, TImplementation>(serviceProvider =>
-        {
-            var service = serviceProvider.GetRequiredService<TImplementation>();
-            var hostApplicationLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
-
-            hostApplicationLifetime.ApplicationStarted.Register(() => service.StartAsync(hostApplicationLifetime.ApplicationStopping));
-            hostApplicationLifetime.ApplicationStopping.Register(async () => await service.StopAsync(hostApplicationLifetime.ApplicationStopped));
-
-            return service;
-        });
+        _ = services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
         _ = services.AddHostedService(x => x.GetRequiredService<TImplementation>());
 
         return services;
@@ -42,16 +33,7 @@ public static class AddBackgroundServiceExtension
     {
         _ = services.AddSingleton<TImplementation>();
         _ = services.AddSingleton<TService, TImplementation>(x => x.GetRequiredService<TImplementation>());
-        _ = services.AddSingleton<BackgroundService, TImplementation>(serviceProvider => 
-        {
-            var service = serviceProvider.GetRequiredService<TImplementation>();
-            var hostApplicationLifetime = serviceProvider.GetRequiredService<IHostApplicationLifetime>();
-
-            hostApplicationLifetime.ApplicationStarted.Register(() => service.StartAsync(hostApplicationLifetime.ApplicationStopping));
-            hostApplicationLifetime.ApplicationStopping.Register(async () => await service.StopAsync(hostApplicationLifetime.ApplicationStopped));
-
-            return service;
-        });
+        _ = services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
         _ = services.AddHostedService(x => x.GetRequiredService<TImplementation>());
 
         return services;
