@@ -66,18 +66,15 @@ public static class UseWpfApplicationLifetimeExtension
         return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
     }
 
-    private static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken) where T : Window
+    private async static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken) where T : Window
     {
         builder.ConfigureServices(services => services.AddSingleton<T>());
 
         using var host = builder.Build();
         var window = host.Services.GetRequiredService<T>();
 
-        var startTask = host.StartAsync(cancellationToken);
-        var dialogTask = window.ShowDialogAsync();
-        var stopTask = host.StopAsync();
-        host?.Dispose();
-
-        return Task.Factory.ContinueWhenAll(new Task[] { startTask, dialogTask, stopTask }, async (tasks) => { foreach (var task in tasks) { await task; } });
+        await host.StartAsync(cancellationToken);
+        await window.ShowDialogAsync();
+        await host.StopAsync();
     }
 }
