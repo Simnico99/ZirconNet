@@ -1,5 +1,5 @@
 ﻿namespace ZirconNet.WPF.Hosting.Lifetime;
-public class WpfApplicationLifetimeOptions
+public sealed class WpfApplicationLifetimeOptions
 {
     /// <summary>
     /// Indicates if host lifetime status messages should be suppressed such as on startup.

@@ -72,6 +72,8 @@ public static class UseWpfApplicationLifetimeExtension
 
         using var host = builder.Build();
         var window = host.Services.GetRequiredService<T>();
+        var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+        applicationLifetime.ApplicationStopped.Register(() => host?.Dispose());
 
         await host.StartAsync(cancellationToken);
         await window.ShowDialogAsync();
