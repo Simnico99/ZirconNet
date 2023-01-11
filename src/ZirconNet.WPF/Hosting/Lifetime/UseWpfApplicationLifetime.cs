@@ -56,7 +56,7 @@ public static class UseWpfApplicationLifetimeExtension
             var window = host.Services.GetRequiredService<T>();
 
             await host.StartAsync(cancellationToken);
-            await window.ShowDialogAsync();
+            await Application.Current.Dispatcher.Invoke(async () => await window.ShowDialogAsync());
             await host.StopAsync();
             host?.Dispose();
         });
@@ -80,7 +80,7 @@ public static class UseWpfApplicationLifetimeExtension
             var window = host.Services.GetRequiredService<T>();
 
             await host.StartAsync(cancellationToken);
-            await window.ShowDialogAsync();
+            await Application.Current.Dispatcher.Invoke(async () => await window.ShowDialogAsync());
             await host.StopAsync();
             host?.Dispose();
         });
