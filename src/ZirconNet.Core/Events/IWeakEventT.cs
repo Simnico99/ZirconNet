@@ -4,6 +4,6 @@ namespace ZirconNet.Core.Events;
 public interface IWeakEvent<T>
 {
     void Publish(T data);
-    ConfiguredTaskAwaitable PublishAsync(T data, bool awaitAllCalls = false);
+    Task PublishAsync(T data);
     Subscription Subscribe(Action<T> action);
 }

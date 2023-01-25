@@ -6,7 +6,7 @@ public sealed class QueueAsync
 {
     private readonly SemaphoreSlim _semaphoreSlim;
     private readonly SemaphoreSlim _lockSemaphore = new(1, 1);
-    private readonly List<Func<Task>> _queuedActions = new();
+    private readonly IList<Func<Task>> _queuedActions = new List<Func<Task>>();
     private readonly ILogger? _logger;
 
     public QueueAsync(int maximumThreads = -1, ILogger? logger = null)

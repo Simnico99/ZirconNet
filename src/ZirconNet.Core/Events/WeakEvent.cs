@@ -3,18 +3,20 @@
 namespace ZirconNet.Core.Events;
 public sealed class WeakEvent : WeakEventBase, IWeakEvent
 {
+    private static readonly byte _internalByte = new();
+
     public Subscription Subscribe(Action action)
     {
         return SubscribeInternal<byte>((_) => action());
     }
 
-    public ConfiguredTaskAwaitable PublishAsync(bool configureAwait = false)
+    public Task PublishAsync()
     {
-        return PublishInternalAsync(new byte(), configureAwait);
+        return PublishInternalAsync(_internalByte);
     }
 
     public void Publish()
     {
-        _ = PublishAsync();
+        PublishInternal(_internalByte);
     }
 }

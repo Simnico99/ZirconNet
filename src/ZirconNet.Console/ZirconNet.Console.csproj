@@ -4,7 +4,6 @@
 		<TargetFrameworks>net461;net47;net48;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<LangVersion>10</LangVersion>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Simnico99</Authors>
 		<Description>These are libraries I use in alot of projects so I made theme a NuGet package to stop having to copy code all over the place.</Description>
@@ -20,11 +19,13 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<LangVersion>11.0</LangVersion>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
+
 
 	<ItemGroup>
 	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png" Link="ZirconNetLogo - 128x128.png">

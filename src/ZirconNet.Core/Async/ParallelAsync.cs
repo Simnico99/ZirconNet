@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
 namespace ZirconNet.Core.Async;
+
 public static class ParallelAsync
 {
     public static Task ForEach<T>(this IEnumerable<T> source, in ParallelAsyncOptions parallelOptions, Func<T, Task> body)

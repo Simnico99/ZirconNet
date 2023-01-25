@@ -1,5 +1,8 @@
 ﻿namespace ZirconNet.Core.Async;
 
+/// <summary>
+/// Create lock from an async Task delegate and returns the result.
+/// </summary>
 public sealed class LockAsync
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);

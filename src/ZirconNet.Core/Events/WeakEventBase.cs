@@ -25,7 +25,7 @@ public abstract class WeakEventBase
         });
     }
 
-    protected virtual ConfiguredTaskAwaitable PublishInternalAsync<T>(T data, bool configureAwait = false)
+    protected virtual Task PublishInternalAsync<T>(T data)
     {
         return Task.Run(() =>
         {
@@ -49,7 +49,7 @@ public abstract class WeakEventBase
                 }
 #endif
             }
-        }).ConfigureAwait(configureAwait);
+        });
     }
 
     protected virtual void PublishInternal<T>(T data)

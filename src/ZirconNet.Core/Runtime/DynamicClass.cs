@@ -28,6 +28,7 @@ public sealed class DynamicClass : DynamicObject
         }
         throw new ArgumentException($"{value} type ({value?.GetType()}) is not the same as the Field ({type.Name})", nameof(value));
     }
+
     public override bool TryGetMember(GetMemberBinder binder, out object? result)
     {
         result = _fields[binder.Name].Value;

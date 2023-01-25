@@ -8,13 +8,13 @@ public sealed class WeakEvent<T> : WeakEventBase, IWeakEvent<T>
         return SubscribeInternal(action);
     }
 
-    public ConfiguredTaskAwaitable PublishAsync(T data, bool configureAwait = false)
+    public Task PublishAsync(T data)
     {
-        return PublishInternalAsync(data, configureAwait);
+        return PublishInternalAsync(data);
     }
 
     public void Publish(T data)
     {
-        _ = PublishAsync(data);
+        PublishInternal(data);
     }
 }
