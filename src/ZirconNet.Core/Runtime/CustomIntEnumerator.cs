@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Runtime;
 
-public ref struct CustomIntEnumerator
+public struct CustomIntEnumerator
 {
     private int _current;
     private readonly int _end;
