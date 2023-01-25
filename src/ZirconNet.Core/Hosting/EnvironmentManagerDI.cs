@@ -7,7 +7,7 @@ using ZirconNet.Core.Enums;
 using ZirconNet.Core.Environments;
 
 namespace ZirconNet.Core.Hosting;
-internal class EnvironmentManagerDI : IEnvironmentManager
+internal sealed class EnvironmentManagerDI : IEnvironmentManager
 {
     public ApplicationEnvironment Environment => EnvironmentManager.Current.Environment;
 

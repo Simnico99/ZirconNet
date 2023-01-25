@@ -38,13 +38,6 @@
 	  </None>
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)'=='net461' or '$(TargetFramework)'=='net47' or '$(TargetFramework)'=='net48'">
-		<PackageReference Include="PolySharp" Version="1.12.1">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
