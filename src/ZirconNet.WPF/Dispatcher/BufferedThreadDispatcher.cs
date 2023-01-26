@@ -11,7 +11,9 @@ public sealed class BufferedThreadDispatcher
 {
     public static BufferedThreadDispatcher Current { get; } = new();
 
-    //Delay to wait between the screen refresh.
+    /// <summary>
+    /// Delay to wait between the screen refresh.
+    /// </summary>
     public int Delay { get; set; } = 40;
 
     private readonly int _mainThreadId;

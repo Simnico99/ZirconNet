@@ -6,8 +6,9 @@ namespace ZirconNet.Core.Async;
 
 public sealed class QueueAsync
 {
-    private readonly SemaphoreSlim _semaphoreSlim;
-    private readonly ConcurrentQueue<Func<Task>> _queuedActions = new();
+    private readonly SemaphoreSlim _taskSemaphore;
+    private readonly SemaphoreSlim _queueSemaphore;
+    private int _tasksInQueue = 0;
 
     public QueueAsync(int maximumThreads = -1)
     {
@@ -16,13 +17,14 @@ public sealed class QueueAsync
             maximumThreads = Environment.ProcessorCount;
         }
 
-        _semaphoreSlim = new SemaphoreSlim(maximumThreads);
+        _taskSemaphore = new SemaphoreSlim(maximumThreads);
+        _queueSemaphore = new SemaphoreSlim(1,1);
     }
 
     private async Task RunAction(Func<Task> actionToRun, CancellationToken cancellationToken)
     {
-        _queuedActions.Enqueue(actionToRun);
-        await _semaphoreSlim.WaitAsync(cancellationToken);
+        Interlocked.Increment(ref _tasksInQueue);
+        await _taskSemaphore.WaitAsync(cancellationToken);
 
         _ = Task.Run(async () =>
         {
@@ -32,19 +34,23 @@ public sealed class QueueAsync
                 {
                     await actionToRun.Invoke();
                 }
+                catch (Exception)
+                {
+                    // Log or handle the exception as appropriate
+                }
                 finally
                 {
-                    _semaphoreSlim.Release();
+                    Interlocked.Decrement(ref _tasksInQueue);
+                    if (_tasksInQueue == 0)
+                    {
+                        _queueSemaphore.Release();
+                    }
+                    _taskSemaphore.Release();
                 }
             }
         }, cancellationToken);
     }
 
-    /// <summary>
-    /// Add a task to the running queue.
-    /// </summary>
-    /// <param name="actionToRun">The current task to run.</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     public async Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
@@ -53,14 +59,8 @@ public sealed class QueueAsync
         }
     }
 
-    /// <summary>
-    /// Wait for the current queued items to reach 0.
-    /// </summary>
-    public async Task WaitForQueueEnd()
+    public async Task WaitForQueueEnd(CancellationToken cancellationToken = default)
     {
-        while (_queuedActions.TryPeek(out _))
-        {
-            await Task.Delay(10);
-        }
+        await _queueSemaphore.WaitAsync(cancellationToken);
     }
 }
