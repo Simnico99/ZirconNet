@@ -14,7 +14,7 @@ public sealed class BufferedThreadDispatcher
     /// <summary>
     /// Delay to wait between the screen refresh.
     /// </summary>
-    public int Delay { get; set; } = 40;
+    public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
@@ -67,5 +67,23 @@ public sealed class BufferedThreadDispatcher
             }
         });
         return await tcs.Task;
+    }
+
+    public async Task InvokeAsync(Action act)
+    {
+        var tcs = new TaskCompletionSource();
+        _queue.Enqueue(() =>
+        {
+            try
+            {
+                act();
+                tcs.SetResult();
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        });
+        await tcs.Task;
     }
 }
