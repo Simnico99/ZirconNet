@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -71,13 +72,13 @@ public sealed class BufferedThreadDispatcher
 
     public async Task InvokeAsync(Action act)
     {
-        var tcs = new TaskCompletionSource();
+        var tcs = new TaskCompletionSource<object?>();
         _queue.Enqueue(() =>
         {
             try
             {
                 act();
-                tcs.SetResult();
+                tcs.SetResult(null);
             }
             catch (Exception ex)
             {
