@@ -39,8 +39,8 @@ public sealed class BufferedThreadDispatcher
                 {
                     _dispatcher.Invoke(action, DispatcherPriority.Send);
                 }
-                await Task.Delay(Delay);
             }
+            await Task.Delay(Delay);
         }
     }
 
