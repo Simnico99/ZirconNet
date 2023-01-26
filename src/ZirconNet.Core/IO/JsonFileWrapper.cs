@@ -92,7 +92,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
             }
             count++;
 
-            if (IsFileLocked(_fileInfo))
+            if (IsFileLocked(_fileInfo.FullName))
             {
                 await Task.Delay(1000);
             }
@@ -131,7 +131,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public void LoadFile(bool forceRead = false)
     {
-        if ((_fileContent == null || forceRead) && !IsFileLocked(_fileInfo))
+        if ((_fileContent == null || forceRead) && !IsFileLocked(_fileInfo.FullName))
         {
             using StreamReader r = new(FullName);
             try

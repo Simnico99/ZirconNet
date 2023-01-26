@@ -26,7 +26,6 @@ public struct CustomIntEnumerator
         _end = range.End.Value;
     }
 
-
     public int Current => _current;
 
     public bool MoveNext()

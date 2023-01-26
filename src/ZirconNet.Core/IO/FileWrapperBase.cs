@@ -4,7 +4,7 @@
 #endif
 public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
 {
-    protected FileInfo _fileInfo;
+    protected readonly FileInfo _fileInfo;
     public override string FullName => _fileInfo.FullName;
     public override string Name => _fileInfo.Name;
     public override bool Exists => _fileInfo.Exists;
@@ -36,49 +36,23 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
         return fileInfo;
     }
 
-    private static void Copy(string inputFilePath, string outputFilePath)
+    public static void Copy(string inputFilePath, string outputFilePath)
     {
-        const int bufferSize = 1024 * 1024;
-
-        using FileStream fileStream = new(outputFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
-        using FileStream fs = new(inputFilePath, FileMode.Open, FileAccess.ReadWrite);
-        fileStream.SetLength(fs.Length);
-        int bytesRead;
-        var bytes = new byte[bufferSize];
-
-        while ((bytesRead = fs.Read(bytes, 0, bufferSize)) > 0)
-        {
-            fileStream.Write(bytes, 0, bytesRead);
-        }
+        File.Copy(inputFilePath, outputFilePath, true);
     }
 
     public async Task CopyToDirectoryAsync(IDirectoryWrapperBase directory)
     {
         FileInfo finalPath = new(directory.FullName + @$"\{Name}");
         Delete(finalPath);
-        while (IsFileLocked(_fileInfo))
+        while (IsFileLocked(_fileInfo.FullName))
         {
-            if (IsFileLocked(_fileInfo))
+            if (IsFileLocked(_fileInfo.FullName))
             {
                 await Task.Delay(250);
             }
         }
-
-        Copy(FullName, finalPath.FullName);
-    }
-
-    protected static bool IsFileLocked(FileInfo file)
-    {
-        try
-        {
-            using var stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
-            stream.Close();
-        }
-        catch (IOException)
-        {
-            return true;
-        }
-        return false;
+        File.Move(_fileInfo.FullName, finalPath.FullName);
     }
 
     public byte[] GetByteArray()
@@ -92,7 +66,20 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
     {
         if (file.Exists)
         {
-            file.Delete();
+            File.Delete(file.FullName);
+        }
+    }
+
+    public static bool IsFileLocked(string path)
+    {
+        try
+        {
+            using (File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None)) { }
+            return false;
+        }
+        catch (IOException)
+        {
+            return true;
         }
     }
 
@@ -100,38 +87,37 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
     {
         if (Exists)
         {
-            _fileInfo.Delete();
+            File.Delete(_fileInfo.FullName);
         }
     }
 
     public StreamWriter AppendText()
     {
-        return _fileInfo.AppendText();
+        return File.AppendText(_fileInfo.FullName);
     }
 
     public StreamWriter CreateText()
     {
-        return _fileInfo.CreateText();
+        return File.CreateText(_fileInfo.FullName);
     }
 
     public StreamReader OpenText()
     {
-        return _fileInfo.OpenText();
+        return File.OpenText(_fileInfo.FullName);
     }
 
     public FileStream Open(FileMode fileMode, FileAccess access = default, FileShare share = default)
     {
-        return _fileInfo.Open(fileMode, access, share);
+        return File.Open(_fileInfo.FullName, fileMode, access, share);
     }
 
     public FileStream OpenRead()
     {
-        return _fileInfo.OpenRead();
+        return File.OpenRead(_fileInfo.FullName);
     }
 
     public FileStream OpenWrite()
     {
-        return _fileInfo.OpenWrite();
+        return File.OpenWrite(_fileInfo.FullName);
     }
 }
-
