@@ -18,7 +18,7 @@ public sealed class QueueAsync
         }
 
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
-        _queueSemaphore = new SemaphoreSlim(1,1);
+        _queueSemaphore = new SemaphoreSlim(0,int.MaxValue);
     }
 
     private async Task RunAction(Func<Task> actionToRun, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public sealed class QueueAsync
             {
                 try
                 {
-                    await actionToRun.Invoke();
+                    await actionToRun();
                 }
                 catch (Exception)
                 {
