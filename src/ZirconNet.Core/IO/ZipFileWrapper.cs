@@ -26,23 +26,23 @@ public sealed class ZipFileWrapper : FileWrapperBase
             {
                 var extractionPathFullName = $@"{extractionPath}\{extractionName}";
 
-                await Extracting.PublishAsync(extractionName);
+                Extracting.Publish(extractionName);
 
                 if (File.Exists(extractionPathFullName))
                 {
                     File.Delete(extractionPathFullName);
                 }
 
-                zipArchiveEntry.ExtractToFile(extractionPathFullName);
-                await Extracted.PublishAsync(extractionName);
+                await Task.Run(() => zipArchiveEntry.ExtractToFile(extractionPathFullName));
+                Extracted.Publish(extractionName);
             }
             else
             {
                 var extractionPathFullName = extractionPath + extractionName;
 
-                await Extracting.PublishAsync(extractionName);
+                Extracting.Publish(extractionName);
                 _ = Directory.CreateDirectory(extractionPathFullName);
-                await Extracted.PublishAsync(extractionName);
+                Extracted.Publish(extractionName);
             }
         }
         archive.Dispose();

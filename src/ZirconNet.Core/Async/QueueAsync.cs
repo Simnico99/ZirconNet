@@ -1,39 +1,52 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Async;
-public sealed class QueueAsync : IDisposable, IAsyncDisposable
+public sealed class QueueAsync
 {
-    private bool _disposed;
     private readonly SemaphoreSlim _semaphoreSlim;
-    private readonly ConcurrentQueue<Func<Task>> _queuedActions = new();
+    private readonly SemaphoreSlim _lockSemaphore = new(1, 1);
+    private readonly IList<Func<Task>> _queuedActions = new List<Func<Task>>();
     private readonly ILogger? _logger;
 
-    public QueueAsync(int? maximumThreads = null, ILogger? logger = null)
+    public QueueAsync(int maximumThreads = -1, ILogger? logger = null)
     {
-        _semaphoreSlim = new SemaphoreSlim(maximumThreads ?? Environment.ProcessorCount);
+        if (maximumThreads <= 0)
+        {
+            maximumThreads = Environment.ProcessorCount;
+        }
+
+        _semaphoreSlim = new(maximumThreads);
         _logger = logger;
     }
 
     private async Task RunAction(Func<Task> actionToRun)
     {
-        try
+        if (_queuedActions.CountThreadSafe() == 0)
         {
-            _queuedActions.Enqueue(actionToRun);
-            await _semaphoreSlim.WaitAsync();
+            await _lockSemaphore.WaitAsync();
+        }
 
-            await actionToRun();
-        }
-        catch (Exception e)
+        _queuedActions.AddThreadSafe(actionToRun);
+        await _semaphoreSlim.WaitAsync();
+
+        _ = Task.Run(async () =>
         {
-            _logger?.LogError(e, "Error running the queued action");
-        }
-        finally
-        {
-            _semaphoreSlim.Release();
-            _queuedActions.TryDequeue(out _);
-        }
+            try
+            {
+                await actionToRun.Invoke();
+            }
+            finally
+            {
+                _ = _semaphoreSlim.Release();
+                _queuedActions.RemoveThreadSafe(actionToRun);
+
+                if (_queuedActions.CountThreadSafe() == 0)
+                {
+                    _ = _lockSemaphore.Release();
+                }
+            }
+        });
     }
 
     /// <summary>
@@ -41,6 +54,7 @@ public sealed class QueueAsync : IDisposable, IAsyncDisposable
     /// </summary>
     /// <param name="actionToRun">The current task to run.</param>
     /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The current running action</returns>
     public async Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
@@ -52,59 +66,18 @@ public sealed class QueueAsync : IDisposable, IAsyncDisposable
     /// <summary>
     /// Wait for the current queued items to reach 0.
     /// </summary>
+    /// <returns>The current task that wait the queue to end.</returns>
+    /// <exception cref="SemaphoreFullException"></exception>
     public async Task WaitForQueueEnd()
     {
-        using var semaphore = new SemaphoreSlim(0, _queuedActions.Count);
         try
         {
-            await semaphore.WaitAsync();
+            await _lockSemaphore.WaitAsync();
+            _ = _lockSemaphore.Release();
         }
         catch (SemaphoreFullException e)
         {
             _logger?.LogWarning(e, "Error when waiting for semaphoreslim to end");
         }
     }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        await DisposeAsync(true);
-        GC.SuppressFinalize(this);
-    }
-
-    private void Dispose(bool disposing)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            _semaphoreSlim.Dispose();
-        }
-
-        _disposed = true;
-    }
-
-    private async ValueTask DisposeAsync(bool disposing)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            await Task.Run(() => _semaphoreSlim.Dispose());
-        }
-
-        _disposed = true;
-    }
-
 }
