@@ -8,11 +8,6 @@ public sealed class WeakEvent<T> : WeakEventBase, IWeakEvent<T>
         return SubscribeInternal(action);
     }
 
-    public Task PublishAsync(T data)
-    {
-        return PublishInternalAsync(data);
-    }
-
     public void Publish(T data)
     {
         PublishInternal(data);

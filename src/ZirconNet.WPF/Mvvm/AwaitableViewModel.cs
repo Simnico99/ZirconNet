@@ -13,7 +13,7 @@ public abstract class AwaitableViewModel : ViewModel
 
     public void IsReady()
     {
-        _ = ReadyEvent.PublishAsync(this);
+        ReadyEvent.Publish(this);
     }
 
     public Task WaitForReadyAsync(CancellationToken cancellationToken = default)

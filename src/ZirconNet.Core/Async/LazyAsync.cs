@@ -8,13 +8,9 @@ namespace ZirconNet.Core.Async;
 /// <typeparam name="T"></typeparam>
 public sealed class LazyAsync<T> : Lazy<Task<T>>
 {
-    public LazyAsync(Func<T> valueFactory) :
-        base(() => Task.Factory.StartNew(valueFactory))
-    { }
+    public LazyAsync(Func<T> valueFactory) : base(() => Task.Run(valueFactory), LazyThreadSafetyMode.ExecutionAndPublication){ }
 
-    public LazyAsync(Func<Task<T>> taskFactory) :
-        base(() => Task.Factory.StartNew(() => taskFactory()).Unwrap())
-    { }
+    public LazyAsync(Func<Task<T>> taskFactory) : base(taskFactory){ }
 
     public TaskAwaiter<T> GetAwaiter() { return Value.GetAwaiter(); }
 }

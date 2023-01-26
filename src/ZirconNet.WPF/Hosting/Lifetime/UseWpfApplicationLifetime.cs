@@ -77,6 +77,6 @@ public static class UseWpfApplicationLifetimeExtension
 
         await host.StartAsync(cancellationToken).ConfigureAwait(false);
         await window.ShowDialogAsync().ConfigureAwait(false);
-        await host.StopAsync().ConfigureAwait(false);
+        await host.StopAsync(cancellationToken).ConfigureAwait(false);
     }
 }
