@@ -1,0 +1,69 @@
+﻿using System.Collections.Concurrent;
+using System.Windows;
+using System.Windows.Threading;
+
+namespace ZirconNet.WPF.Dispatcher;
+
+/// <summary>
+/// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue.,
+/// </summary>
+public sealed class BufferedThreadDispatcher
+{
+    public static BufferedThreadDispatcher Current { get; } = new();
+
+    //Delay to wait between the screen refresh.
+    public int Delay { get; set; } = 40;
+
+    private readonly int _mainThreadId;
+    private readonly System.Windows.Threading.Dispatcher _dispatcher;
+    private readonly ConcurrentQueue<Action> _queue = new();
+
+    private BufferedThreadDispatcher()
+    {
+        _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
+        _dispatcher = Application.Current.Dispatcher;
+        Task.Run(ProcessQueue);
+    }
+
+    private async void ProcessQueue()
+    {
+        while (true)
+        {
+            if (_queue.TryDequeue(out var action))
+            {
+                if (_mainThreadId == Environment.CurrentManagedThreadId)
+                {
+                    action();
+                }
+                else
+                {
+                    _dispatcher.Invoke(action, DispatcherPriority.Send);
+                }
+                await Task.Delay(Delay);
+            }
+        }
+    }
+
+    public void Invoke(Action action)
+    {
+        _queue.Enqueue(action);
+    }
+
+    public async Task<T> InvokeAsync<T>(Func<T> func)
+    {
+        var tcs = new TaskCompletionSource<T>();
+        _queue.Enqueue(() =>
+        {
+            try
+            {
+                var result = func();
+                tcs.SetResult(result);
+            }
+            catch (Exception ex)
+            {
+                tcs.SetException(ex);
+            }
+        });
+        return await tcs.Task;
+    }
+}
