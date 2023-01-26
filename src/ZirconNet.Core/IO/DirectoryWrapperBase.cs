@@ -1,4 +1,6 @@
-﻿using System.Security.AccessControl;
+﻿using System.Linq;
+using System.Security.AccessControl;
+using System.Threading.Tasks;
 
 namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
@@ -35,24 +37,25 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
     public async Task CopyContentAsync(IDirectoryWrapperBase destination)
     {
-        if (_directoryInfo is not null)
+        if (_directoryInfo != null)
         {
-            foreach (var file in _directoryInfo.GetFiles())
+            var directoriesQueue = new Queue<DirectoryInfo>();
+            directoriesQueue.Enqueue(_directoryInfo);
+            while (directoriesQueue.Count > 0)
             {
-                var fileWrapper = new FileWrapper(file);
-                CopyingFile.Publish(fileWrapper);
-                await fileWrapper.CopyToDirectoryAsync(destination);
-                CopiedFile.Publish(fileWrapper);
-            }
-
-            foreach (var folder in _directoryInfo.GetDirectories())
-            {
-                var folderModel = new DirectoryWrapper(folder, false);
-
-                using (folderModel.CopyingFile.Subscribe(CopyingFile.Publish))
-                using (folderModel.CopiedFile.Subscribe(CopiedFile.Publish))
+                var currentDirectory = directoriesQueue.Dequeue();
+                var files = currentDirectory.GetFiles();
+                foreach (var file in files)
                 {
-                    await folderModel.CopyContentAsync(destination);
+                    var fileWrapper = new FileWrapper(file);
+                    CopyingFile.Publish(fileWrapper);
+                    await fileWrapper.CopyToDirectoryAsync(destination);
+                    CopiedFile.Publish(fileWrapper);
+                }
+                var subdirectories = currentDirectory.GetDirectories();
+                foreach (var subdirectory in subdirectories)
+                {
+                    directoriesQueue.Enqueue(subdirectory);
                 }
             }
         }
@@ -60,7 +63,7 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
     public override void Delete()
     {
-        if (_directoryInfo is not null && Exists)
+        if (_directoryInfo != null && Exists)
         {
             _directoryInfo.Delete(true);
         }
@@ -68,18 +71,12 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
     public IEnumerable<IFileWrapperBase> EnumerateFiles()
     {
-        foreach (var file in _directoryInfo.EnumerateFiles())
-        {
-            yield return new FileWrapper(file, false);
-        }
+        return _directoryInfo.EnumerateFiles().Select(file => new FileWrapper(file, false));
     }
 
     public IEnumerable<IDirectoryWrapperBase> EnumerateDirectories()
     {
-        foreach (var directory in _directoryInfo.EnumerateDirectories())
-        {
-            yield return new DirectoryWrapper(directory, false);
-        }
+        return _directoryInfo.EnumerateDirectories().Select(directory => new DirectoryWrapper(directory, false));
     }
 
     public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos()
@@ -89,26 +86,12 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
     public IDirectoryWrapperBase[] GetDirectories()
     {
-        var directoryWrappers = new DirectoryWrapper[_directoryInfo.GetDirectories().Length];
-        var directoryInfos = _directoryInfo.GetDirectories();
-        for (var i = 0; i < directoryInfos.Length; i++)
-        {
-            var directoryInfo = directoryInfos[i];
-            directoryWrappers[i] = new DirectoryWrapper(directoryInfo, false);
-        }
-        return directoryWrappers;
+        return _directoryInfo.GetDirectories().Select(d => new DirectoryWrapper(d, false)).ToArray();
     }
 
     public IFileWrapperBase[] GetFiles()
     {
-        var fileWrappers = new FileWrapper[_directoryInfo.GetFiles().Length];
-        var filedInfos = _directoryInfo.GetFiles();
-        for (var i = 0; i < filedInfos.Length; i++)
-        {
-            var fileInfo = filedInfos[i];
-            fileWrappers[i] = new FileWrapper(fileInfo, false);
-        }
-        return fileWrappers;
+        return _directoryInfo.GetFiles().Select(f => new FileWrapper(f, false)).ToArray();
     }
 
     public DirectorySecurity GetAccessControl()

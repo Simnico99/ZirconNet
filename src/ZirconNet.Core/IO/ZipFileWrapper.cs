@@ -28,12 +28,11 @@ public sealed class ZipFileWrapper : FileWrapperBase
 
                 Extracting.Publish(extractionName);
 
-                if (File.Exists(extractionPathFullName))
+                using (var stream = zipArchiveEntry.Open())
+                using (var fileStream = File.Create(extractionPathFullName))
                 {
-                    File.Delete(extractionPathFullName);
+                    await stream.CopyToAsync(fileStream);
                 }
-
-                await Task.Run(() => zipArchiveEntry.ExtractToFile(extractionPathFullName));
                 Extracted.Publish(extractionName);
             }
             else
