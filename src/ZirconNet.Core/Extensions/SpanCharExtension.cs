@@ -1,5 +1,4 @@
-﻿#if NETCOREAPP3_1_OR_GREATER
-namespace ZirconNet.Core.Extensions;
+﻿namespace ZirconNet.Core.Extensions;
 public static class SpanCharExtension
 {
     public static Span<char> Remove(this Span<char> chars, char charToRemove)
@@ -14,10 +13,10 @@ public static class SpanCharExtension
                 continue;
             }
 
-            span[++charPos] = character;
+            span[charPos++] = character;
         }
 
-        return span.TrimEnd();
+        return span[..charPos];
     }
 
     public static Span<char> Remove(this Span<char> chars, char[] charsToRemove)
@@ -32,10 +31,9 @@ public static class SpanCharExtension
                 continue;
             }
 
-            span[++charPos] = character;
+            span[charPos++] = character;
         }
 
-        return span.TrimEnd();
+        return span[..charPos];
     }
 }
-#endif
