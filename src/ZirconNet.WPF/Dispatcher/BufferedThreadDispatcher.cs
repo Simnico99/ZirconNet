@@ -18,7 +18,6 @@ public sealed class BufferedThreadDispatcher
     private readonly Queue<Action> _queue = new(25);
     private readonly object _queueLock = new();
     private readonly Thread _uiThread;
-    private readonly TaskCompletionSource<object?> _taskCompletionSource = new();
 
     private BufferedThreadDispatcher()
     {
@@ -35,7 +34,7 @@ public sealed class BufferedThreadDispatcher
     {
         var timer = new Timer(_ => ExecuteQueuedActions(), null, 0, (int)Delay.TotalMilliseconds);
 
-        await _taskCompletionSource.Task;
+        await Task.Delay(Timeout.Infinite);
     }
 
     private void ExecuteQueuedActions()
