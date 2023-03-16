@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -8,29 +7,27 @@ namespace ZirconNet.WPF.Dispatcher;
 /// <summary>
 /// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue.,
 /// </summary>
-public sealed class BufferedThreadDispatcher
+public sealed class BufferedThreadDispatcher : IDisposable
 {
     public static BufferedThreadDispatcher Current { get; } = new();
 
-    /// <summary>
-    /// Delay to wait between the screen refresh.
-    /// </summary>
     public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     private readonly ConcurrentQueue<Action> _queue = new();
+    private readonly CancellationTokenSource _cts = new();
 
     private BufferedThreadDispatcher()
     {
         _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
         _dispatcher = Application.Current.Dispatcher;
-        Task.Run(ProcessQueue);
+        Task.Factory.StartNew(() => ProcessQueue(_cts.Token), _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
-    private async void ProcessQueue()
+    private async Task ProcessQueue(CancellationToken cancellationToken)
     {
-        while (true)
+        while (!cancellationToken.IsCancellationRequested)
         {
             if (_queue.TryDequeue(out var action))
             {
@@ -40,10 +37,10 @@ public sealed class BufferedThreadDispatcher
                 }
                 else
                 {
-                    _dispatcher.Invoke(action, DispatcherPriority.Send);
+                    _dispatcher.Invoke(action, DispatcherPriority.Send, cancellationToken);
                 }
             }
-            await Task.Delay(Delay);
+            await Task.Delay(Delay, cancellationToken);
         }
     }
 
@@ -86,5 +83,10 @@ public sealed class BufferedThreadDispatcher
             }
         });
         await tcs.Task;
+    }
+
+    public void Dispose()
+    {
+        _cts.Cancel();
     }
 }

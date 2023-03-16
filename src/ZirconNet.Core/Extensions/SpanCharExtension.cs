@@ -3,37 +3,39 @@ public static class SpanCharExtension
 {
     public static Span<char> Remove(this Span<char> chars, char charToRemove)
     {
-        Span<char> span = new char[chars.Length];
-
         var charPos = 0;
-        foreach (var character in chars)
+        for (var i = 0; i < chars.Length; i++)
         {
-            if (character == charToRemove)
+            if (chars[i] != charToRemove)
             {
-                continue;
+                chars[charPos++] = chars[i];
             }
-
-            span[charPos++] = character;
         }
 
-        return span[..charPos];
+        return chars[..charPos];
     }
 
     public static Span<char> Remove(this Span<char> chars, char[] charsToRemove)
     {
-        Span<char> span = new char[chars.Length];
-
         var charPos = 0;
-        foreach (var character in chars)
+        for (var i = 0; i < chars.Length; i++)
         {
-            if (charsToRemove.Contains(character))
+            var shouldRemove = false;
+            for (var j = 0; j < charsToRemove.Length; j++)
             {
-                continue;
+                if (chars[i] == charsToRemove[j])
+                {
+                    shouldRemove = true;
+                    break;
+                }
             }
 
-            span[charPos++] = character;
+            if (!shouldRemove)
+            {
+                chars[charPos++] = chars[i];
+            }
         }
 
-        return span[..charPos];
+        return chars[..charPos];
     }
 }

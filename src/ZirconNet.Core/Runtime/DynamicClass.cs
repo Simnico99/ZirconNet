@@ -3,35 +3,39 @@
 namespace ZirconNet.Core.Runtime;
 public sealed class DynamicClass : DynamicObject
 {
-    private readonly Dictionary<string, KeyValuePair<Type, object?>> _fields;
+    private readonly Dictionary<string, (Type Type, object? Value)> _fields;
 
     public DynamicClass(IEnumerable<DynamicClassField> fields)
     {
-        _fields = new Dictionary<string, KeyValuePair<Type, object?>>();
+        _fields = new Dictionary<string, (Type Type, object? Value)>();
         foreach (var field in fields)
         {
-            _fields.Add(field.FieldName, new KeyValuePair<Type, object?>(field.FieldType, field.Value));
+            _fields.Add(field.FieldName, (field.FieldType, field.Value));
         }
     }
 
     public override bool TrySetMember(SetMemberBinder binder, object? value)
     {
-        if (!_fields.ContainsKey(binder.Name))
+        if (_fields.TryGetValue(binder.Name, out var fieldInfo))
         {
-            return false;
+            if (value?.GetType() == fieldInfo.Type || value == null)
+            {
+                _fields[binder.Name] = (fieldInfo.Type, value);
+                return true;
+            }
+            throw new ArgumentException($"{value} type ({value?.GetType()}) is not the same as the Field ({fieldInfo.Type.Name})", nameof(value));
         }
-        var type = _fields[binder.Name].Key;
-        if (value?.GetType() == type)
-        {
-            _fields[binder.Name] = new KeyValuePair<Type, object?>(type, value);
-            return true;
-        }
-        throw new ArgumentException($"{value} type ({value?.GetType()}) is not the same as the Field ({type.Name})", nameof(value));
+        return false;
     }
 
     public override bool TryGetMember(GetMemberBinder binder, out object? result)
     {
-        result = _fields[binder.Name].Value;
-        return true;
+        if (_fields.TryGetValue(binder.Name, out var fieldInfo))
+        {
+            result = fieldInfo.Value;
+            return true;
+        }
+        result = null;
+        return false;
     }
 }

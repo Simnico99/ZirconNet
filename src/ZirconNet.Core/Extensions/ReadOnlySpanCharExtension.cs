@@ -4,56 +4,47 @@ namespace ZirconNet.Core.Extensions;
 
 public static class ReadOnlySpanCharExtension
 {
-    public static T[] SplitToArray<T>(this ReadOnlySpan<char> span, char comparison, TryParseHandler<T> tryParseHandler, int startIndex = 0, int sliceLenght = 0, int size = 0)
+    public static T[] SplitToArray<T>(this ReadOnlySpan<char> span, char comparison, TryParseHandler<T> tryParseHandler, int startIndex = 0, int sliceLength = 0, int size = 0)
     {
-        T[]? array;
         if (size < 1)
         {
-            array = new T[span.Length];
+            size = span.Length;
         }
-        else
+
+        if (sliceLength <= 0)
         {
-            array = new T[size];
+            sliceLength = span.Length;
         }
 
-        if (sliceLenght <= 0)
-        {
-            sliceLenght = span.Length;
-        }
-
-        sliceLenght--;
-
-        var length = 0;
+        var array = new T[size];
         var arrayIndex = 0;
         var currentIndex = startIndex;
-        foreach (var i in currentIndex..(currentIndex + sliceLenght))
+        var length = 0;
+        var endIndex = currentIndex + sliceLength - 1;
+
+        for (var i = currentIndex; i <= endIndex && arrayIndex < array.Length; i++)
         {
             length++;
 
-            if (arrayIndex == array.Length)
-            {
-                break;
-            }
-
             if (span[i] == comparison)
             {
-                var slice = span.Slice(currentIndex, length - 1);
-                tryParseHandler(slice, out var result);
-                array[arrayIndex] = result;
+                array[arrayIndex++] = ParseSlice(span.Slice(currentIndex, length - 1), tryParseHandler);
                 currentIndex += length;
-                arrayIndex++;
                 length = 0;
-                continue;
             }
-
-            if (i == (startIndex + sliceLenght))
+            else if (i == endIndex)
             {
-                var slice = span.Slice(currentIndex, length);
-                tryParseHandler(slice, out var result);
-                array[arrayIndex] = result;
+                array[arrayIndex++] = ParseSlice(span.Slice(currentIndex, length), tryParseHandler);
             }
         }
 
         return array;
     }
+
+    private static T ParseSlice<T>(ReadOnlySpan<char> slice, TryParseHandler<T> tryParseHandler)
+    {
+        tryParseHandler(slice, out var result);
+        return result;
+    }
+
 }
