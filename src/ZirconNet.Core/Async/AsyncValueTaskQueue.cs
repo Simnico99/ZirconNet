@@ -7,14 +7,13 @@ namespace ZirconNet.Core.Async;
 /// <summary>
 /// A class that allows queueing and running tasks asynchronously with a specified maximum number of concurrent tasks.
 /// </summary>
-public sealed class AsyncTaskQueue : IDisposable
+public sealed class AsyncValueTaskQueue : IDisposable
 {
     private SemaphoreSlim _taskSemaphore;
     private TaskCompletionSource<bool> _queueCompletionSource;
     private int _tasksInQueue = 0;
     private readonly ConcurrentBag<Exception> _exceptions;
-
-    public AsyncTaskQueue(int maximumThreads = -1)
+    public AsyncValueTaskQueue(int maximumThreads = -1)
     {
         if (maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
         {
@@ -26,7 +25,7 @@ public sealed class AsyncTaskQueue : IDisposable
         _exceptions = new ConcurrentBag<Exception>();
     }
 
-    private async Task RunAction(Func<Task> actionToRun, CancellationToken cancellationToken)
+    private async ValueTask RunAction(Func<ValueTask> actionToRun, CancellationToken cancellationToken)
     {
         Interlocked.Increment(ref _tasksInQueue);
         await _taskSemaphore.WaitAsync(cancellationToken);
@@ -49,17 +48,17 @@ public sealed class AsyncTaskQueue : IDisposable
         }
     }
 
-    public Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
+    public ValueTask AddTaskAsync(Func<ValueTask> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
         {
             return RunAction(actionToRun, cancellationToken);
         }
 
-        return Task.CompletedTask;
+        return default;
     }
 
-    public async Task WaitForQueueEnd(CancellationToken cancellationToken = default)
+    public async ValueTask WaitForQueueEnd(CancellationToken cancellationToken = default)
     {
         using (cancellationToken.Register(() => _queueCompletionSource.TrySetCanceled()))
         {
@@ -72,7 +71,7 @@ public sealed class AsyncTaskQueue : IDisposable
         return _exceptions.ToList().AsReadOnly();
     }
 
-    public async Task Reset(int maximumThreads = -1, CancellationToken cancellationToken = default)
+    public async ValueTask Reset(int maximumThreads = -1, CancellationToken cancellationToken = default)
     {
         await WaitForQueueEnd(cancellationToken);
 
