@@ -12,7 +12,7 @@ public sealed class AsyncTaskQueue
     private SemaphoreSlim _taskSemaphore;
     private SemaphoreSlim _queueSemaphore;
     private int _tasksInQueue = 0;
-    private readonly ConcurrentBag<Exception> _exceptions = new ();
+    private readonly ConcurrentBag<Exception> _exceptions = new();
 
     public bool IsFaulted { get; private set; } = false;
 
@@ -66,14 +66,17 @@ public sealed class AsyncTaskQueue
         }
     }
 
-    public async Task WaitForQueueToEndAsync(CancellationToken cancellationToken = default)
+    public async ValueTask WaitForQueueToEndAsync(CancellationToken cancellationToken = default)
     {
-        await _queueSemaphore.WaitAsync(cancellationToken);
+        if (_tasksInQueue > 0)
+        {
+            await _queueSemaphore.WaitAsync(cancellationToken);
+        }
     }
 
     public async ValueTask Reset(int maximumThreads = -1)
     {
-        if (_tasksInQueue is not 0)
+        if (_tasksInQueue > 0)
         {
             await WaitForQueueToEndAsync();
         }
