@@ -84,7 +84,7 @@ public sealed class AsyncValueTaskQueue : IDisposable
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
         _queueCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        while (_exceptions.TryTake(out _)) ;
+        while (_exceptions.TryTake(out _)) { }
     }
 
     public void Dispose()

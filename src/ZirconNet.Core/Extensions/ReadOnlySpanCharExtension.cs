@@ -46,5 +46,4 @@ public static class ReadOnlySpanCharExtension
         tryParseHandler(slice, out var result);
         return result;
     }
-
 }
