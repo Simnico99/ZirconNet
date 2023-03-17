@@ -66,7 +66,7 @@ public sealed class AsyncTaskQueue
         }
     }
 
-    public async ValueTask WaitForQueueToEndAsync(CancellationToken cancellationToken = default)
+    public async ValueTask WaitForQueueToEnd(CancellationToken cancellationToken = default)
     {
         if (_tasksInQueue > 0)
         {
@@ -78,7 +78,7 @@ public sealed class AsyncTaskQueue
     {
         if (_tasksInQueue > 0)
         {
-            await WaitForQueueToEndAsync();
+            await WaitForQueueToEnd();
         }
 
         if (maximumThreads <= 0 || maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
