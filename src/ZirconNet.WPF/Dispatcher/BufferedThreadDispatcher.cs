@@ -3,31 +3,32 @@ using System.Windows;
 using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
-
 /// <summary>
 /// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue.,
 /// </summary>
-public sealed class BufferedThreadDispatcher : IDisposable
+public sealed class BufferedThreadDispatcher
 {
     public static BufferedThreadDispatcher Current { get; } = new();
 
+    /// <summary>
+    /// Delay to wait between the screen refresh.
+    /// </summary>
     public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     private readonly ConcurrentQueue<Action> _queue = new();
-    private readonly CancellationTokenSource _cts = new();
 
     private BufferedThreadDispatcher()
     {
         _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
         _dispatcher = Application.Current.Dispatcher;
-        Task.Factory.StartNew(() => ProcessQueue(_cts.Token), _cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        Task.Run(ProcessQueue);
     }
 
-    private async Task ProcessQueue(CancellationToken cancellationToken)
+    private async void ProcessQueue()
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (true)
         {
             if (_queue.TryDequeue(out var action))
             {
@@ -37,10 +38,10 @@ public sealed class BufferedThreadDispatcher : IDisposable
                 }
                 else
                 {
-                    _dispatcher.Invoke(action, DispatcherPriority.Send, cancellationToken);
+                    _dispatcher.Invoke(action, DispatcherPriority.Send);
                 }
             }
-            await Task.Delay(Delay, cancellationToken);
+            await Task.Delay(Delay);
         }
     }
 
@@ -48,7 +49,6 @@ public sealed class BufferedThreadDispatcher : IDisposable
     {
         _queue.Enqueue(action);
     }
-
     public async Task<T> InvokeAsync<T>(Func<T> func)
     {
         var tcs = new TaskCompletionSource<T>();
@@ -66,7 +66,6 @@ public sealed class BufferedThreadDispatcher : IDisposable
         });
         return await tcs.Task;
     }
-
     public async Task InvokeAsync(Action act)
     {
         var tcs = new TaskCompletionSource<object?>();
@@ -83,10 +82,5 @@ public sealed class BufferedThreadDispatcher : IDisposable
             }
         });
         await tcs.Task;
-    }
-
-    public void Dispose()
-    {
-        _cts.Cancel();
     }
 }
