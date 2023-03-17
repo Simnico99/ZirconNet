@@ -7,23 +7,24 @@ namespace ZirconNet.Core.Async;
 /// <summary>
 /// A class that allows queueing and running tasks asynchronously with a specified maximum number of concurrent tasks.
 /// </summary>
-public sealed class AsyncTaskQueue : IDisposable
+public sealed class AsyncTaskQueue
 {
     private SemaphoreSlim _taskSemaphore;
-    private TaskCompletionSource<bool> _queueCompletionSource;
+    private SemaphoreSlim _queueSemaphore;
     private int _tasksInQueue = 0;
-    private readonly ConcurrentBag<Exception> _exceptions;
+    private readonly ConcurrentBag<Exception> _exceptions = new ();
+
+    public bool IsFaulted { get; private set; } = false;
 
     public AsyncTaskQueue(int maximumThreads = -1)
     {
-        if (maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
+        if (maximumThreads <= 0 || maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
         {
             maximumThreads = Environment.ProcessorCount;
         }
 
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
-        _queueCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _exceptions = new ConcurrentBag<Exception>();
+        _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
     }
 
     private async Task RunAction(Func<Task> actionToRun, CancellationToken cancellationToken)
@@ -33,66 +34,58 @@ public sealed class AsyncTaskQueue : IDisposable
 
         _ = Task.Run(async () =>
         {
-            try
+            if (!cancellationToken.IsCancellationRequested)
             {
-                await actionToRun();
-            }
-            catch (Exception ex)
-            {
-                _exceptions.Add(ex);
-            }
-            finally
-            {
-                _taskSemaphore.Release();
-                if (Interlocked.Decrement(ref _tasksInQueue) == 0)
+                try
                 {
-                    _queueCompletionSource.TrySetResult(true);
+                    await actionToRun();
+                }
+                catch (Exception ex)
+                {
+                    IsFaulted = true;
+                    _exceptions.Add(ex);
+                }
+                finally
+                {
+                    Interlocked.Decrement(ref _tasksInQueue);
+                    if (_tasksInQueue == 0)
+                    {
+                        _queueSemaphore.Release();
+                    }
+                    _taskSemaphore.Release();
                 }
             }
-        });
+        }, cancellationToken);
     }
 
-    public Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
+    public async Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
         {
-            return RunAction(actionToRun, cancellationToken);
+            await RunAction(actionToRun, cancellationToken);
         }
-
-        return Task.CompletedTask;
     }
 
-    public async Task WaitForQueueEnd(CancellationToken cancellationToken = default)
+    public async Task WaitForQueueToEndAsync(CancellationToken cancellationToken = default)
     {
-        using (cancellationToken.Register(() => _queueCompletionSource.TrySetCanceled()))
+        await _queueSemaphore.WaitAsync(cancellationToken);
+    }
+
+    public async ValueTask Reset(int maximumThreads = -1)
+    {
+        if (_tasksInQueue is not 0)
         {
-            await _queueCompletionSource.Task.ConfigureAwait(false);
+            await WaitForQueueToEndAsync();
         }
-    }
 
-    public IReadOnlyList<Exception> GetExceptions()
-    {
-        return _exceptions.ToList().AsReadOnly();
-    }
-
-    public async Task Reset(int maximumThreads = -1, CancellationToken cancellationToken = default)
-    {
-        await WaitForQueueEnd(cancellationToken);
-
-        if (maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
+        if (maximumThreads <= 0 || maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
         {
             maximumThreads = Environment.ProcessorCount;
         }
 
-        _taskSemaphore.Dispose();
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
-        _queueCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        while (_exceptions.TryTake(out _)) { }
-    }
-
-    public void Dispose()
-    {
-        _taskSemaphore.Dispose();
+        _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
+        _tasksInQueue = 0;
+        IsFaulted = false;
     }
 }
