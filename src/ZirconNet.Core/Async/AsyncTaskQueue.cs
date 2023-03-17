@@ -9,7 +9,6 @@ namespace ZirconNet.Core.Async;
 /// </summary>
 public sealed class AsyncTaskQueue
 {
-    private readonly EventWaitHandle waitHandle = new AutoResetEvent(false);
     private SemaphoreSlim _taskSemaphore;
     private SemaphoreSlim _queueSemaphore;
     private SemaphoreSlim _waitForFirst;
@@ -99,6 +98,5 @@ public sealed class AsyncTaskQueue
         _waitForFirst = new(0, int.MaxValue);
         _tasksInQueue = 0;
         IsFaulted = false;
-        waitHandle.Reset();
     }
 }
