@@ -37,6 +37,7 @@ public sealed class AsyncTaskQueue
     {
         try
         {
+            _waitForFirst.Release();
             await actionToRun();
         }
         catch (Exception ex)
@@ -78,8 +79,6 @@ public sealed class AsyncTaskQueue
 
     public async ValueTask Reset(int maximumThreads = -1)
     {
-        await WaitForQueueToEnd();
-
         SetMaxThreads(ref maximumThreads);
 
         _taskSemaphore.Release(maximumThreads - _taskSemaphore.CurrentCount);
