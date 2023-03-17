@@ -4,9 +4,6 @@ using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Async;
 
-/// <summary>
-/// A class that allows queueing and running tasks asynchronously with a specified maximum number of concurrent tasks.
-/// </summary>
 public sealed class AsyncTaskQueue
 {
     private SemaphoreSlim _taskSemaphore;
@@ -19,11 +16,7 @@ public sealed class AsyncTaskQueue
 
     public AsyncTaskQueue(int maximumThreads = -1)
     {
-        if (maximumThreads <= 0 || maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
-        {
-            maximumThreads = Environment.ProcessorCount;
-        }
-
+        SetMaxThreads(ref maximumThreads);
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
         _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
         _waitForFirst = new SemaphoreSlim(0, int.MaxValue);
@@ -34,33 +27,35 @@ public sealed class AsyncTaskQueue
         Interlocked.Increment(ref _tasksInQueue);
         await _taskSemaphore.WaitAsync(cancellationToken);
 
-        _ = Task.Run(async () =>
+        if (!cancellationToken.IsCancellationRequested)
         {
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {
-                    await actionToRun();
-                }
-                catch (Exception ex)
-                {
-                    IsFaulted = true;
-                    _exceptions.Add(ex);
-                }
-                finally
-                {
-                    Interlocked.Decrement(ref _tasksInQueue);
-                    if (_tasksInQueue == 0)
-                    {
-                        _queueSemaphore.Release();
-                    }
-                    _taskSemaphore.Release();
-                }
-            }
-        }, cancellationToken);
+            ThreadPool.QueueUserWorkItem(_ => RunTask(actionToRun));
+        }
     }
 
-    public async Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
+    private async void RunTask(Func<Task> actionToRun)
+    {
+        try
+        {
+            await actionToRun();
+        }
+        catch (Exception ex)
+        {
+            IsFaulted = true;
+            _exceptions.Add(ex);
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _tasksInQueue);
+            if (_tasksInQueue == 0)
+            {
+                _queueSemaphore.Release();
+            }
+            _taskSemaphore.Release();
+        }
+    }
+
+    public async Task EnqueueTask(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
         {
@@ -83,20 +78,31 @@ public sealed class AsyncTaskQueue
 
     public async ValueTask Reset(int maximumThreads = -1)
     {
-        if (_tasksInQueue > 0)
+        await WaitForQueueToEnd();
+
+        SetMaxThreads(ref maximumThreads);
+
+        _taskSemaphore.Release(maximumThreads - _taskSemaphore.CurrentCount);
+
+        while (_queueSemaphore.CurrentCount > 0)
         {
-            await WaitForQueueToEnd();
+            _queueSemaphore.Wait();
         }
 
-        if (maximumThreads <= 0 || maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
+        while (_waitForFirst.CurrentCount > 0)
+        {
+            _waitForFirst.Wait();
+        }
+
+        _tasksInQueue = 0;
+        IsFaulted = false;
+    }
+
+    private void SetMaxThreads(ref int maximumThreads)
+    {
+        if (maximumThreads <= 0 || maximumThreads > Environment.ProcessorCount)
         {
             maximumThreads = Environment.ProcessorCount;
         }
-
-        _taskSemaphore = new (maximumThreads);
-        _queueSemaphore = new (0, int.MaxValue);
-        _waitForFirst = new(0, int.MaxValue);
-        _tasksInQueue = 0;
-        IsFaulted = false;
     }
 }
