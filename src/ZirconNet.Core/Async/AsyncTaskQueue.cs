@@ -9,8 +9,10 @@ namespace ZirconNet.Core.Async;
 /// </summary>
 public sealed class AsyncTaskQueue
 {
+    private readonly EventWaitHandle waitHandle = new AutoResetEvent(false);
     private SemaphoreSlim _taskSemaphore;
     private SemaphoreSlim _queueSemaphore;
+    private SemaphoreSlim _waitForFirst;
     private int _tasksInQueue = 0;
     private readonly ConcurrentBag<Exception> _exceptions = new();
 
@@ -25,6 +27,7 @@ public sealed class AsyncTaskQueue
 
         _taskSemaphore = new SemaphoreSlim(maximumThreads);
         _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
+        _waitForFirst = new SemaphoreSlim(0, int.MaxValue);
     }
 
     private async Task RunAction(Func<Task> actionToRun, CancellationToken cancellationToken)
@@ -66,8 +69,13 @@ public sealed class AsyncTaskQueue
         }
     }
 
-    public async ValueTask WaitForQueueToEnd(CancellationToken cancellationToken = default)
+    public async ValueTask WaitForQueueToEnd(bool waitForFirstTask = true, CancellationToken cancellationToken = default)
     {
+        if (waitForFirstTask)
+        {
+            await _waitForFirst.WaitAsync(cancellationToken);
+        }
+
         if (_tasksInQueue > 0)
         {
             await _queueSemaphore.WaitAsync(cancellationToken);
@@ -86,9 +94,11 @@ public sealed class AsyncTaskQueue
             maximumThreads = Environment.ProcessorCount;
         }
 
-        _taskSemaphore = new SemaphoreSlim(maximumThreads);
-        _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
+        _taskSemaphore = new (maximumThreads);
+        _queueSemaphore = new (0, int.MaxValue);
+        _waitForFirst = new(0, int.MaxValue);
         _tasksInQueue = 0;
         IsFaulted = false;
+        waitHandle.Reset();
     }
 }
