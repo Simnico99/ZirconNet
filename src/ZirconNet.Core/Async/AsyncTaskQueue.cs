@@ -77,7 +77,7 @@ public sealed class AsyncTaskQueue
         }
     }
 
-    public async ValueTask Reset(int maximumThreads = -1)
+    public void Reset(int maximumThreads = -1)
     {
         SetMaxThreads(ref maximumThreads);
 
