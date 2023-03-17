@@ -6,9 +6,9 @@ namespace ZirconNet.Core.Async;
 
 public sealed class AsyncTaskQueue
 {
-    private readonly SemaphoreSlim _taskSemaphore;
-    private readonly SemaphoreSlim _queueSemaphore;
-    private readonly SemaphoreSlim _waitForFirst;
+    private SemaphoreSlim _taskSemaphore;
+    private SemaphoreSlim _queueSemaphore;
+    private SemaphoreSlim _waitForFirst;
     private int _tasksInQueue = 0;
     private readonly ConcurrentBag<Exception> _exceptions = new();
 
@@ -81,17 +81,9 @@ public sealed class AsyncTaskQueue
     {
         SetMaxThreads(ref maximumThreads);
 
-        _taskSemaphore.Release(maximumThreads - _taskSemaphore.CurrentCount);
-
-        while (_queueSemaphore.CurrentCount > 0)
-        {
-            _queueSemaphore.Wait();
-        }
-
-        while (_waitForFirst.CurrentCount > 0)
-        {
-            _waitForFirst.Wait();
-        }
+        _taskSemaphore = new SemaphoreSlim(maximumThreads);
+        _queueSemaphore = new SemaphoreSlim(0, int.MaxValue);
+        _waitForFirst = new SemaphoreSlim(0, int.MaxValue);
 
         _tasksInQueue = 0;
         IsFaulted = false;
