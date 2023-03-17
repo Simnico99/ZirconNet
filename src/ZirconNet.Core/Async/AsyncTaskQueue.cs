@@ -6,9 +6,9 @@ namespace ZirconNet.Core.Async;
 
 public sealed class AsyncTaskQueue
 {
-    private SemaphoreSlim _taskSemaphore;
-    private SemaphoreSlim _queueSemaphore;
-    private SemaphoreSlim _waitForFirst;
+    private readonly SemaphoreSlim _taskSemaphore;
+    private readonly SemaphoreSlim _queueSemaphore;
+    private readonly SemaphoreSlim _waitForFirst;
     private int _tasksInQueue = 0;
     private readonly ConcurrentBag<Exception> _exceptions = new();
 
@@ -55,7 +55,7 @@ public sealed class AsyncTaskQueue
         }
     }
 
-    public async Task EnqueueTask(Func<Task> actionToRun, CancellationToken cancellationToken = default)
+    public async Task EnqueueAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
     {
         if (!cancellationToken.IsCancellationRequested)
         {
