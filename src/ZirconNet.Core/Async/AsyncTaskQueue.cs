@@ -31,22 +31,25 @@ public sealed class AsyncTaskQueue : IDisposable
         Interlocked.Increment(ref _tasksInQueue);
         await _taskSemaphore.WaitAsync(cancellationToken);
 
-        try
+        _ = Task.Run(async () =>
         {
-            await actionToRun();
-        }
-        catch (Exception ex)
-        {
-            _exceptions.Add(ex);
-        }
-        finally
-        {
-            _taskSemaphore.Release();
-            if (Interlocked.Decrement(ref _tasksInQueue) == 0)
+            try
             {
-                _queueCompletionSource.TrySetResult(true);
+                await actionToRun();
             }
-        }
+            catch (Exception ex)
+            {
+                _exceptions.Add(ex);
+            }
+            finally
+            {
+                _taskSemaphore.Release();
+                if (Interlocked.Decrement(ref _tasksInQueue) == 0)
+                {
+                    _queueCompletionSource.TrySetResult(true);
+                }
+            }
+        });
     }
 
     public Task AddTaskAsync(Func<Task> actionToRun, CancellationToken cancellationToken = default)
