@@ -15,13 +15,11 @@ public sealed class BufferedThreadDispatcher
     /// </summary>
     public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
-    private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     private readonly ConcurrentQueue<Action> _queue = new();
 
     private BufferedThreadDispatcher()
     {
-        _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
         _dispatcher = Application.Current.Dispatcher;
         Task.Run(ProcessQueue);
     }
@@ -32,14 +30,7 @@ public sealed class BufferedThreadDispatcher
         {
             if (_queue.TryDequeue(out var action))
             {
-                if (_mainThreadId == Environment.CurrentManagedThreadId)
-                {
-                    action();
-                }
-                else
-                {
                     _dispatcher.Invoke(action, DispatcherPriority.Send);
-                }
             }
             await Task.Delay(Delay);
         }
