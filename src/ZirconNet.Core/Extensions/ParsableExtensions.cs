@@ -23,7 +23,7 @@ public static class ParsableExtensions
         return T.Parse(input, formatProvider);
     }
 
-    public static bool TryParse<T>(this string input, IFormatProvider? formatProvider, [MaybeNullWhen(false)] out T result)
+    public static bool TryParse<T>([NotNullWhen(true)] this string input, IFormatProvider? formatProvider, [MaybeNullWhen(false)] out T result)
     where T : IParsable<T>
     {
         return T.TryParse(input, formatProvider, out result);
