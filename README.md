@@ -67,9 +67,9 @@ The project aim to make myself repeat myself less and less with that library so 
 
 ### Built With
 
-* .Net Framework 4.7.2 to 4.8
+* .Net Framework 4.6.1 to 4.8
 * .Net Core 3.1.x
-* .Net 5.0.x to 6.0.x
+* .Net 6.0.x to 7.0.x
 
 
 
