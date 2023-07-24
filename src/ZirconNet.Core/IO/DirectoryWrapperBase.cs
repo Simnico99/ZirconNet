@@ -11,6 +11,7 @@ namespace ZirconNet.Core.IO;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
+
 /// <inheritdoc cref="IDirectoryWrapperBase"/>
 public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBase
 {

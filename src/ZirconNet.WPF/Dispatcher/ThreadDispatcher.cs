@@ -9,8 +9,6 @@ namespace ZirconNet.WPF.Dispatcher;
 
 public sealed class ThreadDispatcher
 {
-    public static ThreadDispatcher Current { get; } = new();
-
     private readonly int _mainThreadId;
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
 
@@ -19,6 +17,8 @@ public sealed class ThreadDispatcher
         _mainThreadId = Application.Current.Dispatcher.Thread.ManagedThreadId;
         _dispatcher = Application.Current.Dispatcher;
     }
+
+    public static ThreadDispatcher Current { get; } = new();
 
     public void Invoke(Action action, DispatcherPriority dispatcherPriority = DispatcherPriority.Send)
     {

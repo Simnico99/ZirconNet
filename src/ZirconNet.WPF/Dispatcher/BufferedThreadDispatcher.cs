@@ -7,18 +7,12 @@ using System.Windows;
 using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
+
 /// <summary>
-/// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue. (To be used with the background service)
+/// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue. (To be used with the background service).
 /// </summary>
 public sealed class BufferedThreadDispatcher
 {
-    public static BufferedThreadDispatcher Current { get; } = new();
-
-    /// <summary>
-    /// Gets or sets delay to wait between the screen refresh.
-    /// </summary>
-    public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
-
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     private readonly ConcurrentQueue<Action> _queue = new();
 
@@ -26,6 +20,13 @@ public sealed class BufferedThreadDispatcher
     {
         _dispatcher = Application.Current.Dispatcher;
     }
+
+    public static BufferedThreadDispatcher Current { get; } = new();
+
+    /// <summary>
+    /// Gets or sets delay to wait between the screen refresh.
+    /// </summary>
+    public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
     public void ProcessOneItem()
     {

@@ -10,11 +10,19 @@ using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Runtime;
 
+/// <summary>
+/// Defines an enumerator for a range of integers.
+/// </summary>
 public struct CustomIntEnumerator
 {
     private readonly int _end;
     private int _current;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomIntEnumerator"/> struct.
+    /// </summary>
+    /// <param name="range">The range to enumerate.</param>
+    /// <exception cref="NotSupportedException">Thrown when the end of the range is from the end.</exception>
 #if NETCOREAPP3_1_OR_GREATER
     public CustomIntEnumerator(Range range)
 #else
@@ -30,8 +38,15 @@ public struct CustomIntEnumerator
         _end = range.End.Value;
     }
 
+    /// <summary>
+    /// Gets the current integer in the enumerated range.
+    /// </summary>
     public readonly int Current => _current;
 
+    /// <summary>
+    /// Advances the enumerator to the next integer in the range.
+    /// </summary>
+    /// <returns>True if the enumerator was successfully advanced to the next integer; false if the enumerator has passed the end of the range.</returns>
     public bool MoveNext()
     {
         _current++;

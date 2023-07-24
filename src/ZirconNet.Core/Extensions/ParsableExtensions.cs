@@ -2,12 +2,7 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Extensions;
 
@@ -20,7 +15,6 @@ public static class ParsableExtensions
         return T.Parse(input, formatProvider);
     }
 
-
     public static T Parse<T>(this ReadOnlySpan<char> input, IFormatProvider? formatProvider = null)
     where T : ISpanParsable<T>
     {
@@ -32,7 +26,6 @@ public static class ParsableExtensions
     {
         return T.TryParse(input, formatProvider, out result);
     }
-
 
     public static bool TryParse<T>(this ReadOnlySpan<char> input, IFormatProvider? formatProvider, [MaybeNullWhen(false)] out T result)
     where T : ISpanParsable<T>

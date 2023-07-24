@@ -8,14 +8,14 @@ namespace ZirconNet.WPF.Mvvm;
 
 public abstract class AwaitableViewModel : ViewModel
 {
-    public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>();
-
     private TaskCompletionSource<object>? _startupTcs;
 
     public AwaitableViewModel()
     {
         RegisterViewModelReady();
     }
+
+    public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>();
 
     public void IsReady()
     {
@@ -29,19 +29,26 @@ public abstract class AwaitableViewModel : ViewModel
             return _startupTcs!.Task;
         }
 
-        var registration = cancellationToken.Register(delegate (object? state)
-        {
-            if (state != null)
+        var registration = cancellationToken.Register(
+            delegate(object? state)
             {
-                _ = ((TaskCompletionSource<object>)state).TrySetResult(new object());
-            }
-        }, _startupTcs);
+                if (state != null)
+                {
+                    _ = ((TaskCompletionSource<object>)state).TrySetResult(new object());
+                }
+            },
+            _startupTcs);
         return _startupTcs!.Task.ContinueWith((Task<object> _) => registration.Dispose(), cancellationToken);
     }
 
+    /// <summary>
+    /// Registers the view model ready.
+    /// </summary>
     internal void RegisterViewModelReady()
     {
         _startupTcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-        using (ReadyEvent.Subscribe((_) => _startupTcs!.TrySetResult(new object()))) { }
+        using (ReadyEvent.Subscribe((_) => _startupTcs!.TrySetResult(new object())))
+        {
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace ZirconNet.WPF.Hosting.Lifetime;
 public static class UseWpfApplicationLifetimeExtension
 {
     /// <summary>
-    /// Listens for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit and calls <see cref="IHostApplicationLifetime.StopApplication"/> to start the shutdown process. 
+    /// Listens for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit and calls <see cref="IHostApplicationLifetime.StopApplication"/> to start the shutdown process.
     /// </summary>
     /// <param name="builder">The <see cref="IHostBuilder" /> to configure.</param>
     /// <returns>The same instance of the <see cref="IHostBuilder"/> for chaining.</returns>
@@ -28,7 +28,7 @@ public static class UseWpfApplicationLifetimeExtension
     }
 
     /// <summary>
-    /// Listens for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit and calls <see cref="IHostApplicationLifetime.StopApplication"/> to start the shutdown process. 
+    /// Listens for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit and calls <see cref="IHostApplicationLifetime.StopApplication"/> to start the shutdown process.
     /// </summary>
     /// <param name="builder">The <see cref="IHostBuilder" /> to configure.</param>
     /// <param name="configureOptions">The delegate for configuring the <see cref="WpfApplicationLifetimeOptions"/>.</param>
@@ -48,8 +48,8 @@ public static class UseWpfApplicationLifetimeExtension
     /// <summary>
     /// Enables Wpf support, builds and starts the host, and waits for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit to shut down.
     /// </summary>
+    /// <typeparam name="T">The <see cref="Window" /> mainwindows to show and wait to close.</typeparam>
     /// <param name="builder">The <see cref="IHostBuilder" /> to configure.</param>
-    /// <param name="window">The <see cref="Window" /> mainwindows to show and wait to close.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
     public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default)
@@ -62,8 +62,8 @@ public static class UseWpfApplicationLifetimeExtension
     /// <summary>
     /// Enables Wpf support, builds and starts the host, and waits for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit to shut down.
     /// </summary>
+    /// <typeparam name="T">The <see cref="Window" /> mainwindows to show and wait to close.</typeparam>
     /// <param name="builder">The <see cref="IHostBuilder" /> to configure.</param>
-    /// <param name="window">The <see cref="Window" /> mainwindows to show and wait to close.</param>
     /// <param name="configureOptions">The delegate for configuring the <see cref="WpfApplicationLifetimeOptions"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
@@ -74,7 +74,7 @@ public static class UseWpfApplicationLifetimeExtension
         return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
     }
 
-    private async static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken)
+    private static async Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken)
         where T : Window
     {
         builder.ConfigureServices(services => services.AddSingleton<T>());

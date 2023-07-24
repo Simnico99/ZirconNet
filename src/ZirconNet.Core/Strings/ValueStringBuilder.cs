@@ -199,14 +199,15 @@ public ref partial struct ValueStringBuilder
         }
 
         var pos = _pos;
-        if (s.Length == 1 && (uint)pos < (uint)_chars.Length) // very common case, e.g. appending strings from NumberFormatInfo like separators, percent symbols, etc.
+        switch (s.Length)
         {
-            _chars[pos] = s[0];
-            _pos = pos + 1;
-        }
-        else
-        {
-            AppendSlow(s);
+            case 1 when (uint)pos < (uint)_chars.Length:
+                _chars[pos] = s[0];
+                _pos = pos + 1;
+                break;
+            default:
+                AppendSlow(s);
+                break;
         }
     }
 

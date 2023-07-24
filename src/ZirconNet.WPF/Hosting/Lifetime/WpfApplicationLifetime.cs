@@ -13,6 +13,7 @@ namespace ZirconNet.WPF.Hosting.Lifetime;
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("windows")]
 #endif
+
 /// <summary>
 /// Listens for Application.Current.Exit or AppDomain.CurrentDomain.ProcessExit.
 /// </summary>
@@ -23,18 +24,8 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
     private CancellationTokenRegistration? _applicationStartedRegistration;
     private CancellationTokenRegistration? _applicationStoppingRegistration;
 
-    public WpfApplicationLifetimeOptions Options { get; }
-
-    private IHostApplicationLifetime ApplicationLifetime { get; }
-
-    public IHostEnvironment Environment { get; }
-
-    public HostOptions HostOptions { get; }
-
-    private ILogger Logger { get; }
-
     public WpfApplicationLifetime(IOptions<WpfApplicationLifetimeOptions> options, IHostApplicationLifetime hostApplicationLifetime, IHostEnvironment environment, IOptions<HostOptions> hostOptions)
-        : this(options, hostApplicationLifetime, environment, hostOptions, NullLoggerFactory.Instance)
+    : this(options, hostApplicationLifetime, environment, hostOptions, NullLoggerFactory.Instance)
     {
     }
 
@@ -48,6 +39,16 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
         Logger = loggerFactory.CreateLogger("ZirconNet.WPF.Hosting.Lifetime");
     }
 
+    public WpfApplicationLifetimeOptions Options { get; }
+
+    public IHostEnvironment Environment { get; }
+
+    public HostOptions HostOptions { get; }
+
+    private ILogger Logger { get; }
+
+    private IHostApplicationLifetime ApplicationLifetime { get; }
+
     public Task WaitForStartAsync(CancellationToken cancellationToken)
     {
         if (!Options.SuppressStatusMessages)
@@ -59,6 +60,19 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
         RegisterShutdownHandlers();
 
         return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        UnregisterShutdownHandlers();
+
+        _applicationStartedRegistration?.Dispose();
+        _applicationStoppingRegistration?.Dispose();
     }
 
     private void OnApplicationStarted()
@@ -96,18 +110,5 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
     private void RegisterShutdownHandlers()
     {
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        UnregisterShutdownHandlers();
-
-        _applicationStartedRegistration?.Dispose();
-        _applicationStoppingRegistration?.Dispose();
     }
 }

@@ -20,7 +20,7 @@ public readonly struct ParallelAsyncOptions
         MaxDegreeOfParallelism = maxDegreeOfParallelism;
     }
 
-    public static ParallelAsyncOptions Default => _internalDefaultStuct ??= new();
+    public static ParallelAsyncOptions Default => _internalDefaultStuct ??= default;
 
 #if NET5_0_OR_GREATER
     public CancellationToken CancellationToken { get; init; } = default;
