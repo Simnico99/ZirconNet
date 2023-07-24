@@ -31,6 +31,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\..\Logo\ZirconNetLogo - 128x128.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -67,6 +71,10 @@
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
 </Project>

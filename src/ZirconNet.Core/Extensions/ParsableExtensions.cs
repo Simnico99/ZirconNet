@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="ParsableExtensions.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,7 +16,7 @@ public static class ParsableExtensions
 {
     public static T Parse<T>(this string input, IFormatProvider? formatProvider = null)
         where T : IParsable<T>
-    { 
+    {
         return T.Parse(input, formatProvider);
     }
 

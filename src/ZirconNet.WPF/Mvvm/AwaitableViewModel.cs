@@ -1,9 +1,15 @@
-﻿using ZirconNet.Core.Events;
+﻿// <copyright file="AwaitableViewModel.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using ZirconNet.Core.Events;
 
 namespace ZirconNet.WPF.Mvvm;
+
 public abstract class AwaitableViewModel : ViewModel
 {
     public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>();
+
     private TaskCompletionSource<object>? _startupTcs;
 
     public AwaitableViewModel()

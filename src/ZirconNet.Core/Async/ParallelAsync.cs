@@ -1,4 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿// <copyright file="ParallelAsync.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Collections.Concurrent;
 
 namespace ZirconNet.Core.Async;
 
@@ -18,7 +22,9 @@ public static class ParallelAsync
             using (partition)
             {
                 while (partition.MoveNext())
-                { await body(partition.Current); }
+                {
+                    await body(partition.Current);
+                }
             }
         }
 
@@ -48,7 +54,9 @@ public static class ParallelAsync
             using (partition)
             {
                 while (partition.MoveNext())
-                { await body(partition.Current); }
+                {
+                    await body(partition.Current);
+                }
             }
         }
 

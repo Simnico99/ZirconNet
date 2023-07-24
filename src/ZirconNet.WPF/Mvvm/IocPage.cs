@@ -1,8 +1,16 @@
-﻿using ZirconNet.Core.Extensions;
+﻿// <copyright file="IocPage.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Reflection;
+using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using ZirconNet.Core.Extensions;
 using ZirconNet.Core.Runtime;
 using ZirconNet.WPF.Hosting;
 
 namespace ZirconNet.WPF.Mvvm;
+
 public class IocPage : Page
 {
     public IocPage(IServiceProvider servicesProvider, IServiceCollection services)

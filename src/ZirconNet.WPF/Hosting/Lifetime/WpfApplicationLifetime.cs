@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿// <copyright file="WpfApplicationLifetime.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Runtime.Versioning;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using System.Runtime.Versioning;
-using System.Windows;
-using ZirconNet.Core.Hosting;
 
 namespace ZirconNet.WPF.Hosting.Lifetime;
 
@@ -22,13 +24,19 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
     private CancellationTokenRegistration? _applicationStoppingRegistration;
 
     public WpfApplicationLifetimeOptions Options { get; }
+
     private IHostApplicationLifetime ApplicationLifetime { get; }
+
     public IHostEnvironment Environment { get; }
+
     public HostOptions HostOptions { get; }
+
     private ILogger Logger { get; }
 
     public WpfApplicationLifetime(IOptions<WpfApplicationLifetimeOptions> options, IHostApplicationLifetime hostApplicationLifetime, IHostEnvironment environment, IOptions<HostOptions> hostOptions)
-        : this(options, hostApplicationLifetime, environment, hostOptions, NullLoggerFactory.Instance) { }
+        : this(options, hostApplicationLifetime, environment, hostOptions, NullLoggerFactory.Instance)
+    {
+    }
 
     public WpfApplicationLifetime(IOptions<WpfApplicationLifetimeOptions> options, IHostApplicationLifetime hostApplicationLifetime, IHostEnvironment environment, IOptions<HostOptions> hostOptions, ILoggerFactory loggerFactory)
     {

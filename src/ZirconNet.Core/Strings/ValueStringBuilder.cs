@@ -1,14 +1,15 @@
-﻿using System;
+﻿// <copyright file="ValueStringBuilder.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
 using System.Buffers;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.Strings;
+
 public ref partial struct ValueStringBuilder
 {
     private char[]? _arrayToReturnToPool;
@@ -17,6 +18,11 @@ public ref partial struct ValueStringBuilder
 
     public ValueStringBuilder(Span<char> initialBuffer)
     {
+        var test = new WeakEvent();
+        var task = new Task<bool>(() => true);
+
+        test.Subscribe(() => task);
+
         _arrayToReturnToPool = null;
         _chars = initialBuffer;
         _pos = 0;
@@ -31,30 +37,44 @@ public ref partial struct ValueStringBuilder
 
     public int Length
     {
-        get => _pos;
+        readonly get => _pos;
         set
         {
-            Debug.Assert(value >= 0);
-            Debug.Assert(value <= _chars.Length);
+            Debug.Assert(value >= 0, "a");
+            Debug.Assert(value <= _chars.Length, "a");
             _pos = value;
         }
     }
 
-    public int Capacity => _chars.Length;
+    /// <summary>Gets the underlying storage of the builder.</summary>
+    public readonly Span<char> RawChars => _chars;
+
+    public readonly int Capacity => _chars.Length;
+
+    public ref char this[int index]
+    {
+        get
+        {
+            Debug.Assert(index < _pos, "a");
+            return ref _chars[index];
+        }
+    }
 
     public void EnsureCapacity(int capacity)
     {
         if ((uint)capacity > (uint)_chars.Length)
+        {
             Grow(capacity - _pos);
+        }
     }
 
     /// <summary>
     /// Get a pinnable reference to the builder.
     /// Does not ensure there is a null char after <see cref="Length"/>
     /// This overload is pattern matched in the C# 7.3+ compiler so you can omit
-    /// the explicit method call, and write eg "fixed (char* c = builder)"
+    /// the explicit method call, and write eg "fixed (char* c = builder)".
     /// </summary>
-    public ref char GetPinnableReference()
+    public readonly ref char GetPinnableReference()
     {
         return ref MemoryMarshal.GetReference(_chars);
     }
@@ -62,7 +82,7 @@ public ref partial struct ValueStringBuilder
     /// <summary>
     /// Get a pinnable reference to the builder.
     /// </summary>
-    /// <param name="terminate">Ensures that the builder has a null char after <see cref="Length"/></param>
+    /// <param name="terminate">Ensures that the builder has a null char after <see cref="Length"/>.</param>
     public ref char GetPinnableReference(bool terminate)
     {
         if (terminate)
@@ -70,16 +90,8 @@ public ref partial struct ValueStringBuilder
             EnsureCapacity(Length + 1);
             _chars[Length] = '\0';
         }
-        return ref MemoryMarshal.GetReference(_chars);
-    }
 
-    public ref char this[int index]
-    {
-        get
-        {
-            Debug.Assert(index < _pos);
-            return ref _chars[index];
-        }
+        return ref MemoryMarshal.GetReference(_chars);
     }
 
     public override string ToString()
@@ -89,13 +101,10 @@ public ref partial struct ValueStringBuilder
         return s;
     }
 
-    /// <summary>Returns the underlying storage of the builder.</summary>
-    public Span<char> RawChars => _chars;
-
     /// <summary>
     /// Returns a span around the contents of the builder.
     /// </summary>
-    /// <param name="terminate">Ensures that the builder has a null char after <see cref="Length"/></param>
+    /// <param name="terminate">Ensures that the builder has a null char after <see cref="Length"/>.</param>
     public ReadOnlySpan<char> AsSpan(bool terminate)
     {
         if (terminate)
@@ -103,12 +112,15 @@ public ref partial struct ValueStringBuilder
             EnsureCapacity(Length + 1);
             _chars[Length] = '\0';
         }
+
         return _chars[.._pos];
     }
 
-    public ReadOnlySpan<char> AsSpan() => _chars[.._pos];
-    public ReadOnlySpan<char> AsSpan(int start) => _chars[start.._pos];
-    public ReadOnlySpan<char> AsSpan(int start, int length) => _chars.Slice(start, length);
+    public readonly ReadOnlySpan<char> AsSpan() => _chars[.._pos];
+
+    public readonly ReadOnlySpan<char> AsSpan(int start) => _chars[start.._pos];
+
+    public readonly ReadOnlySpan<char> AsSpan(int start, int length) => _chars.Slice(start, length);
 
     public bool TryCopyTo(Span<char> destination, out int charsWritten)
     {
@@ -198,22 +210,6 @@ public ref partial struct ValueStringBuilder
         }
     }
 
-    private void AppendSlow(string s)
-    {
-        var pos = _pos;
-        if (pos > _chars.Length - s.Length)
-        {
-            Grow(s.Length);
-        }
-
-        s
-#if !NET6_0_OR_GREATER
-            .AsSpan()
-#endif
-            .CopyTo(_chars[pos..]);
-        _pos += s.Length;
-    }
-
     public void Append(char c, int count)
     {
         if (_pos > _chars.Length - count)
@@ -226,6 +222,7 @@ public ref partial struct ValueStringBuilder
         {
             dst[i] = c;
         }
+
         _pos += count;
     }
 
@@ -254,6 +251,33 @@ public ref partial struct ValueStringBuilder
         return _chars.Slice(origPos, length);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Dispose()
+    {
+        var toReturn = _arrayToReturnToPool;
+        this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
+        if (toReturn != null)
+        {
+            ArrayPool<char>.Shared.Return(toReturn);
+        }
+    }
+
+    private void AppendSlow(string s)
+    {
+        var pos = _pos;
+        if (pos > _chars.Length - s.Length)
+        {
+            Grow(s.Length);
+        }
+
+        s
+#if !NET6_0_OR_GREATER
+            .AsSpan()
+#endif
+            .CopyTo(_chars[pos..]);
+        _pos += s.Length;
+    }
+
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void GrowAndAppend(char c)
     {
@@ -272,7 +296,7 @@ public ref partial struct ValueStringBuilder
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void Grow(int additionalCapacityBeyondPos)
     {
-        Debug.Assert(additionalCapacityBeyondPos > 0);
+        Debug.Assert(additionalCapacityBeyondPos > 0, "a");
         Debug.Assert(_pos > _chars.Length - additionalCapacityBeyondPos, "Grow called incorrectly, no resize is needed.");
 
         // Make sure to let Rent throw an exception if the caller has a bug and the desired capacity is negative
@@ -282,17 +306,6 @@ public ref partial struct ValueStringBuilder
 
         var toReturn = _arrayToReturnToPool;
         _chars = _arrayToReturnToPool = poolArray;
-        if (toReturn != null)
-        {
-            ArrayPool<char>.Shared.Return(toReturn);
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Dispose()
-    {
-        var toReturn = _arrayToReturnToPool;
-        this = default; // for safety, to avoid using pooled array if this instance is erroneously appended to again
         if (toReturn != null)
         {
             ArrayPool<char>.Shared.Return(toReturn);

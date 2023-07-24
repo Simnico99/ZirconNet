@@ -1,6 +1,13 @@
-﻿using System.IO.Compression;
+﻿// <copyright file="ZipFileWrapper.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.IO.Compression;
+using System.Runtime.Versioning;
+using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
+
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
@@ -9,12 +16,21 @@ public sealed class ZipFileWrapper : FileWrapperBase
     private const char _slash = '/';
     private const char _backSlash = '\\';
 
-    public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
-    public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();
-    public ZipFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
-    public ZipFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
+    public ZipFileWrapper(string file, bool createFile = true, bool overwrite = false)
+    : base(file, createFile, overwrite)
+    {
+    }
 
-    public async Task UnzipAsync(string extractionPath)
+    public ZipFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false)
+        : base(file, createFile, overwrite)
+    {
+    }
+
+    public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
+
+    public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();
+
+    public async ValueTask UnzipAsync(string extractionPath)
     {
         using var archive = ZipFile.OpenRead(FullName);
         foreach (var zipArchiveEntry in archive.Entries)
@@ -31,8 +47,9 @@ public sealed class ZipFileWrapper : FileWrapperBase
                 using (var stream = zipArchiveEntry.Open())
                 using (var fileStream = File.Create(extractionPathFullName))
                 {
-                    await stream.CopyToAsync(fileStream);
+                    await stream.CopyToAsync(fileStream).ConfigureAwait(false);
                 }
+
                 Extracted.Publish(extractionName);
             }
             else
@@ -44,6 +61,7 @@ public sealed class ZipFileWrapper : FileWrapperBase
                 Extracted.Publish(extractionName);
             }
         }
+
         archive.Dispose();
     }
 

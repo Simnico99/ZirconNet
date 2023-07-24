@@ -1,6 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
+﻿// <copyright file="UseWpfApplicationLifetime.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using System.Windows;
 using ZirconNet.WPF.Extensions;
 
@@ -46,7 +52,8 @@ public static class UseWpfApplicationLifetimeExtension
     /// <param name="window">The <see cref="Window" /> mainwindows to show and wait to close.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
-    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default) where T : Window
+    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default)
+        where T : Window
     {
         builder.UseWpfApplicationLifetime();
         return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
@@ -60,13 +67,15 @@ public static class UseWpfApplicationLifetimeExtension
     /// <param name="configureOptions">The delegate for configuring the <see cref="WpfApplicationLifetimeOptions"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
-    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, CancellationToken cancellationToken = default) where T : Window
+    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, CancellationToken cancellationToken = default)
+        where T : Window
     {
         builder.UseWpfApplicationLifetime(configureOptions);
         return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
     }
 
-    private async static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken) where T : Window
+    private async static Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken)
+        where T : Window
     {
         builder.ConfigureServices(services => services.AddSingleton<T>());
 

@@ -1,19 +1,20 @@
-﻿using System.Linq;
+﻿// <copyright file="DirectoryWrapperBase.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Runtime.Versioning;
 using System.Security.AccessControl;
-using System.Threading.Tasks;
+using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
+
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
+/// <inheritdoc cref="IDirectoryWrapperBase"/>
 public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBase
 {
     private readonly DirectoryInfo _directoryInfo;
-    public override string FullName => _directoryInfo.FullName;
-    public override string Name => _directoryInfo.Name;
-    public override bool Exists => _directoryInfo.Exists;
-    public IWeakEvent<IFileWrapperBase> CopyingFile { get; } = new WeakEvent<IFileWrapperBase>();
-    public IWeakEvent<IFileWrapperBase> CopiedFile { get; } = new WeakEvent<IFileWrapperBase>();
 
     public DirectoryWrapperBase(string directory, bool createDirectory = true, bool overwrite = false)
     {
@@ -25,17 +26,17 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
         _directoryInfo = createDirectory ? Create(directory.FullName, overwrite) : directory;
     }
 
-    private static DirectoryInfo Create(string path, bool overwrite = false)
-    {
-        if (Directory.Exists(path) && overwrite)
-        {
-            new DirectoryInfo(path).Delete(true);
-        }
+    public override string FullName => _directoryInfo.FullName;
 
-        return Directory.Exists(path) && !overwrite ? new DirectoryInfo(path) : Directory.CreateDirectory(path);
-    }
+    public override string Name => _directoryInfo.Name;
 
-    public async Task CopyContentAsync(IDirectoryWrapperBase destination)
+    public override bool Exists => _directoryInfo.Exists;
+
+    public IWeakEvent<IFileWrapperBase> CopyingFile { get; } = new WeakEvent<IFileWrapperBase>();
+
+    public IWeakEvent<IFileWrapperBase> CopiedFile { get; } = new WeakEvent<IFileWrapperBase>();
+
+    public async ValueTask CopyContentAsync(IDirectoryWrapperBase destination)
     {
         if (_directoryInfo != null)
         {
@@ -49,9 +50,10 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
                 {
                     var fileWrapper = new FileWrapper(file);
                     CopyingFile.Publish(fileWrapper);
-                    await fileWrapper.CopyToDirectoryAsync(destination);
+                    await fileWrapper.CopyToDirectoryAsync(destination).ConfigureAwait(false);
                     CopiedFile.Publish(fileWrapper);
                 }
+
                 var subdirectories = currentDirectory.GetDirectories();
                 foreach (var subdirectory in subdirectories)
                 {
@@ -102,5 +104,15 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
     public void SetAccessControl(DirectorySecurity directorySecurity)
     {
         _directoryInfo.SetAccessControl(directorySecurity);
+    }
+
+    private static DirectoryInfo Create(string path, bool overwrite = false)
+    {
+        if (Directory.Exists(path) && overwrite)
+        {
+            new DirectoryInfo(path).Delete(true);
+        }
+
+        return Directory.Exists(path) && !overwrite ? new DirectoryInfo(path) : Directory.CreateDirectory(path);
     }
 }

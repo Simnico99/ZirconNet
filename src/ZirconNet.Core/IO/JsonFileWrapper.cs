@@ -1,34 +1,30 @@
-﻿using System.Text.Json;
+﻿// <copyright file="JsonFileWrapper.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Runtime.Versioning;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
+
 #if NET5_0_OR_GREATER
 [SupportedOSPlatform("Windows")]
 #endif
 public sealed class JsonFileWrapper : FileWrapperBase
 {
-    private JsonObject? _fileContent;
     private static readonly LockAsync _asyncLock = new();
+    private JsonObject? _fileContent;
 
-    public JsonFileWrapper(string file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
-    public JsonFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false) : base(file, createFile, overwrite) { }
-
-    private void AddKey(string fieldToAdd, object value)
+    public JsonFileWrapper(string file, bool createFile = true, bool overwrite = false)
+        : base(file, createFile, overwrite)
     {
-        if (_fileContent is null)
-        {
-            return;
-        }
+    }
 
-        lock (_fileContent)
-        {
-            if (_fileContent?[fieldToAdd] is null)
-            {
-                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
-
-                _fileContent?.Add(fieldToAdd, value.ToString());
-            }
-        }
+    public JsonFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false)
+        : base(file, createFile, overwrite)
+    {
     }
 
     public void DeleteKey(string fieldToDelete)
@@ -44,7 +40,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
             {
                 _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
 
-                _ = (_fileContent?.Remove(fieldToDelete));
+                _ = _fileContent?.Remove(fieldToDelete);
             }
         }
     }
@@ -71,38 +67,12 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public JsonObject GetJsonObject()
     {
-        return _fileContent is null ? (new()) : _fileContent;
+        return _fileContent is null ? new() : _fileContent;
     }
 
     public void MergeJsonObject(JsonObject jobject)
     {
-        _ = (_fileContent?.Concat(jobject));
-    }
-
-    private async Task<bool> IsFileLockedAsync()
-    {
-        var canContinue = false;
-        var count = 0;
-
-        while (!canContinue)
-        {
-            if (count >= 10)
-            {
-                throw new IOException($"The current process cannot access the file: '{FullName}' because it is being used by another process.!");
-            }
-            count++;
-
-            if (IsFileLocked(_fileInfo.FullName))
-            {
-                await Task.Delay(1000);
-            }
-            else
-            {
-                canContinue = true;
-            }
-        }
-
-        return false;
+        _ = _fileContent?.Concat(jobject);
     }
 
     public void Clear()
@@ -112,7 +82,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public async Task LoadFileAsync(bool forceRead = false)
     {
-        await _asyncLock.Lock(async () =>
+        await _asyncLock.Lock<Task>(async () =>
         {
             if ((_fileContent == null || forceRead) && !await IsFileLockedAsync())
             {
@@ -126,12 +96,12 @@ public sealed class JsonFileWrapper : FileWrapperBase
                     _fileContent = JsonNode.Parse("{  }")?.AsObject();
                 }
             }
-        });
+        }).ConfigureAwait(false);
     }
 
     public void LoadFile(bool forceRead = false)
     {
-        if ((_fileContent == null || forceRead) && !IsFileLocked(_fileInfo.FullName))
+        if ((_fileContent == null || forceRead) && !IsFileLocked(FileInfo.FullName))
         {
             using StreamReader r = new(FullName);
             try
@@ -147,7 +117,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public async ValueTask<(T? Result, bool Success)> ReadKeyAsync<T>(string fieldName, bool forceRead = false)
     {
-        await LoadFileAsync(forceRead);
+        await LoadFileAsync(forceRead).ConfigureAwait(false);
 
         if (_fileContent?[fieldName] is not null)
         {
@@ -182,8 +152,53 @@ public sealed class JsonFileWrapper : FileWrapperBase
     {
         if (_fileContent is not null)
         {
-            await File.WriteAllTextAsync(FullName, _fileContent.ToString());
+            await File.WriteAllTextAsync(FullName, _fileContent.ToString()).ConfigureAwait(false);
         }
     }
 #endif
+
+    private void AddKey(string fieldToAdd, object value)
+    {
+        if (_fileContent is null)
+        {
+            return;
+        }
+
+        lock (_fileContent)
+        {
+            if (_fileContent?[fieldToAdd] is null)
+            {
+                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
+
+                _fileContent?.Add(fieldToAdd, value.ToString());
+            }
+        }
+    }
+
+    private async ValueTask<bool> IsFileLockedAsync()
+    {
+        var canContinue = false;
+        var count = 0;
+
+        while (!canContinue)
+        {
+            if (count >= 10)
+            {
+                throw new IOException($"The current process cannot access the file: '{FullName}' because it is being used by another process.!");
+            }
+
+            count++;
+
+            if (IsFileLocked(FileInfo.FullName))
+            {
+                await Task.Delay(1000).ConfigureAwait(false);
+            }
+            else
+            {
+                canContinue = true;
+            }
+        }
+
+        return false;
+    }
 }

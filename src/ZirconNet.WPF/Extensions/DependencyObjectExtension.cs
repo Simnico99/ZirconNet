@@ -1,10 +1,16 @@
-﻿using System.Windows;
+﻿// <copyright file="DependencyObjectExtension.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Windows;
 using System.Windows.Media;
 
 namespace ZirconNet.WPF.Extensions;
+
 public static class DependencyObjectExtension
 {
-    public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj) where T : DependencyObject
+    public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj)
+        where T : DependencyObject
     {
         if (depObj == null)
         {
@@ -27,7 +33,8 @@ public static class DependencyObjectExtension
         }
     }
 
-    public static IEnumerable<T> FindLogicalChildren<T>(this DependencyObject depObj) where T : DependencyObject
+    public static IEnumerable<T> FindLogicalChildren<T>(this DependencyObject depObj)
+        where T : DependencyObject
     {
         if (depObj == null)
         {

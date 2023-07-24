@@ -1,6 +1,11 @@
-﻿using System.Dynamic;
+﻿// <copyright file="DynamicClass.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Dynamic;
 
 namespace ZirconNet.Core.Runtime;
+
 public sealed class DynamicClass : DynamicObject
 {
     private readonly Dictionary<string, (Type Type, object? Value)> _fields;
@@ -23,8 +28,10 @@ public sealed class DynamicClass : DynamicObject
                 _fields[binder.Name] = (fieldInfo.Type, value);
                 return true;
             }
+
             throw new ArgumentException($"{value} type ({value?.GetType()}) is not the same as the Field ({fieldInfo.Type.Name})", nameof(value));
         }
+
         return false;
     }
 
@@ -35,6 +42,7 @@ public sealed class DynamicClass : DynamicObject
             result = fieldInfo.Value;
             return true;
         }
+
         result = null;
         return false;
     }

@@ -1,17 +1,21 @@
-﻿using System.Collections.Concurrent;
+﻿// <copyright file="BufferedThreadDispatcher.cs" company="Zircon Technology">
+// This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
+// </copyright>
+
+using System.Collections.Concurrent;
 using System.Windows;
 using System.Windows.Threading;
 
 namespace ZirconNet.WPF.Dispatcher;
 /// <summary>
-/// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue.,
+/// Prevent the ui freeze by using a buffer to execute the UI Updates from multiple threads in a sort of queue. (To be used with the background service)
 /// </summary>
 public sealed class BufferedThreadDispatcher
 {
     public static BufferedThreadDispatcher Current { get; } = new();
 
     /// <summary>
-    /// Delay to wait between the screen refresh.
+    /// Gets or sets delay to wait between the screen refresh.
     /// </summary>
     public TimeSpan Delay { get; set; } = TimeSpan.FromMilliseconds(1);
 
@@ -21,18 +25,13 @@ public sealed class BufferedThreadDispatcher
     private BufferedThreadDispatcher()
     {
         _dispatcher = Application.Current.Dispatcher;
-        Task.Run(ProcessQueue);
     }
 
-    private async void ProcessQueue()
+    public void ProcessOneItem()
     {
-        while (true)
+        if (_queue.TryDequeue(out var action))
         {
-            if (_queue.TryDequeue(out var action))
-            {
-                    _dispatcher.Invoke(action, DispatcherPriority.Send);
-            }
-            await Task.Delay(Delay);
+            _dispatcher.Invoke(action, DispatcherPriority.Send);
         }
     }
 
@@ -40,7 +39,8 @@ public sealed class BufferedThreadDispatcher
     {
         _queue.Enqueue(action);
     }
-    public async Task<T> InvokeAsync<T>(Func<T> func)
+
+    public Task<T> InvokeAsync<T>(Func<T> func)
     {
         var tcs = new TaskCompletionSource<T>();
         _queue.Enqueue(() =>
@@ -55,9 +55,10 @@ public sealed class BufferedThreadDispatcher
                 tcs.SetException(ex);
             }
         });
-        return await tcs.Task;
+        return tcs.Task;
     }
-    public async Task InvokeAsync(Action act)
+
+    public Task InvokeAsync(Action act)
     {
         var tcs = new TaskCompletionSource<object?>();
         _queue.Enqueue(() =>
@@ -72,6 +73,6 @@ public sealed class BufferedThreadDispatcher
                 tcs.SetException(ex);
             }
         });
-        await tcs.Task;
+        return tcs.Task;
     }
 }
