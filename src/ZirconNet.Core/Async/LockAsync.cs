@@ -7,9 +7,10 @@ namespace ZirconNet.Core.Async;
 /// <summary>
 /// Create lock from an async Task delegate and returns the result.
 /// </summary>
-public readonly struct LockAsync
+public sealed class LockAsync : IDisposable
 {
     private readonly SemaphoreSlim _semaphore;
+    private bool _disposedValue;
 
     public LockAsync()
     {
@@ -71,6 +72,24 @@ public readonly struct LockAsync
         finally
         {
             _ = _semaphore?.Release();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _semaphore?.Dispose();
+            }
+            _disposedValue = true;
         }
     }
 }
