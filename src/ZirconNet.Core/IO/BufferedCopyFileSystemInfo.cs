@@ -20,7 +20,7 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
     {
         var destinationPath = Path.Combine(destination.FullName, fileWrapper.Name);
 
-        using var sourceStream = new FileStream(fileWrapper.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: _bufferSize, useAsync: true);
+        using var sourceStream = new FileStream(fileWrapper.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: _bufferSize, true);
         await BufferedCopyAsync(sourceStream, destinationPath);
     }
 

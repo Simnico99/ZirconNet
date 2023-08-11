@@ -4,6 +4,7 @@
 
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
+using ZirconNet.Core.Async;
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
@@ -37,29 +38,7 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
     {
         if (_directoryInfo is not null)
         {
-            var directoriesQueue = new Queue<DirectoryInfo>();
-            directoriesQueue.Enqueue(_directoryInfo);
-            while (directoriesQueue.Count > 0)
-            {
-                var currentDirectory = directoriesQueue.Dequeue();
-                var files = currentDirectory.GetFiles();
-
-                var tasks = files.Select(async file =>
-                {
-                    var fileWrapper = new FileWrapper(file);
-                    CopyingFile.Publish(fileWrapper);
-                    await BufferedCopyAsync(fileWrapper, destination).ConfigureAwait(false);
-                    CopiedFile.Publish(fileWrapper);
-                });
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-
-                var subdirectories = currentDirectory.GetDirectories();
-                foreach (var subdirectory in subdirectories)
-                {
-                    directoriesQueue.Enqueue(subdirectory);
-                }
-            }
+            await CopyDirectoryContentAsync(_directoryInfo, destination).ConfigureAwait(false);
         }
     }
 
@@ -120,5 +99,25 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
         }
 
         return Directory.Exists(path) && !overwrite ? new DirectoryInfo(path) : Directory.CreateDirectory(path);
+    }
+
+    private async Task CopyDirectoryContentAsync(DirectoryInfo directoryInfo, IDirectoryWrapperBase destination)
+    {
+        var files = directoryInfo.GetFiles();
+        await ParallelAsync.ForEach(files, Environment.ProcessorCount, file => HandleFileAsync(file, destination)).ConfigureAwait(false);
+
+        var subdirectories = directoryInfo.GetDirectories();
+        foreach (var subdirectory in subdirectories)
+        {
+            await CopyDirectoryContentAsync(subdirectory, destination).ConfigureAwait(false);
+        }
+    }
+
+    private async Task HandleFileAsync(FileInfo file, IDirectoryWrapperBase destination)
+    {
+        var fileWrapper = new FileWrapper(file);
+        CopyingFile.Publish(fileWrapper);
+        await BufferedCopyAsync(fileWrapper, destination).ConfigureAwait(false);
+        CopiedFile.Publish(fileWrapper);
     }
 }

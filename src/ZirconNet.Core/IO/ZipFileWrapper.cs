@@ -61,7 +61,7 @@ public sealed class ZipFileWrapper : FileWrapperBase
         if (File.Exists(extractionPathFullName))
         {
             using var stream = zipArchiveEntry.Open();
-            using var fileStream = new FileStream(extractionPathFullName, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+            using var fileStream = new FileStream(extractionPathFullName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
             var buffer = ArrayPool<byte>.Shared.Rent(4096);
             try
             {
