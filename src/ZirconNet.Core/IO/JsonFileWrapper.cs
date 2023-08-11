@@ -2,30 +2,36 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Runtime.Versioning;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
 
-public sealed class JsonFileWrapper : FileWrapperBase
+public sealed class JsonFileWrapper : FileWrapperBase, IDisposable
 {
-    private static readonly LockAsync _asyncLock = new();
-    private JsonObject? _fileContent;
+    private readonly StreamReader _reader;
+    private readonly LockAsync _asyncLock = new();
+
+    private JsonObject _fileContent = new();
+    private bool _disposedValue;
+    private bool _hasFlushedLastChanges;
 
     public JsonFileWrapper(string file, bool createFile = true, bool overwrite = false)
         : base(file, createFile, overwrite)
     {
+        _reader = new StreamReader(FullName);
     }
 
     public JsonFileWrapper(FileInfo file, bool createFile = true, bool overwrite = false)
         : base(file, createFile, overwrite)
     {
+        _reader = new StreamReader(FullName);
     }
 
     public void DeleteKey(string fieldToDelete)
     {
+        _hasFlushedLastChanges = false;
         if (_fileContent is null)
         {
             return;
@@ -35,7 +41,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToDelete] is not null)
             {
-                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
+                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject()!;
 
                 _ = _fileContent?.Remove(fieldToDelete);
             }
@@ -44,6 +50,7 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public void ModifyKey(string fieldToModify, object value)
     {
+        _hasFlushedLastChanges = false;
         if (_fileContent is null)
         {
             return;
@@ -69,47 +76,24 @@ public sealed class JsonFileWrapper : FileWrapperBase
 
     public void MergeJsonObject(JsonObject jobject)
     {
+        _hasFlushedLastChanges = false;
         _ = _fileContent?.Concat(jobject);
     }
 
     public void Clear()
     {
+        _hasFlushedLastChanges = false;
         _fileContent = new();
     }
 
     public async Task LoadFileAsync(bool forceRead = false)
     {
-        await _asyncLock.Lock<Task>(async () =>
-        {
-            if ((_fileContent == null || forceRead) && !await IsFileLockedAsync())
-            {
-                using StreamReader r = new(FullName);
-                try
-                {
-                    _fileContent = JsonNode.Parse(await r.ReadToEndAsync())?.AsObject();
-                }
-                catch (Exception ex) when (ex is IOException or JsonException)
-                {
-                    _fileContent = JsonNode.Parse("{  }")?.AsObject();
-                }
-            }
-        }).ConfigureAwait(false);
+        await _asyncLock.Lock<Task>(async () => await LoadFileInternalAsync(forceRead)).ConfigureAwait(false);
     }
 
     public void LoadFile(bool forceRead = false)
     {
-        if ((_fileContent == null || forceRead) && !IsFileLocked(FileInfo.FullName))
-        {
-            using StreamReader r = new(FullName);
-            try
-            {
-                _fileContent = JsonNode.Parse(r.ReadToEnd())?.AsObject();
-            }
-            catch (Exception ex) when (ex is IOException or JsonException)
-            {
-                _fileContent = JsonNode.Parse("{  }")?.AsObject();
-            }
-        }
+        LoadFileInternalAsync(forceRead).GetAwaiter().GetResult();
     }
 
     public async ValueTask<(T? Result, bool Success)> ReadKeyAsync<T>(string fieldName, bool forceRead = false)
@@ -140,8 +124,15 @@ public sealed class JsonFileWrapper : FileWrapperBase
     {
         if (_fileContent is not null)
         {
+            _hasFlushedLastChanges = true;
             File.WriteAllText(FullName, _fileContent.ToString());
         }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 
 #if NET5_0_OR_GREATER
@@ -149,10 +140,30 @@ public sealed class JsonFileWrapper : FileWrapperBase
     {
         if (_fileContent is not null)
         {
+            _hasFlushedLastChanges = true;
             await File.WriteAllTextAsync(FullName, _fileContent.ToString()).ConfigureAwait(false);
         }
     }
 #endif
+
+    private async Task LoadFileInternalAsync(bool forceRead)
+    {
+        if ((_fileContent == null || forceRead) && !await IsFileLockedAsync())
+        {
+            try
+            {
+                _fileContent = JsonNode.Parse(await _reader.ReadToEndAsync())?.AsObject() ?? new();
+            }
+            catch (IOException)
+            {
+                _fileContent = new();
+            }
+            catch (JsonException)
+            {
+                _fileContent = new();
+            }
+        }
+    }
 
     private void AddKey(string fieldToAdd, object value)
     {
@@ -165,37 +176,46 @@ public sealed class JsonFileWrapper : FileWrapperBase
         {
             if (_fileContent?[fieldToAdd] is null)
             {
-                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject();
+                _fileContent = _fileContent is not null ? _fileContent : JsonNode.Parse("{  }")?.AsObject()!;
 
                 _fileContent?.Add(fieldToAdd, value.ToString());
             }
         }
     }
 
-    private async ValueTask<bool> IsFileLockedAsync()
+    private async Task<bool> IsFileLockedAsync()
     {
-        var canContinue = false;
-        var count = 0;
-
-        while (!canContinue)
+        for (var attempt = 0; attempt < 10; attempt++)
         {
-            if (count >= 10)
+            try
             {
-                throw new IOException($"The current process cannot access the file: '{FullName}' because it is being used by another process.!");
+                using var stream = File.Open(FileInfo.FullName, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+                return false;
             }
-
-            count++;
-
-            if (IsFileLocked(FileInfo.FullName))
+            catch (IOException)
             {
                 await Task.Delay(1000).ConfigureAwait(false);
             }
-            else
-            {
-                canContinue = true;
-            }
         }
 
-        return false;
+        throw new IOException($"The current process cannot access the file: '{FullName}' because it is being used by another process!");
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                if (!_hasFlushedLastChanges)
+                {
+                    WriteAndFlush();
+                }
+
+                _reader.Dispose();
+            }
+
+            _disposedValue = true;
+        }
     }
 }
