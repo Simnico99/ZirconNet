@@ -5,13 +5,19 @@
 using Microsoft.Extensions.Hosting;
 using ZirconNet.Core.Hosting;
 using ZirconNet.WPF.BackgroundServices;
+using ZirconNet.WPF.Dispatcher;
 
 namespace ZirconNet.WPF.Extensions;
 
 public static class BufferedThreadDispatcherExtension
 {
-    public static IHostBuilder UseBufferedThreadDispatcher(this IHostBuilder builder)
+    public static IHostBuilder UseBufferedThreadDispatcher(this IHostBuilder builder, TimeSpan delay = default!)
     {
+        if (delay != default!)
+        {
+            BufferedThreadDispatcher.Current.Delay = delay;
+        }
+
         builder.ConfigureServices(services => services.AddBackgroundServices<BufferedDispatcherBackgroundService>());
         return builder;
     }
