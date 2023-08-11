@@ -2,8 +2,6 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Runtime.Versioning;
-
 namespace ZirconNet.Core.IO;
 
 public sealed class FileWrapper : FileWrapperBase

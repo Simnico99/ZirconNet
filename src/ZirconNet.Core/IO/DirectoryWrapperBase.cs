@@ -2,7 +2,9 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using System.Security.AccessControl;
 using ZirconNet.Core.Async;
 using ZirconNet.Core.Events;
