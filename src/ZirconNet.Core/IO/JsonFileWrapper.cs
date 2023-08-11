@@ -212,7 +212,8 @@ public sealed class JsonFileWrapper : FileWrapperBase, IDisposable
                     WriteAndFlush();
                 }
 
-                _reader.Dispose();
+                _asyncLock?.Dispose();
+                _reader?.Dispose();
             }
 
             _disposedValue = true;
