@@ -29,12 +29,12 @@ public static class RangeExtensions
     /// <param name="range">The range to enumerate.</param>
     /// <returns>A CustomIntEnumerator that can be used to iterate through the range.</returns>
 #if NETCOREAPP3_1_OR_GREATER
-    public static CustomIntEnumerator GetEnumerator(this Range range)
+    public static RangeEnumerator GetEnumerator(this Range range)
 #else
-    internal static CustomIntEnumerator GetEnumerator(this Range range)
+    internal static RangeEnumerator GetEnumerator(this Range range)
 #endif
     {
-        return new CustomIntEnumerator(range);
+        return new RangeEnumerator(range);
     }
 
     /// <summary>

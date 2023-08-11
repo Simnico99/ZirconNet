@@ -1,32 +1,26 @@
-﻿// <copyright file="CustomIntEnumerator.cs" company="Zircon Technology">
+﻿// <copyright file="RangeEnumerator.cs" company="Zircon Technology">
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ZirconNet.Core.Runtime;
 
 /// <summary>
 /// Defines an enumerator for a range of integers.
 /// </summary>
-public struct CustomIntEnumerator
+public struct RangeEnumerator
 {
     private readonly int _end;
     private int _current;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CustomIntEnumerator"/> struct.
+    /// Initializes a new instance of the <see cref="RangeEnumerator"/> struct.
     /// </summary>
     /// <param name="range">The range to enumerate.</param>
     /// <exception cref="NotSupportedException">Thrown when the end of the range is from the end.</exception>
 #if NETCOREAPP3_1_OR_GREATER
-    public CustomIntEnumerator(Range range)
+    public RangeEnumerator(Range range)
 #else
-    internal CustomIntEnumerator(Range range)
+    internal RangeEnumerator(Range range)
 #endif
     {
         if (range.End.IsFromEnd)
