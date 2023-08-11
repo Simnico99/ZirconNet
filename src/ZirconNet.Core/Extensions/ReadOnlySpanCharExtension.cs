@@ -45,6 +45,13 @@ public static class ReadOnlySpanCharExtension
         return array;
     }
 
+    public static ReadOnlySpan<char> Replace(this ReadOnlySpan<char> source, char oldChar, char newChar)
+    {
+        var result = source.ToString(); // Convert to string to use built-in Replace
+        result = result.Replace(oldChar, newChar);
+        return result.AsSpan(); // Convert back to ReadOnlySpan<char>
+    }
+
     private static T ParseSlice<T>(ReadOnlySpan<char> slice, TryParseHandler<T> tryParseHandler)
     {
         tryParseHandler(slice, out var result);

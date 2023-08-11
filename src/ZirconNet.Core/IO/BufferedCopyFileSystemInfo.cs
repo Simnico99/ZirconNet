@@ -2,6 +2,8 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
+using System.Buffers;
+
 namespace ZirconNet.Core.IO;
 
 public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
@@ -26,18 +28,25 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
     {
         using var destinationStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, _bufferSize, true);
 
-        var buffer = new byte[_bufferSize];
-        int bytesRead;
-#if NET5_0_OR_GREATER
-        while ((bytesRead = await sourceStream.ReadAsync(buffer)) > 0)
+        var buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
+        try
         {
-            await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-        }
+            int bytesRead;
+#if NETCOREAPP3_1_OR_GREATER
+            while ((bytesRead = await sourceStream.ReadAsync(buffer.AsMemory(0, _bufferSize))) > 0)
+            {
+                await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+            }
 #else
-        while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
-        {
-            await destinationStream.WriteAsync(buffer, 0, bytesRead);
-        }
+            while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, _bufferSize)) > 0)
+            {
+                await destinationStream.WriteAsync(buffer, 0, bytesRead);
+            }
 #endif
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }

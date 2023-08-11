@@ -6,6 +6,7 @@ using System.Buffers;
 using System.IO.Compression;
 using ZirconNet.Core.Async;
 using ZirconNet.Core.Events;
+using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.IO;
 
@@ -35,7 +36,11 @@ public sealed class ZipFileWrapper : FileWrapperBase
 
         await archive.Entries.ForEach(Environment.ProcessorCount, async (zipArchiveEntry) =>
         {
+#if NETCOREAPP3_1_OR_GREATER
             var (normalizedPath, extractionName, extractionPathFullName) = PreparePaths(zipArchiveEntry.FullName, extractionPath);
+#else
+            var (normalizedPath, extractionName, extractionPathFullName) = PreparePaths(zipArchiveEntry.FullName.AsSpan(), extractionPath.AsSpan());
+#endif
             await ExtractEntryAsync(normalizedPath, extractionPathFullName, extractionName, zipArchiveEntry).ConfigureAwait(false);
         }).ConfigureAwait(false);
     }
@@ -51,29 +56,7 @@ public sealed class ZipFileWrapper : FileWrapperBase
         return _cachedCount.Value;
     }
 
-    private async Task ExtractEntryAsync(string normalizedPath, string extractionPathFullName, string extractionName, ZipArchiveEntry zipArchiveEntry)
-    {
-        Extracting.Publish(extractionName);
-
-        if (normalizedPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
-        {
-            CreateDirectoryIfNeeded(extractionPathFullName);
-        }
-        else
-        {
-            await ExtractFileAsync(extractionPathFullName, zipArchiveEntry).ConfigureAwait(false);
-        }
-    }
-
-    private void CreateDirectoryIfNeeded(string extractionPathFullName)
-    {
-        if (!Directory.Exists(extractionPathFullName))
-        {
-            _ = Directory.CreateDirectory(extractionPathFullName);
-        }
-    }
-
-    private async Task ExtractFileAsync(string extractionPathFullName, ZipArchiveEntry zipArchiveEntry)
+    private static async Task ExtractFileAsync(string extractionPathFullName, ZipArchiveEntry zipArchiveEntry)
     {
         if (File.Exists(extractionPathFullName))
         {
@@ -83,10 +66,17 @@ public sealed class ZipFileWrapper : FileWrapperBase
             try
             {
                 int bytesRead;
+#if NETCOREAPP3_1_OR_GREATER
+                while ((bytesRead = await stream.ReadAsync(buffer).ConfigureAwait(false)) != 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead)).ConfigureAwait(false);
+                }
+#else
                 while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
                 {
                     await fileStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
                 }
+#endif
             }
             finally
             {
@@ -95,12 +85,31 @@ public sealed class ZipFileWrapper : FileWrapperBase
         }
     }
 
-    private (string NormalizedPath, string ExtractionName, string ExtractionPathFullName) PreparePaths(string originalPath, string extractionPath)
+    private async Task ExtractEntryAsync(string normalizedPath, string extractionPathFullName, string extractionName, ZipArchiveEntry zipArchiveEntry)
+    {
+        Extracting.Publish(extractionName);
+
+        if (normalizedPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+        {
+            if (!Directory.Exists(extractionPathFullName))
+            {
+                _ = Directory.CreateDirectory(extractionPathFullName);
+            }
+        }
+        else
+        {
+            await ExtractFileAsync(extractionPathFullName, zipArchiveEntry).ConfigureAwait(false);
+        }
+
+        Extracted.Publish(extractionName);
+    }
+
+    private (string NormalizedPath, string ExtractionName, string ExtractionPathFullName) PreparePaths(ReadOnlySpan<char> originalPath, ReadOnlySpan<char> extractionPath)
     {
         var normalizedPath = originalPath.Replace(_slash, Path.DirectorySeparatorChar);
         var extractionName = normalizedPath[FullName.Length..];
-        var extractionPathFullName = Path.Combine(extractionPath, extractionName);
+        var extractionPathFullName = Path.Combine(extractionPath.ToString(), extractionName.ToString());
 
-        return (normalizedPath, extractionName, extractionPathFullName);
+        return (normalizedPath.ToString(), extractionName.ToString(), extractionPathFullName);
     }
 }
