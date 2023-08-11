@@ -10,43 +10,34 @@ public static class ParallelAsync
 {
     public static Task ForEach<T>(this IEnumerable<T> source, in ParallelAsyncOptions parallelOptions, Func<T, Task> body)
     {
-        var maxDegreeOfParallelism = parallelOptions.MaxDegreeOfParallelism;
-
-        if (parallelOptions.MaxDegreeOfParallelism <= 0)
-        {
-            maxDegreeOfParallelism = Environment.ProcessorCount;
-        }
-
-        async Task AwaitPartition(IEnumerator<T> partition)
-        {
-            using (partition)
-            {
-                while (partition.MoveNext())
-                {
-                    await body(partition.Current);
-                }
-            }
-        }
-
-        return parallelOptions.CancellationToken.IsCancellationRequested
-            ? throw new TaskCanceledException()
-            : Task.WhenAll(Partitioner
-                .Create(source)
-                .GetPartitions(parallelOptions.MaxDegreeOfParallelism)
-                .AsParallel()
-                .Select(AwaitPartition));
+        return ForEachInternal(source, parallelOptions.MaxDegreeOfParallelism, parallelOptions.CancellationToken, body);
     }
 
     public static Task ForEach<T>(this IEnumerable<T> source, int maxDegreeOfParallelism = -1, Func<T, Task>? body = null)
+    {
+        return ForEachInternal(source, maxDegreeOfParallelism, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+    }
+
+    public static Task ForEach<T>(this IEnumerable<T> source, Func<T, Task>? body = null)
+    {
+        return ForEachInternal(source, -1, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+    }
+
+    public static Task ForEach<T>(this T[] source, Func<T, Task>? body = null)
+    {
+        return ForEachInternal(source, -1, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+    }
+
+    private static Task ForEachInternal<T>(IEnumerable<T> source, int maxDegreeOfParallelism, CancellationToken cancellationToken, Func<T, Task> body)
     {
         if (maxDegreeOfParallelism <= 0)
         {
             maxDegreeOfParallelism = Environment.ProcessorCount;
         }
 
-        if (body is null)
+        if (cancellationToken.IsCancellationRequested)
         {
-            throw new ArgumentNullException(nameof(body));
+            return Task.FromCanceled(cancellationToken);
         }
 
         async Task AwaitPartition(IEnumerator<T> partition)
@@ -61,9 +52,9 @@ public static class ParallelAsync
         }
 
         return Task.WhenAll(Partitioner
-                .Create(source)
-                .GetPartitions(maxDegreeOfParallelism)
-                .AsParallel()
-                .Select(AwaitPartition));
+            .Create(source)
+            .GetPartitions(maxDegreeOfParallelism)
+            .AsParallel()
+            .Select(AwaitPartition));
     }
 }
