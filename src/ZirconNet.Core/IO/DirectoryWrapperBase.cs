@@ -8,12 +8,8 @@ using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
 
-#if NET5_0_OR_GREATER
-[SupportedOSPlatform("Windows")]
-#endif
-
 /// <inheritdoc cref="IDirectoryWrapperBase"/>
-public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBase
+public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirectoryWrapperBase
 {
     private readonly DirectoryInfo _directoryInfo;
 
@@ -39,7 +35,7 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
 
     public async ValueTask CopyContentAsync(IDirectoryWrapperBase destination)
     {
-        if (_directoryInfo != null)
+        if (_directoryInfo is not null)
         {
             var directoriesQueue = new Queue<DirectoryInfo>();
             directoriesQueue.Enqueue(_directoryInfo);
@@ -47,13 +43,16 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
             {
                 var currentDirectory = directoriesQueue.Dequeue();
                 var files = currentDirectory.GetFiles();
-                foreach (var file in files)
+
+                var tasks = files.Select(async file =>
                 {
                     var fileWrapper = new FileWrapper(file);
                     CopyingFile.Publish(fileWrapper);
-                    await fileWrapper.CopyToDirectoryAsync(destination).ConfigureAwait(false);
+                    await BufferedCopyAsync(fileWrapper, destination).ConfigureAwait(false);
                     CopiedFile.Publish(fileWrapper);
-                }
+                });
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 var subdirectories = currentDirectory.GetDirectories();
                 foreach (var subdirectory in subdirectories)
@@ -97,11 +96,17 @@ public abstract class DirectoryWrapperBase : FileSystemInfo, IDirectoryWrapperBa
         return _directoryInfo.GetFiles().Select(f => new FileWrapper(f, false)).ToArray();
     }
 
+#if NET5_0_OR_GREATER
+    [SupportedOSPlatform("Windows")]
+#endif
     public DirectorySecurity GetAccessControl()
     {
         return _directoryInfo.GetAccessControl();
     }
 
+#if NET5_0_OR_GREATER
+    [SupportedOSPlatform("Windows")]
+#endif
     public void SetAccessControl(DirectorySecurity directorySecurity)
     {
         _directoryInfo.SetAccessControl(directorySecurity);

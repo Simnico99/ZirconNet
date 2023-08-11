@@ -7,9 +7,6 @@ using System.Runtime.Versioning;
 
 namespace ZirconNet.Core.IO;
 
-#if NET5_0_OR_GREATER
-[SupportedOSPlatform("Windows")]
-#endif
 public sealed class JarFileWrapper : FileWrapperBase
 {
     public JarFileWrapper(string file, bool createFile = true, bool overwrite = false)
@@ -22,6 +19,10 @@ public sealed class JarFileWrapper : FileWrapperBase
     {
     }
 
+    /// <summary>
+    /// Run the jar file.
+    /// </summary>
+    /// <returns>The current running process.</returns>
     public Process Run()
     {
         Process clientProcess = new()

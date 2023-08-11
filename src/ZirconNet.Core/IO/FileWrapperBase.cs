@@ -2,20 +2,14 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Runtime.Versioning;
-
 namespace ZirconNet.Core.IO;
 
-#if NET5_0_OR_GREATER
-[SupportedOSPlatform("Windows")]
-#endif
-
 /// <inheritdoc cref="IFileWrapperBase"/>
-public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
+public abstract class FileWrapperBase : BufferedCopyFileSystemInfo, IFileWrapperBase
 {
     public FileWrapperBase(string file, bool createFile = true, bool overwrite = false)
     {
-        FileInfo = createFile ? Create(file, overwrite) : new FileInfo(file);
+        FileInfo = createFile ? Create(file, overwrite) : new(file);
     }
 
     public FileWrapperBase(FileInfo file, bool createFile = true, bool overwrite = false)
@@ -40,7 +34,6 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
     {
         try
         {
-            // Test if file locked
             using var discard = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.None);
             return false;
         }
@@ -52,24 +45,19 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
 
     public async ValueTask CopyToDirectoryAsync(IDirectoryWrapperBase directory)
     {
-        FileInfo finalPath = new(directory.FullName + @$"\{Name}");
-        Delete(finalPath);
+        var finalPath = Path.Combine(directory.FullName, Name);
+        Delete(new FileInfo(finalPath));
         while (IsFileLocked(FileInfo.FullName))
         {
-            if (IsFileLocked(FileInfo.FullName))
-            {
-                await Task.Delay(250).ConfigureAwait(false);
-            }
+            await Task.Delay(100).ConfigureAwait(false);
         }
 
-        File.Move(FileInfo.FullName, finalPath.FullName);
+        await BufferedCopyAsync(FileInfo.FullName, finalPath).ConfigureAwait(false);
     }
 
     public byte[] GetByteArray()
     {
-        var data = File.ReadAllBytes(FileInfo.FullName);
-
-        return data;
+        return File.ReadAllBytes(FileInfo.FullName);
     }
 
     public override void Delete()
@@ -112,19 +100,18 @@ public abstract class FileWrapperBase : FileSystemInfo, IFileWrapperBase
 
     private static FileInfo Create(string path, bool overwrite = false)
     {
-        if (File.Exists(path) && overwrite)
+        if (File.Exists(path))
         {
-            new FileInfo(path).Delete();
-        }
+            if (overwrite)
+            {
+                File.Delete(path);
+            }
 
-        if (File.Exists(path) && !overwrite)
-        {
             return new FileInfo(path);
         }
 
-        FileInfo fileInfo = new(path);
-        fileInfo.Create().Dispose();
-
+        var fileInfo = new FileInfo(path);
+        using var discard = fileInfo.Create();
         return fileInfo;
     }
 

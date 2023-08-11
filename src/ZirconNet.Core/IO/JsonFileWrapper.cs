@@ -9,9 +9,6 @@ using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
 
-#if NET5_0_OR_GREATER
-[SupportedOSPlatform("Windows")]
-#endif
 public sealed class JsonFileWrapper : FileWrapperBase
 {
     private static readonly LockAsync _asyncLock = new();

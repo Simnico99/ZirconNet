@@ -3,18 +3,16 @@
 // </copyright>
 
 using System.IO.Compression;
+#if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+#endif
 using ZirconNet.Core.Events;
 
 namespace ZirconNet.Core.IO;
 
-#if NET5_0_OR_GREATER
-[SupportedOSPlatform("Windows")]
-#endif
 public sealed class ZipFileWrapper : FileWrapperBase
 {
     private const char _slash = '/';
-    private const char _backSlash = '\\';
 
     public ZipFileWrapper(string file, bool createFile = true, bool overwrite = false)
     : base(file, createFile, overwrite)
@@ -35,42 +33,30 @@ public sealed class ZipFileWrapper : FileWrapperBase
         using var archive = ZipFile.OpenRead(FullName);
         foreach (var zipArchiveEntry in archive.Entries)
         {
-            var zipArchiveEntryNormalizedName = zipArchiveEntry.FullName.Replace(_slash, _backSlash);
-            var extractionName = $@"\{zipArchiveEntryNormalizedName.Remove(FullName.Length)}";
+            var normalizedPath = zipArchiveEntry.FullName.Replace(_slash, Path.DirectorySeparatorChar);
+            var extractionName = normalizedPath[FullName.Length..];
+            var extractionPathFullName = Path.Combine(extractionPath, extractionName);
 
-            if (!zipArchiveEntryNormalizedName.EndsWith(_backSlash.ToString(), StringComparison.InvariantCulture) && !string.IsNullOrWhiteSpace(zipArchiveEntry.Name))
+            Extracting.Publish(extractionName);
+
+            if (!normalizedPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.InvariantCulture) && !string.IsNullOrWhiteSpace(zipArchiveEntry.Name))
             {
-                var extractionPathFullName = $@"{extractionPath}\{extractionName}";
-
-                Extracting.Publish(extractionName);
-
-                using (var stream = zipArchiveEntry.Open())
-                using (var fileStream = File.Create(extractionPathFullName))
-                {
-                    await stream.CopyToAsync(fileStream).ConfigureAwait(false);
-                }
-
-                Extracted.Publish(extractionName);
+                using var stream = zipArchiveEntry.Open();
+                using var fileStream = File.Create(extractionPathFullName);
+                await stream.CopyToAsync(fileStream).ConfigureAwait(false);
             }
             else
             {
-                var extractionPathFullName = extractionPath + extractionName;
-
-                Extracting.Publish(extractionName);
                 _ = Directory.CreateDirectory(extractionPathFullName);
-                Extracted.Publish(extractionName);
             }
-        }
 
-        archive.Dispose();
+            Extracted.Publish(extractionName);
+        }
     }
 
     public int Count()
     {
         using var archive = ZipFile.OpenRead(FullName);
-        var count = archive.Entries.Count;
-        archive.Dispose();
-
-        return count;
+        return archive.Entries.Count;
     }
 }
