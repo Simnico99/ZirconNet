@@ -57,6 +57,39 @@ public static class ReadOnlySpanCharExtension
         return buffer;
     }
 
+    public static ReadOnlySpan<char> Replace(this ReadOnlySpan<char> source, ReadOnlySpan<char> oldSpan, ReadOnlySpan<char> newSpan)
+    {
+        var countOfOldSpan = 0;
+        var index = source.IndexOf(oldSpan);
+        while (index != -1)
+        {
+            countOfOldSpan++;
+            index = source[(index + oldSpan.Length)..].IndexOf(oldSpan);
+        }
+
+        var resultLength = source.Length + ((newSpan.Length - oldSpan.Length) * countOfOldSpan);
+        var resultBuffer = new char[resultLength];
+
+        var writeIndex = 0;
+        var readIndex = 0;
+
+        index = source.IndexOf(oldSpan);
+        while (index != -1)
+        {
+            source[readIndex..index].CopyTo(resultBuffer.AsSpan()[writeIndex..]);
+            writeIndex += index - readIndex;
+            newSpan.CopyTo(resultBuffer.AsSpan()[writeIndex..]);
+            writeIndex += newSpan.Length;
+
+            readIndex = index + oldSpan.Length;
+            index = source[readIndex..].IndexOf(oldSpan);
+        }
+
+        source[readIndex..].CopyTo(resultBuffer.AsSpan()[writeIndex..]);
+
+        return resultBuffer;
+    }
+
     private static T ParseSlice<T>(ReadOnlySpan<char> slice, TryParseHandler<T> tryParseHandler)
     {
         tryParseHandler(slice, out var result);
