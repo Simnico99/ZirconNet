@@ -47,18 +47,14 @@ public static class ReadOnlySpanCharExtension
 
     public static ReadOnlySpan<char> Replace(this ReadOnlySpan<char> source, char oldChar, char newChar)
     {
-        char[]? buffer = null;
+        var buffer = new char[source.Length];
 
         for (var i = 0; i < source.Length; i++)
         {
-            if (source[i] == oldChar)
-            {
-                buffer ??= source.ToArray();
-                buffer[i] = newChar;
-            }
+            buffer[i] = source[i] == oldChar ? newChar : source[i];
         }
 
-        return buffer == null ? source : new ReadOnlySpan<char>(buffer);
+        return buffer;
     }
 
     private static T ParseSlice<T>(ReadOnlySpan<char> slice, TryParseHandler<T> tryParseHandler)
