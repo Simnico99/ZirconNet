@@ -13,17 +13,6 @@ namespace ZirconNet.Core.Extensions;
 public static class RangeExtensions
 {
     /// <summary>
-    /// Increases an integer by one.
-    /// </summary>
-    /// <param name="i">The integer to increase.</param>
-    /// <returns>The integer value, incremented by one.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int Inclusive(this int i)
-    {
-        return i + 1;
-    }
-
-    /// <summary>
     /// Gets an enumerator for the specified range.
     /// </summary>
     /// <param name="range">The range to enumerate.</param>
@@ -35,20 +24,5 @@ public static class RangeExtensions
 #endif
     {
         return new RangeEnumerator(range);
-    }
-
-    /// <summary>
-    /// Converts a range to an inclusive range.
-    /// </summary>
-    /// <param name="range">The range to convert.</param>
-    /// <returns>A new Range with the same start point as the original and the end point increased by one.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NETCOREAPP3_1_OR_GREATER
-    public static Range Inclusive(this Range range)
-#else
-    internal static Range Inclusive(this Range range)
-#endif
-    {
-        return new Range(range.Start, range.End.Value + 1);
     }
 }
