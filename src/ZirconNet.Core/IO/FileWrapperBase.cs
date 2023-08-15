@@ -63,18 +63,6 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
         return (T)Activator.CreateInstance(typeof(T), newFile, false, false)!;
     }
 
-#if NETCOREAPP3_1_OR_GREATER
-    public void MoveTo(string outputFilePath, bool overwrite = false)
-    {
-        FileInfo.MoveTo(outputFilePath, overwrite);
-    }
-#else
-    public void MoveTo(string outputFilePath)
-    {
-        FileInfo.MoveTo(outputFilePath);
-    }
-#endif
-
     public T Replace(string destinationFileName, string? destinationBackupFileName, bool ignoreMetadataErrors = false)
     {
         var newFile = FileInfo.Replace(destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
@@ -121,13 +109,6 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
         return FileInfo.OpenText();
     }
 
-#if NET5_0_OR_GREATER
-    public FileStream Open(FileStreamOptions fileStreamOptions)
-    {
-        return FileInfo.Open(fileStreamOptions);
-    }
-#endif
-
     public FileStream Open(FileMode fileMode, FileAccess access = default, FileShare share = default)
     {
         return FileInfo.Open(fileMode, access, share);
@@ -142,10 +123,6 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
     {
         return FileInfo.OpenWrite();
     }
-
-#if NET5_0_OR_GREATER
-    public SafeFileHandle OpenHandle(FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read, FileOptions options = FileOptions.None, long preallocationSize = 0) => File.OpenHandle(FileInfo.FullName, mode, access, share, options, preallocationSize);
-#endif
 
     public void SetCreationTime(DateTime creationTime)
     {
@@ -227,17 +204,6 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
         File.SetAttributes(FileInfo.FullName, fileAttributes);
     }
 
-#if NET7_0_OR_GREATER
-    [UnsupportedOSPlatform("windows")]
-    public UnixFileMode GetUnixFileMode() => File.GetUnixFileMode(FileInfo.FullName);
-
-    [UnsupportedOSPlatform("windows")]
-    public void SetUnixFileMode(UnixFileMode mode)
-    {
-        File.SetUnixFileMode(FileInfo.FullName, mode);
-    }
-#endif
-
     public string ReadAllText()
     {
         return File.ReadAllText(FileInfo.FullName);
@@ -248,6 +214,93 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
         File.WriteAllText(FileInfo.FullName, content);
     }
 
+    public void WriteAllBytes(byte[] bytes)
+    {
+        File.WriteAllBytes(FileInfo.FullName, bytes);
+    }
+
+    public string[] ReadAllLines()
+    {
+        return File.ReadAllLines(FileInfo.FullName);
+    }
+
+    public IEnumerable<string> ReadLines()
+    {
+        return File.ReadLines(FileInfo.FullName);
+    }
+
+    public void WriteAllLines(string[] contents)
+    {
+        File.WriteAllLines(FileInfo.FullName, contents);
+    }
+
+    public void WriteAllLines(IEnumerable<string> contents)
+    {
+        File.WriteAllLines(FileInfo.FullName, contents);
+    }
+
+    public void AppendAllText(string? contents)
+    {
+        File.AppendAllText(FileInfo.FullName, contents);
+    }
+
+    public void AppendAllLines(string[] contents)
+    {
+        File.AppendAllLines(FileInfo.FullName, contents);
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public void MoveTo(string outputFilePath, bool overwrite = false)
+    {
+        FileInfo.MoveTo(outputFilePath, overwrite);
+    }
+
+    public Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default)
+    {
+        return File.ReadAllTextAsync(FileInfo.FullName, cancellationToken);
+    }
+
+    public Task WriteAllTextAsync(string? contents, CancellationToken cancellationToken = default)
+    {
+        return File.WriteAllTextAsync(FileInfo.FullName, contents, cancellationToken);
+    }
+
+    public Task<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken = default)
+    {
+        return File.ReadAllBytesAsync(FileInfo.FullName, cancellationToken);
+    }
+
+    public Task WriteAllBytesAsync(byte[] bytes, CancellationToken cancellationToken = default)
+    {
+        return File.WriteAllBytesAsync(FileInfo.FullName, bytes, cancellationToken);
+    }
+
+    public Task<string[]> ReadAllLinesAsync(CancellationToken cancellationToken = default)
+    {
+        return File.ReadAllLinesAsync(FileInfo.FullName, cancellationToken);
+    }
+
+    public Task AppendAllTextAsync(string? contents, CancellationToken cancellationToken = default)
+    {
+        return File.AppendAllTextAsync(FileInfo.FullName, contents, cancellationToken);
+    }
+
+    public Task WriteAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default)
+    {
+        return File.WriteAllLinesAsync(FileInfo.FullName, contents, cancellationToken);
+    }
+
+    public Task AppendAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default)
+    {
+        return File.AppendAllLinesAsync(FileInfo.FullName, contents, cancellationToken);
+    }
+#else
+    public void MoveTo(string outputFilePath)
+    {
+        FileInfo.MoveTo(outputFilePath);
+    }
+#endif
+
 #if NET5_0_OR_GREATER
     public string ReadAllText(Encoding encoding)
     {
@@ -257,6 +310,106 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
     public void WriteAllText(string? content, Encoding encoding)
     {
         File.WriteAllText(FileInfo.FullName, content, encoding);
+    }
+
+    public SafeFileHandle OpenHandle(FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read, FileOptions options = FileOptions.None, long preallocationSize = 0) => File.OpenHandle(FileInfo.FullName, mode, access, share, options, preallocationSize);
+
+    public FileStream Open(FileStreamOptions fileStreamOptions)
+    {
+        return FileInfo.Open(fileStreamOptions);
+    }
+
+    public string[] ReadAllLines(Encoding encoding)
+    {
+        return File.ReadAllLines(FileInfo.FullName, encoding);
+    }
+
+    public IEnumerable<string> ReadLines(Encoding encoding)
+    {
+        return File.ReadLines(FileInfo.FullName, encoding);
+    }
+
+    public void WriteAllLines(string[] contents, Encoding encoding)
+    {
+        File.WriteAllLines(FileInfo.FullName, contents, encoding);
+    }
+
+    public void WriteAllLines(IEnumerable<string> contents, Encoding encoding)
+    {
+        File.WriteAllLines(FileInfo.FullName, contents, encoding);
+    }
+
+    public void AppendAllText(string? contents, Encoding encoding)
+    {
+        File.AppendAllText(FileInfo.FullName, contents, encoding);
+    }
+
+    public void AppendAllLines(string[] contents, Encoding encoding)
+    {
+        File.AppendAllLines(FileInfo.FullName, contents, encoding);
+    }
+
+    public Task<string> ReadAllTextAsync(Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.ReadAllTextAsync(FileInfo.FullName, encoding, cancellationToken);
+    }
+
+    public Task WriteAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.WriteAllTextAsync(FileInfo.FullName, contents, encoding, cancellationToken);
+    }
+
+    public Task<string[]> ReadAllLinesAsync(Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.ReadAllLinesAsync(FileInfo.FullName, encoding, cancellationToken);
+    }
+
+    public Task WriteAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.WriteAllLinesAsync(FileInfo.FullName, contents, encoding, cancellationToken);
+    }
+
+    public Task AppendAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.AppendAllTextAsync(FileInfo.FullName, contents, encoding, cancellationToken);
+    }
+
+    public Task AppendAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.AppendAllLinesAsync(FileInfo.FullName, contents, encoding, cancellationToken);
+    }
+
+    public T CreateSymbolicLinkTo(string pathToTarget)
+    {
+        var result = File.CreateSymbolicLink(FileInfo.FullName, pathToTarget);
+        return (T)Activator.CreateInstance(typeof(T), result, false, false)!;
+    }
+
+    public new T? ResolveLinkTarget(bool returnFinalTarget)
+    {
+        var result = File.ResolveLinkTarget(FileInfo.FullName, returnFinalTarget);
+        return result is null ? null : (T?)Activator.CreateInstance(typeof(T), result, false, false);
+    }
+#endif
+
+#if NET7_0_OR_GREATER
+    [UnsupportedOSPlatform("windows")]
+    public UnixFileMode GetUnixFileMode() => File.GetUnixFileMode(FileInfo.FullName);
+
+    [UnsupportedOSPlatform("windows")]
+    public void SetUnixFileMode(UnixFileMode mode)
+    {
+        File.SetUnixFileMode(FileInfo.FullName, mode);
+    }
+
+    public IAsyncEnumerable<string> ReadLinesAsync(CancellationToken cancellationToken = default)
+    {
+        return File.ReadLinesAsync(FileInfo.FullName, cancellationToken);
+    }
+
+    public IAsyncEnumerable<string> ReadLinesAsync(Encoding encoding, CancellationToken cancellationToken = default)
+    {
+        return File.ReadLinesAsync(FileInfo.FullName, encoding, cancellationToken);
     }
 #endif
 

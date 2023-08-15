@@ -33,6 +33,22 @@ public interface IFileWrapperBase<T> : IFileWrapperBase
     /// <param name="ignoreMetadataErrors">Determines whether to ignore metadata errors.</param>
     /// <returns>A new file wrapper representing the replaced file.</returns>
     T Replace(string destinationFileName, string? destinationBackupFileName, bool ignoreMetadataErrors = false);
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Creates a file symbolic link identified by <paramref name="path"/> that points to <paramref name="pathToTarget"/>.
+    /// </summary>
+    /// <param name="pathToTarget">The path of the target to which the symbolic link points.</param>
+    /// <returns>A <see cref="T"/> instance that wraps the newly created file symbolic link.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="pathToTarget"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="pathToTarget"/> is empty.
+    /// -or-
+    /// <paramref name="path"/> or <paramref name="pathToTarget"/> contains a null character.</exception>
+    /// <exception cref="IOException">A file or directory already exists in the location of <paramref name="path"/>.
+    /// -or-
+    /// An I/O error occurred.</exception>
+    T CreateSymbolicLinkTo(string pathToTarget);
+#endif
 }
 
 /// <summary>
@@ -85,21 +101,6 @@ public interface IFileWrapperBase
     /// <returns>The file contents as a byte array.</returns>
     byte[] ReadAllBytes();
 
-#if NETCOREAPP3_1_OR_GREATER
-    /// <summary>
-    /// Moves the file to a new location.
-    /// </summary>
-    /// <param name="outputFilePath">The destination path for the move.</param>
-    /// <param name="overwrite">Determines whether to overwrite the file if it already exists at the destination.</param>
-    void MoveTo(string outputFilePath, bool overwrite = false);
-#else
-    /// <summary>
-    /// Moves the file to a new location.
-    /// </summary>
-    /// <param name="outputFilePath">The destination path for the move.</param>
-    void MoveTo(string outputFilePath);
-#endif
-
     /// <summary>
     /// Opens the file with the specified mode and access.
     /// </summary>
@@ -108,15 +109,6 @@ public interface IFileWrapperBase
     /// <param name="share">The file share to use.</param>
     /// <returns>A FileStream object associated with the file.</returns>
     FileStream Open(FileMode fileMode, FileAccess access = 0, FileShare share = FileShare.None);
-
-#if NET5_0_OR_GREATER
-    /// <summary>
-    /// Opens the file with the specified options.
-    /// </summary>
-    /// <param name="fileStreamOptions">The file stream options to use.</param>
-    /// <returns>A FileStream object associated with the file.</returns>
-    FileStream Open(FileStreamOptions fileStreamOptions);
-#endif
 
     /// <summary>
     /// Opens the file for reading.
@@ -135,20 +127,6 @@ public interface IFileWrapperBase
     /// </summary>
     /// <returns>A FileStream object for writing to the file.</returns>
     FileStream OpenWrite();
-
-#if NET5_0_OR_GREATER
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Microsoft.Win32.SafeHandles.SafeFileHandle" /> class with the specified path, creation mode, read/write and sharing permission, the access other SafeFileHandles can have to the same file, additional file options and the allocation size.
-    /// </summary>
-    /// <param name="mode">One of the enumeration values that determines how to open or create the file. The default value is <see cref="FileMode.Open" />.</param>
-    /// <param name="access">A bitwise combination of the enumeration values that determines how the file can be accessed. The default value is <see cref="FileAccess.Read" />.</param>
-    /// <param name="share">A bitwise combination of the enumeration values that determines how the file will be shared by processes. The default value is <see cref="FileShare.Read" />.</param>
-    /// <param name="options">An object that describes optional <see cref="Microsoft.Win32.SafeHandles.SafeFileHandle" /> parameters to use.</param>
-    /// <param name="preallocationSize">The initial allocation size in bytes for the file. A positive value is effective only when a regular file is being created, overwritten, or replaced.
-    /// Negative values are not allowed. In other cases (including the default 0 value), it's ignored.</param>
-    /// <returns>A <see cref="SafeFileHandle"/>.</returns>
-    public SafeFileHandle OpenHandle(FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read, FileOptions options = FileOptions.None, long preallocationSize = 0);
-#endif
 
     /// <summary>
     /// Sets the date and time the file or directory was created.
@@ -365,19 +343,130 @@ public interface IFileWrapperBase
     /// </exception>
     void SetAttributes(FileAttributes fileAttributes);
 
+    void WriteAllBytes(byte[] bytes);
+
+    string[] ReadAllLines();
+
+    IEnumerable<string> ReadLines();
+
+    void WriteAllLines(string[] contents);
+
+    void WriteAllLines(IEnumerable<string> contents);
+
+    void AppendAllText(string? contents);
+
+    void AppendAllLines(string[] contents);
+
     /// <summary>
     /// Read the entire file as text.
     /// </summary>
     /// <returns>The entire file as string.</returns>
     string ReadAllText();
 
+    /// <summary>
+    /// Decrypt the file on Windows.
+    /// </summary>
 #if NET5_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
+    void Decrypt();
+
+    /// <summary>
+    /// Encrypt the file on Windows.
+    /// </summary>
+#if NET5_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
+    void Encrypt();
+
+#if NETCOREAPP3_1_OR_GREATER
+    Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default);
+
+    Task WriteAllTextAsync(string? contents, CancellationToken cancellationToken = default);
+
+    Task<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken = default);
+
+    Task WriteAllBytesAsync(byte[] bytes, CancellationToken cancellationToken = default);
+
+    Task<string[]> ReadAllLinesAsync(CancellationToken cancellationToken = default);
+
+    Task AppendAllTextAsync(string? contents, CancellationToken cancellationToken = default);
+
+    Task WriteAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default);
+
+    Task AppendAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Moves the file to a new location.
+    /// </summary>
+    /// <param name="outputFilePath">The destination path for the move.</param>
+    /// <param name="overwrite">Determines whether to overwrite the file if it already exists at the destination.</param>
+    void MoveTo(string outputFilePath, bool overwrite = false);
+#else
+    /// <summary>
+    /// Moves the file to a new location.
+    /// </summary>
+    /// <param name="outputFilePath">The destination path for the move.</param>
+    void MoveTo(string outputFilePath);
+#endif
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Microsoft.Win32.SafeHandles.SafeFileHandle" /> class with the specified path, creation mode, read/write and sharing permission, the access other SafeFileHandles can have to the same file, additional file options and the allocation size.
+    /// </summary>
+    /// <param name="mode">One of the enumeration values that determines how to open or create the file. The default value is <see cref="FileMode.Open" />.</param>
+    /// <param name="access">A bitwise combination of the enumeration values that determines how the file can be accessed. The default value is <see cref="FileAccess.Read" />.</param>
+    /// <param name="share">A bitwise combination of the enumeration values that determines how the file will be shared by processes. The default value is <see cref="FileShare.Read" />.</param>
+    /// <param name="options">An object that describes optional <see cref="Microsoft.Win32.SafeHandles.SafeFileHandle" /> parameters to use.</param>
+    /// <param name="preallocationSize">The initial allocation size in bytes for the file. A positive value is effective only when a regular file is being created, overwritten, or replaced.
+    /// Negative values are not allowed. In other cases (including the default 0 value), it's ignored.</param>
+    /// <returns>A <see cref="SafeFileHandle"/>.</returns>
+    public SafeFileHandle OpenHandle(FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read, FileOptions options = FileOptions.None, long preallocationSize = 0);
+
+    /// <summary>
+    /// Opens the file with the specified options.
+    /// </summary>
+    /// <param name="fileStreamOptions">The file stream options to use.</param>
+    /// <returns>A FileStream object associated with the file.</returns>
+    FileStream Open(FileStreamOptions fileStreamOptions);
+
     /// <summary>
     /// Read the entire file as text.
     /// </summary>
     /// <param name="encoding">The file encoding.</param>
     /// <returns>The entire file as string.</returns>
     string ReadAllText(Encoding encoding);
+
+    /// <summary>
+    /// Write the content of the file as text.
+    /// </summary>
+    /// <param name="content">Content to write to the file.</param>
+    /// <param name="encoding">The file encoding.</param>
+    void WriteAllText(string? content, Encoding encoding);
+
+    string[] ReadAllLines(Encoding encoding);
+
+    IEnumerable<string> ReadLines(Encoding encoding);
+
+    void WriteAllLines(string[] contents, Encoding encoding);
+
+    void WriteAllLines(IEnumerable<string> contents, Encoding encoding);
+
+    void AppendAllText(string? contents, Encoding encoding);
+
+    void AppendAllLines(string[] contents, Encoding encoding);
+
+    Task<string> ReadAllTextAsync(Encoding encoding, CancellationToken cancellationToken = default);
+
+    Task WriteAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default);
+
+    Task<string[]> ReadAllLinesAsync(Encoding encoding, CancellationToken cancellationToken = default);
+
+    Task WriteAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default);
+
+    Task AppendAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default);
+
+    Task AppendAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default);
 #endif
 
     /// <summary>
@@ -385,15 +474,6 @@ public interface IFileWrapperBase
     /// </summary>
     /// <param name="content">Content to write to the file.</param>
     void WriteAllText(string? content);
-
-#if NET5_0_OR_GREATER
-    /// <summary>
-    /// Write the content of the file as text.
-    /// </summary>
-    /// <param name="content">Content to write to the file.</param>
-    /// <param name="encoding">The file encoding.</param>
-    void WriteAllText(string? content, Encoding encoding);
-#endif
 
 #if NET7_0_OR_GREATER
     /// <summary>Gets the <see cref="T:System.IO.UnixFileMode" /> of the file on the path.</summary>
@@ -411,21 +491,20 @@ public interface IFileWrapperBase
     /// <exception cref="T:System.IO.FileNotFoundException">The file cannot be found.</exception>
     [UnsupportedOSPlatform("windows")]
     void SetUnixFileMode(UnixFileMode mode);
-#endif
 
     /// <summary>
-    /// Decrypt the file on Windows.
+    /// Asynchronously reads the lines of a file.
     /// </summary>
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
-    void Decrypt();
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>The async enumerable that represents all the lines of the file, or the lines that are the result of a query.</returns>
+    IAsyncEnumerable<string> ReadLinesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Encrypt the file on Windows.
+    /// Asynchronously reads the lines of a file that has a specified encoding.
     /// </summary>
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
+    /// <param name="encoding">The encoding that is applied to the contents of the file.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>The async enumerable that represents all the lines of the file, or the lines that are the result of a query.</returns>
+    IAsyncEnumerable<string> ReadLinesAsync(Encoding encoding, CancellationToken cancellationToken = default);
 #endif
-    void Encrypt();
 }

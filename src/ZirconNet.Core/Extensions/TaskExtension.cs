@@ -52,7 +52,7 @@ public static class TaskExtensions
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An exception occured in a fire and forget method:");
+                logger.LogError(ex, "An exception occurred in a fire and forget method:");
             }
         }
     }
