@@ -10,7 +10,7 @@ using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.IO;
 
-public sealed class ZipFileWrapper : FileWrapperBase
+public sealed class ZipFileWrapper : FileWrapperBase<ZipFileWrapper>
 {
     private const char _slash = '/';
 
@@ -91,9 +91,9 @@ public sealed class ZipFileWrapper : FileWrapperBase
 
         if (normalizedPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
         {
-            if (!Directory.Exists(extractionPathFullName))
+            if (!System.IO.Directory.Exists(extractionPathFullName))
             {
-                _ = Directory.CreateDirectory(extractionPathFullName);
+                _ = System.IO.Directory.CreateDirectory(extractionPathFullName);
             }
         }
         else

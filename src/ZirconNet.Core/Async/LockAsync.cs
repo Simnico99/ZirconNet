@@ -89,6 +89,7 @@ public sealed class LockAsync : IDisposable
             {
                 _semaphore?.Dispose();
             }
+
             _disposedValue = true;
         }
     }

@@ -3,11 +3,10 @@
 // </copyright>
 
 using System.Diagnostics;
-using System.Runtime.Versioning;
 
 namespace ZirconNet.Core.IO;
 
-public sealed class JarFileWrapper : FileWrapperBase
+public sealed class JarFileWrapper : FileWrapperBase<JarFileWrapper>
 {
     public JarFileWrapper(string file, bool createFile = true, bool overwrite = false)
         : base(file, createFile, overwrite)

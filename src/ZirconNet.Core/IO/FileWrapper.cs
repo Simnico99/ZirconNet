@@ -4,7 +4,7 @@
 
 namespace ZirconNet.Core.IO;
 
-public sealed class FileWrapper : FileWrapperBase
+public sealed class FileWrapper : FileWrapperBase<FileWrapper>
 {
     public FileWrapper(string file, bool createFile = true, bool overwrite = false)
         : base(file, createFile, overwrite)

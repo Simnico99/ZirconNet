@@ -8,7 +8,10 @@ using ZirconNet.Core.Async;
 
 namespace ZirconNet.Core.IO;
 
-public sealed class JsonFileWrapper : FileWrapperBase, IDisposable
+/// <summary>
+/// Should be disposed after use.
+/// </summary>
+public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposable
 {
     private readonly StreamReader _reader;
     private readonly LockAsync _asyncLock = new();

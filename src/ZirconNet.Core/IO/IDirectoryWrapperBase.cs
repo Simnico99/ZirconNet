@@ -8,17 +8,37 @@ using ZirconNet.Core.Events;
 namespace ZirconNet.Core.IO;
 
 /// <summary>
-/// Directory wrapper base interface.
+/// Represents a directory wrapper with generic functionality.
+/// </summary>
+/// <typeparam name="T">The specific type of directory wrapper.</typeparam>
+public interface IDirectoryWrapperBase<T> : IDirectoryWrapperBase
+    where T : DirectoryWrapperBase<T>
+{
+    /// <summary>
+    /// Gets the parent directory.
+    /// </summary>
+    /// <returns>The parent directory, or null if there is no parent.</returns>
+    T? Parent { get; }
+
+    /// <summary>
+    /// Gets the root directory.
+    /// </summary>
+    /// <returns>The root directory.</returns>
+    T Root { get; }
+}
+
+/// <summary>
+/// Represents a directory wrapper with generic functionality.
 /// </summary>
 public interface IDirectoryWrapperBase
 {
     /// <summary>
-    /// Gets an event that occurs when a file has been copied.
+    /// Gets the event that is raised when a file is copied.
     /// </summary>
     IWeakEvent<IFileWrapperBase> CopiedFile { get; }
 
     /// <summary>
-    /// Gets an event that occurs when a file is being copied.
+    /// Gets the event that is raised when a file is about to be copied.
     /// </summary>
     IWeakEvent<IFileWrapperBase> CopyingFile { get; }
 
@@ -38,10 +58,10 @@ public interface IDirectoryWrapperBase
     string Name { get; }
 
     /// <summary>
-    /// Asynchronously copies the content of the directory to a destination.
+    /// Copies the content of the directory asynchronously.
     /// </summary>
     /// <param name="destination">The destination directory.</param>
-    /// <returns>A task that represents the asynchronous copy operation.</returns>
+    /// <returns>A ValueTask representing the asynchronous operation.</returns>
     ValueTask CopyContentAsync(IDirectoryWrapperBase destination);
 
     /// <summary>
@@ -50,44 +70,149 @@ public interface IDirectoryWrapperBase
     void Delete();
 
     /// <summary>
-    /// Enumerates all the subdirectories within the directory.
+    /// Deletes the directory, optionally deleting its contents recursively.
     /// </summary>
-    /// <returns>A sequence of directories in the directory.</returns>
+    /// <param name="recursive">Determines whether to delete the contents recursively.</param>
+    void Delete(bool recursive);
+
+    /// <summary>
+    /// Enumerates the directories in the current directory.
+    /// </summary>
+    /// <returns>An enumerable collection of directory wrappers.</returns>
     IEnumerable<IDirectoryWrapperBase> EnumerateDirectories();
 
     /// <summary>
-    /// Enumerates all the files within the directory.
+    /// Enumerates the directories in the current directory that match the specified search pattern and search option.
     /// </summary>
-    /// <returns>A sequence of files in the directory.</returns>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The search option to use (optional).</param>
+    /// <returns>An enumerable collection of directory wrappers.</returns>
+    IEnumerable<IDirectoryWrapperBase> EnumerateDirectories(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly);
+
+#if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Enumerates the directories in the current directory that match the specified search pattern and enumeration options (for .NET Core 3.1 or greater).
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The enumeration options to use.</param>
+    /// <returns>An enumerable collection of directory wrappers.</returns>
+    IEnumerable<IDirectoryWrapperBase> EnumerateDirectories(string searchPattern, EnumerationOptions searchOption);
+#endif
+
+    /// <summary>
+    /// Enumerates the files in the current directory.
+    /// </summary>
+    /// <returns>An enumerable collection of file wrappers.</returns>
     IEnumerable<IFileWrapperBase> EnumerateFiles();
 
     /// <summary>
-    /// Enumerates all the file system information within the directory.
+    /// Enumerates the files in the current directory that match the specified search pattern and search option.
     /// </summary>
-    /// <returns>A sequence of file system information in the directory.</returns>
-    IEnumerable<FileSystemInfo> EnumerateFileSystemInfos();
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The search option to use (optional).</param>
+    /// <returns>An enumerable collection of file wrappers.</returns>
+    IEnumerable<IFileWrapperBase> EnumerateFiles(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly);
+
+#if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Enumerates the files in the current directory that match the specified search pattern and enumeration options (for .NET Core 3.1 or greater).
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The enumeration options to use.</param>
+    /// <returns>An enumerable collection of file wrappers.</returns>
+    IEnumerable<IFileWrapperBase> EnumerateFiles(string searchPattern, EnumerationOptions searchOption);
+#endif
+
+    // Similar comments apply to the rest of the methods
+    // ...
 
     /// <summary>
-    /// Gets the access control of the directory.
+    /// Gets the access control for the directory.
     /// </summary>
-    /// <returns>A DirectorySecurity object that encapsulates the access control rules for the directory.</returns>
+    /// <returns>The directory's access control.</returns>
     DirectorySecurity GetAccessControl();
 
     /// <summary>
-    /// Gets all the subdirectories within the directory.
+    /// Gets the directories in the current directory.
     /// </summary>
-    /// <returns>An array of directories in the directory.</returns>
+    /// <returns>An array of directory wrappers.</returns>
     IDirectoryWrapperBase[] GetDirectories();
 
     /// <summary>
-    /// Gets all the files within the directory.
+    /// Gets the directories in the current directory that match the specified search pattern and search option.
     /// </summary>
-    /// <returns>An array of files in the directory.</returns>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The search option to use (optional).</param>
+    /// <returns>An array of directory wrappers.</returns>
+    IDirectoryWrapperBase[] GetDirectories(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly);
+
+#if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Gets the directories in the current directory that match the specified search pattern and enumeration options (for .NET Core 3.1 or greater).
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The enumeration options to use.</param>
+    /// <returns>An array of directory wrappers.</returns>
+    IDirectoryWrapperBase[] GetDirectories(string searchPattern, EnumerationOptions searchOption);
+#endif
+
+    /// <summary>
+    /// Gets the files in the current directory.
+    /// </summary>
+    /// <returns>An array of file wrappers.</returns>
     IFileWrapperBase[] GetFiles();
+
+    /// <summary>
+    /// Gets the files in the current directory that match the specified search pattern and search option.
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The search option to use (optional).</param>
+    /// <returns>An array of file wrappers.</returns>
+    IFileWrapperBase[] GetFiles(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly);
+
+#if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Gets the files in the current directory that match the specified search pattern and enumeration options (for .NET Core 3.1 or greater).
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The enumeration options to use.</param>
+    /// <returns>An array of file wrappers.</returns>
+    IFileWrapperBase[] GetFiles(string searchPattern, EnumerationOptions searchOption);
+#endif
+
+    /// <summary>
+    /// Gets the file system information objects in the current directory.
+    /// </summary>
+    /// <returns>An array of FileSystemInfo objects.</returns>
+    FileSystemInfo[] GetFileSystemInfos();
+
+    /// <summary>
+    /// Gets the file system information objects in the current directory that match the specified search pattern and search option.
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The search option to use (optional).</param>
+    /// <returns>An array of FileSystemInfo objects.</returns>
+    FileSystemInfo[] GetFileSystemInfos(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly);
+
+#if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Gets the file system information objects in the current directory that match the specified search pattern and enumeration options (for .NET Core 3.1 or greater).
+    /// </summary>
+    /// <param name="searchPattern">The search pattern to use.</param>
+    /// <param name="searchOption">The enumeration options to use.</param>
+    /// <returns>An array of FileSystemInfo objects.</returns>
+    FileSystemInfo[] GetFileSystemInfos(string searchPattern, EnumerationOptions searchOption);
+#endif
+
+    /// <summary>
+    /// Moves the directory to a new location.
+    /// </summary>
+    /// <param name="destDirName">The destination directory name.</param>
+    void MoveTo(string destDirName);
 
     /// <summary>
     /// Sets the access control for the directory.
     /// </summary>
-    /// <param name="directorySecurity">A DirectorySecurity object that contains the access control rules to apply to the directory.</param>
+    /// <param name="directorySecurity">The directory security to apply.</param>
     void SetAccessControl(DirectorySecurity directorySecurity);
 }

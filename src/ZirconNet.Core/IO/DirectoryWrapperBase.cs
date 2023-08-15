@@ -8,11 +8,13 @@ using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using ZirconNet.Core.Async;
 using ZirconNet.Core.Events;
+using ZirconNet.Core.Helpers;
 
 namespace ZirconNet.Core.IO;
 
 /// <inheritdoc cref="IDirectoryWrapperBase"/>
-public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirectoryWrapperBase
+public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDirectoryWrapperBase<T>
+    where T : DirectoryWrapperBase<T>
 {
     private readonly DirectoryInfo _directoryInfo;
 
@@ -32,6 +34,10 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
 
     public override bool Exists => _directoryInfo.Exists;
 
+    public T? Parent => _directoryInfo.Parent is null ? null : (T)Activator.CreateInstance(typeof(T), _directoryInfo.Parent, false, false)!;
+
+    public T Root => (T)Activator.CreateInstance(typeof(T), _directoryInfo.Root, false, false)!;
+
     public IWeakEvent<IFileWrapperBase> CopyingFile { get; } = new WeakEvent<IFileWrapperBase>();
 
     public IWeakEvent<IFileWrapperBase> CopiedFile { get; } = new WeakEvent<IFileWrapperBase>();
@@ -46,36 +52,141 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
 
     public override void Delete()
     {
+        Delete(false);
+    }
+
+    public void Delete(bool recursive)
+    {
         if (_directoryInfo != null && Exists)
         {
-            _directoryInfo.Delete(true);
+            _directoryInfo.Delete(recursive);
         }
+    }
+
+    public void MoveTo(string destDirName)
+    {
+        _directoryInfo.MoveTo(destDirName);
     }
 
     public IEnumerable<IFileWrapperBase> EnumerateFiles()
     {
-        return _directoryInfo.EnumerateFiles().Select(file => new FileWrapper(file, false));
+        foreach (var file in _directoryInfo.EnumerateFiles())
+        {
+            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+        }
     }
+
+    public IEnumerable<IFileWrapperBase> EnumerateFiles(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        foreach (var file in _directoryInfo.EnumerateFiles(searchPattern, searchOption))
+        {
+            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+        }
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public IEnumerable<IFileWrapperBase> EnumerateFiles(string searchPattern, EnumerationOptions searchOption)
+    {
+        foreach (var file in _directoryInfo.EnumerateFiles(searchPattern, searchOption))
+        {
+            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+        }
+    }
+#endif
 
     public IEnumerable<IDirectoryWrapperBase> EnumerateDirectories()
     {
-        return _directoryInfo.EnumerateDirectories().Select(directory => new DirectoryWrapper(directory, false));
+        foreach (var directory in _directoryInfo.EnumerateDirectories())
+        {
+            yield return new DirectoryWrapper(directory, false);
+        }
     }
+
+    public IEnumerable<IDirectoryWrapperBase> EnumerateDirectories(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        foreach (var directory in _directoryInfo.EnumerateDirectories(searchPattern, searchOption))
+        {
+            yield return new DirectoryWrapper(directory, false);
+        }
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public IEnumerable<IDirectoryWrapperBase> EnumerateDirectories(string searchPattern, EnumerationOptions searchOption)
+    {
+        foreach (var directory in _directoryInfo.EnumerateDirectories(searchPattern, searchOption))
+        {
+            yield return new DirectoryWrapper(directory, false);
+        }
+    }
+#endif
 
     public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos()
     {
         return _directoryInfo.EnumerateFileSystemInfos();
     }
 
+    public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        return _directoryInfo.EnumerateFileSystemInfos(searchPattern, searchOption);
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public IEnumerable<FileSystemInfo> EnumerateFileSystemInfos(string searchPattern, EnumerationOptions searchOption)
+    {
+        return _directoryInfo.EnumerateFileSystemInfos(searchPattern, searchOption);
+    }
+#endif
+
     public IDirectoryWrapperBase[] GetDirectories()
     {
-        return _directoryInfo.GetDirectories().Select(d => new DirectoryWrapper(d, false)).ToArray();
+        return WrapDirectories(_directoryInfo.GetDirectories());
     }
+
+    public IDirectoryWrapperBase[] GetDirectories(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        return WrapDirectories(_directoryInfo.GetDirectories(searchPattern, searchOption));
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public IDirectoryWrapperBase[] GetDirectories(string searchPattern, EnumerationOptions searchOption)
+    {
+        return WrapDirectories(_directoryInfo.GetDirectories(searchPattern, searchOption));
+    }
+#endif
 
     public IFileWrapperBase[] GetFiles()
     {
-        return _directoryInfo.GetFiles().Select(f => new FileWrapper(f, false)).ToArray();
+        return WrapFiles(_directoryInfo.GetFiles());
     }
+
+    public IFileWrapperBase[] GetFiles(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        return WrapFiles(_directoryInfo.GetFiles(searchPattern, searchOption));
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public IFileWrapperBase[] GetFiles(string searchPattern, EnumerationOptions searchOption)
+    {
+        return WrapFiles(_directoryInfo.GetFiles(searchPattern, searchOption));
+    }
+#endif
+
+    public FileSystemInfo[] GetFileSystemInfos()
+    {
+        return _directoryInfo.GetFileSystemInfos();
+    }
+
+    public FileSystemInfo[] GetFileSystemInfos(string searchPattern, SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    {
+        return _directoryInfo.GetFileSystemInfos(searchPattern, searchOption);
+    }
+
+#if NETCOREAPP3_1_OR_GREATER
+    public FileSystemInfo[] GetFileSystemInfos(string searchPattern, EnumerationOptions searchOption)
+    {
+        return _directoryInfo.GetFileSystemInfos(searchPattern, searchOption);
+    }
+#endif
 
 #if NET5_0_OR_GREATER
     [SupportedOSPlatform("Windows")]
@@ -91,6 +202,28 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
     public void SetAccessControl(DirectorySecurity directorySecurity)
     {
         _directoryInfo.SetAccessControl(directorySecurity);
+    }
+
+    private static IDirectoryWrapperBase[] WrapDirectories(DirectoryInfo[] directories)
+    {
+        var result = new IDirectoryWrapperBase[directories.Length];
+        for (var i = 0; i < directories.Length; i++)
+        {
+            result[i] = new DirectoryWrapper(directories[i], false);
+        }
+
+        return result;
+    }
+
+    private static IFileWrapperBase[] WrapFiles(FileInfo[] files)
+    {
+        var result = new IFileWrapperBase[files.Length];
+        for (var i = 0; i < files.Length; i++)
+        {
+            result[i] = FileWrapperHelper.WrapUsingFileExtension(files[i]);
+        }
+
+        return result;
     }
 
     private static DirectoryInfo Create(string path, bool overwrite = false)
@@ -117,7 +250,7 @@ public abstract class DirectoryWrapperBase : BufferedCopyFileSystemInfo, IDirect
 
     private async Task HandleFileAsync(FileInfo file, IDirectoryWrapperBase destination)
     {
-        var fileWrapper = new FileWrapper(file);
+        var fileWrapper = FileWrapperHelper.WrapUsingFileExtension(file);
         CopyingFile.Publish(fileWrapper);
         await BufferedCopyAsync(fileWrapper, destination).ConfigureAwait(false);
         CopiedFile.Publish(fileWrapper);

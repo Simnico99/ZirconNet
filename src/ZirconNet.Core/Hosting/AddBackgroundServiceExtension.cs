@@ -2,10 +2,8 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Hosting;
 
