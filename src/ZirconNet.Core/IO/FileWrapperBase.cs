@@ -4,6 +4,7 @@
 
 #if NETCOREAPP3_1_OR_GREATER
 using System.Runtime.Versioning;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 #endif
 
@@ -226,6 +227,17 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
         File.SetAttributes(FileInfo.FullName, fileAttributes);
     }
 
+#if NET7_0_OR_GREATER
+    [UnsupportedOSPlatform("windows")]
+    public UnixFileMode GetUnixFileMode() => File.GetUnixFileMode(FileInfo.FullName);
+
+    [UnsupportedOSPlatform("windows")]
+    public void SetUnixFileMode(UnixFileMode mode)
+    {
+        File.SetUnixFileMode(FileInfo.FullName, mode);
+    }
+#endif
+
     private static FileInfo Create(string path, bool overwrite = false)
     {
         if (File.Exists(path))
@@ -250,4 +262,27 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
             File.Delete(file.FullName);
         }
     }
+
+    public string ReadAllText()
+    {
+        return File.ReadAllText(FileInfo.FullName);
+    }
+
+    public void WriteAllText(string? content)
+    {
+        File.WriteAllText(FileInfo.FullName, content);
+    }
+
+#if NET5_0_OR_GREATER
+    public string ReadAllText(Encoding encoding)
+    {
+        return File.ReadAllText(FileInfo.FullName, encoding);
+    }
+
+    public void WriteAllText(string? content, Encoding encoding)
+    {
+        File.WriteAllText(FileInfo.FullName, content, encoding);
+    }
+#endif
+
 }

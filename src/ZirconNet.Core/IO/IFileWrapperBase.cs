@@ -4,6 +4,7 @@
 
 #if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 #endif
 
@@ -363,6 +364,54 @@ public interface IFileWrapperBase
     /// The caller does not have the required permission.
     /// </exception>
     void SetAttributes(FileAttributes fileAttributes);
+
+    /// <summary>
+    /// Read the entire file as text.
+    /// </summary>
+    /// <returns>The entire file as string.</returns>
+    string ReadAllText();
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Read the entire file as text.
+    /// </summary>
+    /// <param name="encoding">The file encoding.</param>
+    /// <returns>The entire file as string.</returns>
+    string ReadAllText(Encoding encoding);
+#endif
+
+    /// <summary>
+    /// Write the content of the file as text.
+    /// </summary>
+    /// <param name="content">Content to write to the file.</param>
+    void WriteAllText(string? content);
+
+#if NET5_0_OR_GREATER
+    /// <summary>
+    /// Write the content of the file as text.
+    /// </summary>
+    /// <param name="content">Content to write to the file.</param>
+    /// <param name="encoding">The file encoding.</param>
+    void WriteAllText(string? content, Encoding encoding);
+#endif
+
+#if NET7_0_OR_GREATER
+    /// <summary>Gets the <see cref="T:System.IO.UnixFileMode" /> of the file on the path.</summary>
+    /// <returns>The <see cref="T:System.IO.UnixFileMode" /> of the file on the path.</returns>
+    /// <exception cref="T:System.UnauthorizedAccessException">The caller does not have the required permission.</exception>
+    /// <exception cref="T:System.IO.PathTooLongException">The specified path exceeds the system-defined maximum length.</exception>
+    [UnsupportedOSPlatform("windows")]
+    UnixFileMode GetUnixFileMode();
+
+    /// <summary>Sets the specified <see cref="T:System.IO.UnixFileMode" /> of the file on the specified path.</summary>
+    /// <param name="mode">The unix file mode.</param>
+    /// <exception cref="T:System.ArgumentException">The caller attempts to use an invalid file mode.</exception>
+    /// <exception cref="T:System.UnauthorizedAccessException">The caller does not have the required permission.</exception>
+    /// <exception cref="T:System.IO.PathTooLongException">The specified path exceeds the system-defined maximum length.</exception>
+    /// <exception cref="T:System.IO.FileNotFoundException">The file cannot be found.</exception>
+    [UnsupportedOSPlatform("windows")]
+    void SetUnixFileMode(UnixFileMode mode);
+#endif
 
     /// <summary>
     /// Decrypt the file on Windows.
