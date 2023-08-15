@@ -343,18 +343,46 @@ public interface IFileWrapperBase
     /// </exception>
     void SetAttributes(FileAttributes fileAttributes);
 
+    /// <summary>
+    /// Writes all the bytes to the current file.
+    /// </summary>
+    /// <param name="bytes">The byte array to write to the file.</param>
     void WriteAllBytes(byte[] bytes);
 
+    /// <summary>
+    /// Reads all the lines from the current file.
+    /// </summary>
+    /// <returns>An array of strings representing the lines read from the file.</returns>
     string[] ReadAllLines();
 
+    /// <summary>
+    /// Reads the lines from the current file.
+    /// </summary>
+    /// <returns>An enumerable collection of strings representing the lines read from the file.</returns>
     IEnumerable<string> ReadLines();
 
+    /// <summary>
+    /// Writes all the lines to the current file.
+    /// </summary>
+    /// <param name="contents">The array of strings to write to the file.</param>
     void WriteAllLines(string[] contents);
 
+    /// <summary>
+    /// Writes all the lines to the current file.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to write to the file.</param>
     void WriteAllLines(IEnumerable<string> contents);
 
+    /// <summary>
+    /// Appends the specified text to the current file.
+    /// </summary>
+    /// <param name="contents">The text to append to the file. A null value appends nothing.</param>
     void AppendAllText(string? contents);
 
+    /// <summary>
+    /// Appends all the lines to the current file.
+    /// </summary>
+    /// <param name="contents">The array of strings to append to the file.</param>
     void AppendAllLines(string[] contents);
 
     /// <summary>
@@ -380,20 +408,65 @@ public interface IFileWrapperBase
     void Encrypt();
 
 #if NETCOREAPP3_1_OR_GREATER
+    /// <summary>
+    /// Reads all the text from the current file asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous read operation. The value of the task's result is the content read from the file.</returns>
     Task<string> ReadAllTextAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Writes the specified text to the current file asynchronously.
+    /// </summary>
+    /// <param name="contents">The text to write to the file. A null value writes nothing.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     Task WriteAllTextAsync(string? contents, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reads all the bytes from the current file asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous read operation. The value of the task's result is the byte array read from the file.</returns>
     Task<byte[]> ReadAllBytesAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Writes all the bytes to the current file asynchronously.
+    /// </summary>
+    /// <param name="bytes">The byte array to write to the file.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     Task WriteAllBytesAsync(byte[] bytes, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reads all the lines from the current file asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous read operation. The value of the task's result is an array of strings read from the file.</returns>
     Task<string[]> ReadAllLinesAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Appends the specified text to the current file asynchronously.
+    /// </summary>
+    /// <param name="contents">The text to append to the file. A null value appends nothing.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous append operation.</returns>
     Task AppendAllTextAsync(string? contents, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Writes all the lines to the current file asynchronously.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to write to the file.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     Task WriteAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Appends all the lines to the current file asynchronously.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to append to the file.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous append operation.</returns>
     Task AppendAllLinesAsync(IEnumerable<string> contents, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -444,29 +517,100 @@ public interface IFileWrapperBase
     /// <param name="encoding">The file encoding.</param>
     void WriteAllText(string? content, Encoding encoding);
 
+    /// <summary>
+    /// Reads all the lines from the current file using the specified encoding.
+    /// </summary>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <returns>An array of strings representing the lines read from the file.</returns>
     string[] ReadAllLines(Encoding encoding);
 
+    /// <summary>
+    /// Reads the lines from the current file using the specified encoding.
+    /// </summary>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <returns>An enumerable collection of strings representing the lines read from the file.</returns>
     IEnumerable<string> ReadLines(Encoding encoding);
 
+    /// <summary>
+    /// Writes all the lines to the current file using the specified encoding.
+    /// </summary>
+    /// <param name="contents">The array of strings to write to the file.</param>
+    /// <param name="encoding">The encoding to use.</param>
     void WriteAllLines(string[] contents, Encoding encoding);
 
+    /// <summary>
+    /// Writes all the lines to the current file using the specified encoding.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to write to the file.</param>
+    /// <param name="encoding">The encoding to use.</param>
     void WriteAllLines(IEnumerable<string> contents, Encoding encoding);
 
+    /// <summary>
+    /// Appends the specified text to the current file using the specified encoding.
+    /// </summary>
+    /// <param name="contents">The text to append to the file. A null value appends nothing.</param>
+    /// <param name="encoding">The encoding to use.</param>
     void AppendAllText(string? contents, Encoding encoding);
 
+    /// <summary>
+    /// Appends all the lines to the current file using the specified encoding.
+    /// </summary>
+    /// <param name="contents">The array of strings to append to the file.</param>
+    /// <param name="encoding">The encoding to use.</param>
     void AppendAllLines(string[] contents, Encoding encoding);
 
+    /// <summary>
+    /// Reads all the text from the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous read operation. The value of the task's result is the content read from the file.</returns>
     Task<string> ReadAllTextAsync(Encoding encoding, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Writes the specified text to the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="contents">The text to write to the file. A null value writes nothing.</param>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     Task WriteAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Reads all the lines from the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous read operation. The value of the task's result is an array of strings read from the file.</returns>
     Task<string[]> ReadAllLinesAsync(Encoding encoding, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Writes all the lines to the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to write to the file.</param>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
     Task WriteAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Appends the specified text to the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="contents">The text to append to the file. A null value appends nothing.</param>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous append operation.</returns>
     Task AppendAllTextAsync(string? contents, Encoding encoding, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Appends all the lines to the current file using the specified encoding asynchronously.
+    /// </summary>
+    /// <param name="contents">The enumerable collection of strings to append to the file.</param>
+    /// <param name="encoding">The encoding to use.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests (optional).</param>
+    /// <returns>A task that represents the asynchronous append operation.</returns>
     Task AppendAllLinesAsync(IEnumerable<string> contents, Encoding encoding, CancellationToken cancellationToken = default);
+
 #endif
 
     /// <summary>
