@@ -8,7 +8,7 @@ using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using ZirconNet.Core.Async;
 using ZirconNet.Core.Events;
-using ZirconNet.Core.Helpers;
+using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.IO;
 
@@ -72,7 +72,7 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
     {
         foreach (var file in _directoryInfo.EnumerateFiles())
         {
-            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+            yield return file.AutoWrapByExtension(false, false);
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
     {
         foreach (var file in _directoryInfo.EnumerateFiles(searchPattern, searchOption))
         {
-            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+            yield return file.AutoWrapByExtension(false, false);
         }
     }
 
@@ -89,7 +89,7 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
     {
         foreach (var file in _directoryInfo.EnumerateFiles(searchPattern, searchOption))
         {
-            yield return FileWrapperHelper.WrapUsingFileExtension(file);
+            yield return file.AutoWrapByExtension(false, false);
         }
     }
 #endif
@@ -220,7 +220,7 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
         var result = new IFileWrapperBase[files.Length];
         for (var i = 0; i < files.Length; i++)
         {
-            result[i] = FileWrapperHelper.WrapUsingFileExtension(files[i]);
+            result[i] = files[i].AutoWrapByExtension(false, false);
         }
 
         return result;
@@ -250,7 +250,7 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
 
     private async Task HandleFileAsync(FileInfo file, IDirectoryWrapperBase destination)
     {
-        var fileWrapper = FileWrapperHelper.WrapUsingFileExtension(file);
+        var fileWrapper = file.AutoWrapByExtension(false, false);
         CopyingFile.Publish(fileWrapper);
         await BufferedCopyAsync(fileWrapper, destination).ConfigureAwait(false);
         CopiedFile.Publish(fileWrapper);

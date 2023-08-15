@@ -27,4 +27,16 @@ public static class FileInfoExtensions
     {
         return new(file, createFile, overwrite);
     }
+
+    public static IFileWrapperBase AutoWrapByExtension(this FileInfo file, bool createFile = true, bool overwrite = false)
+    {
+        var extension = file.Extension.ToLower();
+        return extension switch
+        {
+            ".jar" => new JarFileWrapper(file, createFile, overwrite),
+            ".json" => new JsonFileWrapper(file, createFile, overwrite),
+            ".zip" => new ZipFileWrapper(file, createFile, overwrite),
+            _ => new FileWrapper(file, createFile, overwrite),
+        };
+    }
 }

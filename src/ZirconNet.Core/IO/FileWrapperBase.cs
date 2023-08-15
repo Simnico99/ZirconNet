@@ -238,6 +238,28 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
     }
 #endif
 
+    public string ReadAllText()
+    {
+        return File.ReadAllText(FileInfo.FullName);
+    }
+
+    public void WriteAllText(string? content)
+    {
+        File.WriteAllText(FileInfo.FullName, content);
+    }
+
+#if NET5_0_OR_GREATER
+    public string ReadAllText(Encoding encoding)
+    {
+        return File.ReadAllText(FileInfo.FullName, encoding);
+    }
+
+    public void WriteAllText(string? content, Encoding encoding)
+    {
+        File.WriteAllText(FileInfo.FullName, content, encoding);
+    }
+#endif
+
     private static FileInfo Create(string path, bool overwrite = false)
     {
         if (File.Exists(path))
@@ -262,27 +284,4 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
             File.Delete(file.FullName);
         }
     }
-
-    public string ReadAllText()
-    {
-        return File.ReadAllText(FileInfo.FullName);
-    }
-
-    public void WriteAllText(string? content)
-    {
-        File.WriteAllText(FileInfo.FullName, content);
-    }
-
-#if NET5_0_OR_GREATER
-    public string ReadAllText(Encoding encoding)
-    {
-        return File.ReadAllText(FileInfo.FullName, encoding);
-    }
-
-    public void WriteAllText(string? content, Encoding encoding)
-    {
-        File.WriteAllText(FileInfo.FullName, content, encoding);
-    }
-#endif
-
 }

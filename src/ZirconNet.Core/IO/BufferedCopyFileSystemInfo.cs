@@ -8,7 +8,7 @@ namespace ZirconNet.Core.IO;
 
 public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
 {
-    private const int _bufferSize = 8192;
+    private const int _bufferSize = 4096;
 
     protected static async Task BufferedCopyAsync(string sourcePath, string destinationPath)
     {
