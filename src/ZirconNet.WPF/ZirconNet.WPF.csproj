@@ -7,7 +7,7 @@
 		<UseWPF>true</UseWPF>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Simnico99</Authors>
-		<Description>These are libraries I use in alot of projects so I made theme a NuGet package to stop having to copy code all over the place.</Description>
+		<Description>These are libraries I use in alot of projects so I made them a NuGet package to stop having to copy code all over the place.</Description>
 		<Copyright>Copyright (c) 2022 Simnico99</Copyright>
 		<PackageProjectUrl>https://github.com/Simnico99/ZirconNet</PackageProjectUrl>
 		<PackageIcon>ZirconNetLogo - 128x128.png</PackageIcon>
