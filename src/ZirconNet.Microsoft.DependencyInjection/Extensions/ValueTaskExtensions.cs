@@ -1,22 +1,24 @@
-﻿// <copyright file="TaskExtension.cs" company="Zircon Technology">
+﻿// <copyright file="ValueTaskExtensions.cs" company="Zircon Technology">
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-namespace ZirconNet.Core.Extensions;
+using Microsoft.Extensions.Logging;
 
-public static class TaskExtensions
+namespace ZirconNet.Microsoft.DependencyInjection.Extensions;
+
+public static class ValueTaskExtensions
 {
     /// <summary>
     /// Observes the task to avoid the UnobservedTaskException event to be raised.
     /// </summary>
-    public static void Forget(this Task task, bool printException = false)
+    public static void Forget(this ValueTask task, ILogger logger)
     {
         if (!task.IsCompleted || task.IsFaulted)
         {
-            _ = ForgetAwaited(task, printException);
+            _ = ForgetAwaited(task, logger);
         }
 
-        async static Task ForgetAwaited(Task task, bool printException)
+        async static Task ForgetAwaited(ValueTask task, ILogger logger)
         {
             try
             {
@@ -24,10 +26,7 @@ public static class TaskExtensions
             }
             catch (Exception ex)
             {
-                if (printException)
-                {
-                    Console.WriteLine(ex);
-                }
+                logger.LogError(ex, "An exception occurred in a fire and forget method:");
             }
         }
     }

@@ -5,7 +5,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace ZirconNet.Core.Hosting;
+namespace ZirconNet.Microsoft.DependencyInjection.Hosting;
 
 public static class AddBackgroundServiceExtension
 {

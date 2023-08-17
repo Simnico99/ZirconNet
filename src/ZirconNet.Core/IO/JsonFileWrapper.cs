@@ -77,10 +77,10 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
         return _fileContent is null ? new() : _fileContent;
     }
 
-    public void MergeJsonObject(JsonObject jobject)
+    public void MergeJsonObject(JsonObject jsonObject)
     {
         _hasFlushedLastChanges = false;
-        _ = _fileContent?.Concat(jobject);
+        _ = _fileContent?.Concat(jsonObject);
     }
 
     public void Clear()

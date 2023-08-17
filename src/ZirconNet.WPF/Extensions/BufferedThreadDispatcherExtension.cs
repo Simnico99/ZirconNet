@@ -3,7 +3,7 @@
 // </copyright>
 
 using Microsoft.Extensions.Hosting;
-using ZirconNet.Core.Hosting;
+using ZirconNet.Microsoft.DependencyInjection.Hosting;
 using ZirconNet.WPF.BackgroundServices;
 using ZirconNet.WPF.Dispatcher;
 

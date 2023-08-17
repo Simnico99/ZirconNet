@@ -5,7 +5,7 @@
 using ZirconNet.Core.Enums;
 using ZirconNet.Core.Environments;
 
-namespace ZirconNet.Core.Hosting;
+namespace ZirconNet.Microsoft.DependencyInjection.Hosting;
 
 /// <inheritdoc cref="IEnvironmentManager"/>/>
 internal sealed class EnvironmentManagerDI : IEnvironmentManager

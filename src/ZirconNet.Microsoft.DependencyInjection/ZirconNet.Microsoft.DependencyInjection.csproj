@@ -22,52 +22,35 @@
 		<LangVersion>11.0</LangVersion>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
-		<WarningLevel>7</WarningLevel>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
-		<WarningLevel>7</WarningLevel>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Include="..\..\Logo\ZirconNetLogo - 128x128.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Include="..\..\ReadmeNuget.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+	<ItemGroup Condition="'$(TargetFramework)'=='net7.0' or '$(TargetFramework)'=='net6.0'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
 	</ItemGroup>
-
 
 	<ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0'">
-		<PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)'=='net461' or '$(TargetFramework)'=='net47'">
-		<PackageReference Include="System.Net.Http" Version="4.3.4" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0'">
-		<PackageReference Include="System.Text.Json" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)'=='net461' or '$(TargetFramework)'=='net47' or '$(TargetFramework)'=='net48'">
-		<PackageReference Include="System.Text.Json" Version="6.0.0" />
-		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
-		<PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-		<PackageReference Include="System.Memory" Version="4.5.5" />
-		<PackageReference Include="System.Io.Compression" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
 		<PackageReference Include="PolySharp" Version="1.12.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png" Link="ZirconNetLogo - 128x128.png">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	  <None Include="..\..\ReadmeNuget.md" Link="ReadmeNuget.md">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,7 +62,10 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-
-
 	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\ZirconNet.Core\ZirconNet.Core.csproj" />
+	</ItemGroup>
+
 </Project>

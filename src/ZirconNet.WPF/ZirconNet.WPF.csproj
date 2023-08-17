@@ -56,6 +56,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\ZirconNet.Core\ZirconNet.Core.csproj" />
+		<ProjectReference Include="..\ZirconNet.Microsoft.DependencyInjection\ZirconNet.Microsoft.DependencyInjection.csproj" />
 	</ItemGroup>
 
 </Project>
