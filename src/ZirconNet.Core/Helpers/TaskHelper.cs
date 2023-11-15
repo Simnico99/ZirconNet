@@ -29,6 +29,7 @@ public static class TaskHelper
         try
         {
             await allTasks;
+            return;
         }
         catch (Exception)
         {
