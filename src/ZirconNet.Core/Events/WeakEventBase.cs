@@ -2,45 +2,54 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Collections.Concurrent;
 using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Events;
 
 public abstract class WeakEventBase
 {
-    private readonly ConcurrentDictionary<Type, List<Delegate>> _eventRegistrations = new();
+    private readonly List<(Type, Delegate)> _eventRegistrations = new();
+    private readonly object _lock = new();
 
     protected virtual Subscription SubscribeInternal<T>(T action)
         where T : Delegate
     {
-        if (action is null)
+        lock (_lock)
         {
-            throw new ArgumentNullException(nameof(action));
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            _eventRegistrations.Add((typeof(T), action));
+
+            return new Subscription(() =>
+            {
+                lock (_lock)
+                {
+                    _eventRegistrations.Remove((typeof(T), action));
+                }
+            });
         }
-
-        _eventRegistrations.AddOrUpdate(typeof(T), new List<Delegate> { action }, (key, value) =>
-        {
-            value.Add(action);
-            return value;
-        });
-
-        return new Subscription(() => _eventRegistrations.AddOrUpdate(typeof(T), new List<Delegate>(), (key, value) =>
-        {
-            value.Remove(action);
-            return value;
-        }));
     }
 
     protected virtual void PublishInternal<T>(T? data)
     {
         Task.Run(() =>
         {
-            if (_eventRegistrations.TryGetValue(typeof(T), out var actions))
+            lock (_lock)
             {
-                foreach (var action in actions)
+                foreach (var eventRegistration in _eventRegistrations)
                 {
-                    ((Action<T?>)action)(data);
+                    if (eventRegistration.Item2 is Action<T?> action)
+                    {
+                        action(data);
+                    }
+
+                    if (eventRegistration.Item2 is Func<T?> func)
+                    {
+                        func();
+                    }
                 }
             }
         }).Forget();
