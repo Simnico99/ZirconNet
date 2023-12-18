@@ -6,6 +6,11 @@ namespace ZirconNet.Core.Events;
 
 public sealed class WeakEvent<T> : WeakEventBase<T>, IWeakEvent<T>
 {
+    public WeakEvent(bool isAsync = false)
+        : base(isAsync)
+    {
+    }
+
     public void Subscribe(Action<T> action)
     {
         SubscribeInternal(action);

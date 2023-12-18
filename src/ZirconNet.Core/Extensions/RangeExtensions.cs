@@ -2,7 +2,6 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Runtime.CompilerServices;
 using ZirconNet.Core.Runtime;
 
 namespace ZirconNet.Core.Extensions;

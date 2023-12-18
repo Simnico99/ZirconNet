@@ -3,7 +3,6 @@
 // </copyright>
 
 using System.Diagnostics;
-using System.Net.NetworkInformation;
 
 namespace ZirconNet.Core.Extensions;
 
