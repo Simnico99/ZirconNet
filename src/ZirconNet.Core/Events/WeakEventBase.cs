@@ -6,52 +6,78 @@ using ZirconNet.Core.Extensions;
 
 namespace ZirconNet.Core.Events;
 
-public abstract class WeakEventBase
+public abstract class WeakEventBase<T>
 {
-    private readonly List<(Type, Delegate)> _eventRegistrations = new();
-    private readonly object _lock = new();
+    private readonly List<WeakReference<Delegate>> _handlers = [];
+    private readonly object _syncRoot = new();
+    private readonly bool _isAsync;
 
-    protected virtual Subscription SubscribeInternal<T>(T action)
-        where T : Delegate
+    public WeakEventBase(bool isAsync = false)
     {
-        lock (_lock)
+        _isAsync = isAsync;
+    }
+
+    public void SubscribeInternal<TDelegate>(TDelegate handler)
+        where TDelegate : Delegate
+    {
+        var weakHandler = new WeakReference<Delegate>(handler);
+        lock (_syncRoot)
         {
-            if (action is null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-
-            _eventRegistrations.Add((typeof(T), action));
-
-            return new Subscription(() =>
-            {
-                lock (_lock)
-                {
-                    _eventRegistrations.Remove((typeof(T), action));
-                }
-            });
+            _handlers.Add(weakHandler);
         }
     }
 
-    protected virtual void PublishInternal<T>(T? data)
+    public void UnsubscribeInternal<TDelegate>(TDelegate handler)
+        where TDelegate : Delegate
     {
-        Task.Run(() =>
+        lock (_syncRoot)
         {
-            lock (_lock)
-            {
-                foreach (var eventRegistration in _eventRegistrations)
-                {
-                    if (eventRegistration.Item2 is Action<T?> action)
-                    {
-                        action(data);
-                    }
+            _handlers.RemoveAll(wr => wr.TryGetTarget(out var existingHandler) && existingHandler.Equals(handler));
+        }
+    }
 
-                    if (eventRegistration.Item2 is Func<T?> func)
-                    {
-                        func();
-                    }
+    public void PublishInternal(T data)
+    {
+        var toInvoke = new List<Delegate>();
+
+        lock (_syncRoot)
+        {
+            _handlers.RemoveAll(wr => !wr.TryGetTarget(out _));
+            foreach (var weakReference in _handlers)
+            {
+                if (weakReference.TryGetTarget(out var handler))
+                {
+                    toInvoke.Add(handler);
                 }
             }
-        }).Forget();
+        }
+
+        if (_isAsync)
+        {
+            foreach (var handler in toInvoke)
+            {
+                Task.Run(() => InvokeHandler(handler, data)).Forget();
+            }
+        }
+        else
+        {
+            foreach (var handler in toInvoke)
+            {
+                InvokeHandler(handler, data);
+            }
+        }
+    }
+
+    private static void InvokeHandler(Delegate handler, T data)
+    {
+        switch (handler)
+        {
+            case Action<T> action:
+                action(data);
+                break;
+            case Func<T, object> func:
+                func(data);
+                break;
+        }
     }
 }

@@ -18,14 +18,25 @@ public interface IWeakEvent
     /// Subscribes to the event.
     /// </summary>
     /// <param name="action">The action to execute.</param>
-    /// <returns>A subscription item. (Can be disposed).</returns>
-    Subscription Subscribe(Action action);
+    void Subscribe(Action action);
 
     /// <summary>
     /// Subscribes to the event.
     /// </summary>
-    /// <typeparam name="T">The return type.</typeparam>
+    /// <typeparam name="T">The func type.</typeparam>
     /// <param name="action">The action to execute.</param>
-    /// <returns>A subscription item. (Can be disposed).</returns>
-    Subscription Subscribe<T>(Func<T> action);
+    void Subscribe<T>(Func<T> action);
+
+    /// <summary>
+    /// Unsubscribe to the event.
+    /// </summary>
+    /// <param name="action">The action that was to execute.</param>
+    void Unsubscribe(Action action);
+
+    /// <summary>
+    /// Unsubscribe to the event.
+    /// </summary>
+    /// <typeparam name="T">The func type.</typeparam>
+    /// <param name="action">The action that was to execute.</param>
+    void Unsubscribe<T>(Func<T> action);
 }

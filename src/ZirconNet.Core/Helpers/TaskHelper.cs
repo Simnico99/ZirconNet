@@ -12,7 +12,7 @@ public static class TaskHelper
 
         try
         {
-            return await allTasks;
+            return await allTasks.ConfigureAwait(false);
         }
         catch (Exception)
         {
@@ -28,7 +28,7 @@ public static class TaskHelper
 
         try
         {
-            await allTasks;
+            await allTasks.ConfigureAwait(false);
             return;
         }
         catch (Exception)

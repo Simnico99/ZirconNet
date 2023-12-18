@@ -10,25 +10,25 @@ public static class ParallelAsync
 {
     public static Task ForEach<T>(this IEnumerable<T> source, in ParallelAsyncOptions parallelOptions, Func<T, Task> body)
     {
-        return ForEachInternal(source, parallelOptions.MaxDegreeOfParallelism, parallelOptions.CancellationToken, body);
+        return ForEachInternal(source, parallelOptions.MaxDegreeOfParallelism, body, parallelOptions.CancellationToken);
     }
 
     public static Task ForEach<T>(this IEnumerable<T> source, int maxDegreeOfParallelism = -1, Func<T, Task>? body = null)
     {
-        return ForEachInternal(source, maxDegreeOfParallelism, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+        return ForEachInternal(source, maxDegreeOfParallelism, body ?? throw new ArgumentNullException(nameof(body)));
     }
 
     public static Task ForEach<T>(this IEnumerable<T> source, Func<T, Task>? body = null)
     {
-        return ForEachInternal(source, -1, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+        return ForEachInternal(source, -1, body ?? throw new ArgumentNullException(nameof(body)));
     }
 
     public static Task ForEach<T>(this T[] source, Func<T, Task>? body = null)
     {
-        return ForEachInternal(source, -1, CancellationToken.None, body ?? throw new ArgumentNullException(nameof(body)));
+        return ForEachInternal(source, -1, body ?? throw new ArgumentNullException(nameof(body)));
     }
 
-    private static Task ForEachInternal<T>(IEnumerable<T> source, int maxDegreeOfParallelism, CancellationToken cancellationToken, Func<T, Task> body)
+    private static Task ForEachInternal<T>(IEnumerable<T> source, int maxDegreeOfParallelism, Func<T, Task> body, CancellationToken cancellationToken = default)
     {
         if (maxDegreeOfParallelism <= 0)
         {

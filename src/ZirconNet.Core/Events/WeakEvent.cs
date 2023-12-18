@@ -6,20 +6,30 @@ using System.Runtime.CompilerServices;
 
 namespace ZirconNet.Core.Events;
 
-public sealed class WeakEvent : WeakEventBase, IWeakEvent
+public sealed class WeakEvent : WeakEventBase<object?>, IWeakEvent
 {
-    public Subscription Subscribe(Action action)
+    public void Subscribe(Action action)
     {
-        return SubscribeInternal(() => action);
+        SubscribeInternal<Action<object?>>((_) => action());
     }
 
-    public Subscription Subscribe<T>(Func<T> action)
+    public void Subscribe<T>(Func<T> action)
     {
-        return SubscribeInternal(action);
+        SubscribeInternal(action);
+    }
+
+    public void Unsubscribe(Action action)
+    {
+        UnsubscribeInternal<Action<object?>>((_) => action());
+    }
+
+    public void Unsubscribe<T>(Func<T> action)
+    {
+        UnsubscribeInternal(action);
     }
 
     public void Publish()
     {
-        PublishInternal<object>(null);
+        PublishInternal(null);
     }
 }

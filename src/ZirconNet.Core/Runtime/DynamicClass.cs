@@ -12,7 +12,7 @@ public sealed class DynamicClass : DynamicObject
 
     public DynamicClass(IEnumerable<DynamicClassField> fields)
     {
-        _fields = new Dictionary<string, (Type Type, object? Value)>();
+        _fields = [];
         foreach (var field in fields)
         {
             _fields.Add(field.FieldName, (field.FieldType, field.Value));

@@ -15,7 +15,7 @@ internal sealed class BufferedDispatcherBackgroundService : BackgroundService
     private readonly BufferedThreadDispatcher _currentBufferedDispatcher = BufferedThreadDispatcher.Current;
 
     /// <inheritdoc/>
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected async override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {

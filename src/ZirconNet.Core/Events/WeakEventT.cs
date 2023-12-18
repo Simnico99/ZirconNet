@@ -2,20 +2,28 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
-using System.Runtime.CompilerServices;
-
 namespace ZirconNet.Core.Events;
 
-public sealed class WeakEvent<T> : WeakEventBase, IWeakEvent<T>
+public sealed class WeakEvent<T> : WeakEventBase<T>, IWeakEvent<T>
 {
-    public Subscription Subscribe(Func<T> action)
+    public void Subscribe(Action<T> action)
     {
-        return SubscribeInternal(action);
+        SubscribeInternal(action);
     }
 
-    public Subscription Subscribe(Action<T> action)
+    public void Subscribe(Func<T> action)
     {
-        return SubscribeInternal(action);
+        SubscribeInternal(action);
+    }
+
+    public void Unsubscribe(Action<T> action)
+    {
+        UnsubscribeInternal(action);
+    }
+
+    public void Unsubscribe(Func<T> action)
+    {
+        UnsubscribeInternal(action);
     }
 
     public void Publish(T data)

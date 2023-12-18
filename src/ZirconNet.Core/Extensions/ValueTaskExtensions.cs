@@ -1,6 +1,8 @@
 ﻿// <copyright file="ValueTaskExtensions.cs" company="Zircon Technology">
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
+using System.Diagnostics;
+
 namespace ZirconNet.Core.Extensions;
 
 public static class ValueTaskExtensions
@@ -23,11 +25,18 @@ public static class ValueTaskExtensions
             }
             catch (Exception ex)
             {
-                if (printException)
-                {
-                    Console.WriteLine(ex);
-                }
+                PrintException(ex, printException);
             }
+        }
+    }
+
+    [Conditional("DEBUG")]
+    private static void PrintException(Exception ex, bool printException)
+    {
+        if (printException)
+        {
+            Debug.WriteLine(ex);
+            Console.WriteLine(ex);
         }
     }
 }

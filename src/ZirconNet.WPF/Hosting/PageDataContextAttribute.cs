@@ -16,5 +16,5 @@ public sealed class PageDataContextAttribute : Attribute
         PagesToBindType = pagesToBind;
     }
 
-    public Type[] PagesToBindType { get; } = Array.Empty<Type>();
+    public Type[] PagesToBindType { get; } = [];
 }

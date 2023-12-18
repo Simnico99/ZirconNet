@@ -9,7 +9,7 @@ namespace ZirconNet.Core.Async;
 
 public sealed class AsyncTaskQueue
 {
-    private readonly ConcurrentBag<Exception> _exceptions = new();
+    private readonly ConcurrentBag<Exception> _exceptions = [];
 
     private SemaphoreSlim _taskSemaphore;
     private SemaphoreSlim _queueSemaphore;
@@ -73,7 +73,7 @@ public sealed class AsyncTaskQueue
 
         if (!cancellationToken.IsCancellationRequested)
         {
-            ThreadPool.QueueUserWorkItem(_ => RunTask(actionToRun).Forget());
+            ThreadPool.QueueUserWorkItem(_ => RunTask(actionToRun).Forget(true));
         }
     }
 

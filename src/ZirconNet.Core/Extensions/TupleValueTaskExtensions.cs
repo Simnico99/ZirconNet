@@ -7,6 +7,7 @@ using ZirconNet.Core.Helpers;
 
 namespace ZirconNet.Core.Extensions;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly", Justification = "Will be awaited by the user implementation.")]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1414:Tuple types in signatures should have element names", Justification = "Wont be used.")]
 public static class TupleValueTaskExtensions
 {

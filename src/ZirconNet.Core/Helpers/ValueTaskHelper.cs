@@ -8,10 +8,14 @@ public static class ValueTaskHelper
 {
     public static async ValueTask<T[]> WhenAll<T>(params ValueTask<T>[] tasks)
     {
+#if NET5_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(tasks);
+#else
         if (tasks == null)
         {
             throw new ArgumentNullException(nameof(tasks));
         }
+#endif
 
         if (tasks.Length == 0)
         {
@@ -51,10 +55,14 @@ public static class ValueTaskHelper
 
     public static async ValueTask WhenAll(params ValueTask[] tasks)
     {
+#if NET5_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(tasks);
+#else
         if (tasks == null)
         {
             throw new ArgumentNullException(nameof(tasks));
         }
+#endif
 
         if (tasks.Length == 0)
         {

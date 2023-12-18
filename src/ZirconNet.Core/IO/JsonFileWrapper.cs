@@ -16,7 +16,7 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
     private readonly StreamReader _reader;
     private readonly LockAsync _asyncLock = new();
 
-    private JsonObject _fileContent = new();
+    private JsonObject _fileContent = [];
     private bool _disposedValue;
     private bool _hasFlushedLastChanges;
 
@@ -74,7 +74,7 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
 
     public JsonObject GetJsonObject()
     {
-        return _fileContent is null ? new() : _fileContent;
+        return _fileContent is null ? [] : _fileContent;
     }
 
     public void MergeJsonObject(JsonObject jsonObject)
@@ -86,7 +86,7 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
     public void Clear()
     {
         _hasFlushedLastChanges = false;
-        _fileContent = new();
+        _fileContent = [];
     }
 
     public async Task LoadFileAsync(bool forceRead = false)
@@ -155,15 +155,15 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
         {
             try
             {
-                _fileContent = JsonNode.Parse(await _reader.ReadToEndAsync())?.AsObject() ?? new();
+                _fileContent = JsonNode.Parse(await _reader.ReadToEndAsync())?.AsObject() ?? [];
             }
             catch (IOException)
             {
-                _fileContent = new();
+                _fileContent = [];
             }
             catch (JsonException)
             {
-                _fileContent = new();
+                _fileContent = [];
             }
         }
     }
