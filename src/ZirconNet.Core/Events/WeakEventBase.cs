@@ -20,10 +20,9 @@ public abstract class WeakEventBase<T>
     public void SubscribeInternal<TDelegate>(TDelegate handler)
         where TDelegate : Delegate
     {
-        var weakHandler = new WeakReference<Delegate>(handler);
         lock (_syncRoot)
         {
-            _handlers.Add(weakHandler);
+            _handlers.Add(new WeakReference<Delegate>(handler));
         }
     }
 
@@ -38,46 +37,35 @@ public abstract class WeakEventBase<T>
 
     public void PublishInternal(T data)
     {
-        var toInvoke = new List<Delegate>();
-
-        lock (_syncRoot)
-        {
-            _handlers.RemoveAll(wr => !wr.TryGetTarget(out _));
-            foreach (var weakReference in _handlers)
-            {
-                if (weakReference.TryGetTarget(out var handler))
-                {
-                    toInvoke.Add(handler);
-                }
-            }
-        }
-
         if (_isAsync)
         {
-            foreach (var handler in toInvoke)
+            foreach (var handler in _handlers)
             {
-                Task.Run(() => InvokeHandler(handler, data)).Forget();
+                Task.Run(() => InvokeHandler(handler, data)).Forget(true);
             }
         }
         else
         {
-            foreach (var handler in toInvoke)
+            foreach (var handler in _handlers)
             {
                 InvokeHandler(handler, data);
             }
         }
     }
 
-    private static void InvokeHandler(Delegate handler, T data)
+    private static void InvokeHandler(WeakReference<Delegate> handler, T data)
     {
-        switch (handler)
+        if (handler.TryGetTarget(out var target))
         {
-            case Action<T> action:
-                action(data);
-                break;
-            case Func<T, object> func:
-                func(data);
-                break;
+            switch (target)
+            {
+                case Action<T> action:
+                    action(data);
+                    break;
+                case Func<T> func:
+                    func();
+                    break;
+            }
         }
     }
 }
