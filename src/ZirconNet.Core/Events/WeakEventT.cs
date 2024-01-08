@@ -21,14 +21,14 @@ public sealed class WeakEvent<T> : WeakEventBase<T>, IWeakEvent<T>
         SubscribeInternal(action);
     }
 
-    public void Unsubscribe(Action<T> action)
+    public bool Unsubscribe(Action<T> action)
     {
-        UnsubscribeInternal(action);
+       return UnsubscribeInternal(action);
     }
 
-    public void Unsubscribe(Func<T> action)
+    public bool Unsubscribe(Func<T> action)
     {
-        UnsubscribeInternal(action);
+        return UnsubscribeInternal(action);
     }
 
     public void Publish(T data)

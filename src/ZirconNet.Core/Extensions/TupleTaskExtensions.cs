@@ -15,7 +15,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2)> CombineTasks()
         {
             var (task1, task2) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2);
+            await TaskHelper.WhenAll(task1, task2).ConfigureAwait(false);
             return (task1.Result, task2.Result);
         }
 
@@ -27,7 +27,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3)> CombineTasks()
         {
             var (task1, task2, task3) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3);
+            await TaskHelper.WhenAll(task1, task2, task3).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result);
         }
 
@@ -39,7 +39,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3, T4)> CombineTasks()
         {
             var (task1, task2, task3, task4) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3, task4);
+            await TaskHelper.WhenAll(task1, task2, task3, task4).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result, task4.Result);
         }
 
@@ -51,7 +51,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3, T4, T5)> CombineTasks()
         {
             var (task1, task2, task3, task4, task5) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3, task4, task5);
+            await TaskHelper.WhenAll(task1, task2, task3, task4, task5).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result, task4.Result, task5.Result);
         }
 
@@ -63,7 +63,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3, T4, T5, T6)> CombineTasks()
         {
             var (task1, task2, task3, task4, task5, task6) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6);
+            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result, task4.Result, task5.Result, task6.Result);
         }
 
@@ -75,7 +75,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3, T4, T5, T6, T7)> CombineTasks()
         {
             var (task1, task2, task3, task4, task5, task6, task7) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6, task7);
+            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6, task7).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result, task4.Result, task5.Result, task6.Result, task7.Result);
         }
 
@@ -87,7 +87,7 @@ public static class TupleTaskExtensions
         async Task<(T1, T2, T3, T4, T5, T6, T7, T8)> CombineTasks()
         {
             var (task1, task2, task3, task4, task5, task6, task7, task8) = taskTuple;
-            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6, task7, task8);
+            await TaskHelper.WhenAll(task1, task2, task3, task4, task5, task6, task7, task8).ConfigureAwait(false);
             return (task1.Result, task2.Result, task3.Result, task4.Result, task5.Result, task6.Result, task7.Result, task8.Result);
         }
 

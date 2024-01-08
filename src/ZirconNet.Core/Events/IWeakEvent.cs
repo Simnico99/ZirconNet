@@ -31,12 +31,14 @@ public interface IWeakEvent
     /// Unsubscribe to the event.
     /// </summary>
     /// <param name="action">The action that was to execute.</param>
-    void Unsubscribe(Action action);
+    /// <returns>If the item has been found and removed.</returns>
+    bool Unsubscribe(Action action);
 
     /// <summary>
     /// Unsubscribe to the event.
     /// </summary>
     /// <typeparam name="T">The func type.</typeparam>
     /// <param name="action">The action that was to execute.</param>
-    void Unsubscribe<T>(Func<T> action);
+    /// <returns>If the item has been found and removed.</returns>
+    bool Unsubscribe<T>(Func<T> action);
 }

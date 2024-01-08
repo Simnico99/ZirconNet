@@ -151,11 +151,11 @@ public sealed class JsonFileWrapper : FileWrapperBase<JsonFileWrapper>, IDisposa
 
     private async Task LoadFileInternalAsync(bool forceRead)
     {
-        if ((_fileContent == null || forceRead) && !await IsFileLockedAsync())
+        if ((_fileContent == null || forceRead) && !await IsFileLockedAsync().ConfigureAwait(false))
         {
             try
             {
-                _fileContent = JsonNode.Parse(await _reader.ReadToEndAsync())?.AsObject() ?? [];
+                _fileContent = JsonNode.Parse(await _reader.ReadToEndAsync().ConfigureAwait(false))?.AsObject() ?? [];
             }
             catch (IOException)
             {

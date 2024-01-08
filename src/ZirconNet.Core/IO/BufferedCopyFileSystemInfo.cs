@@ -13,7 +13,7 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
     protected static async Task BufferedCopyAsync(string sourcePath, string destinationPath)
     {
         using var sourceStream = new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, _bufferSize, true);
-        await BufferedCopyAsync(sourceStream, destinationPath);
+        await BufferedCopyAsync(sourceStream, destinationPath).ConfigureAwait(false);
     }
 
     protected static async Task BufferedCopyAsync(IFileWrapperBase fileWrapper, IDirectoryWrapperBase destination)
@@ -21,7 +21,7 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
         var destinationPath = Path.Combine(destination.FullName, fileWrapper.Name);
 
         using var sourceStream = new FileStream(fileWrapper.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: _bufferSize, true);
-        await BufferedCopyAsync(sourceStream, destinationPath);
+        await BufferedCopyAsync(sourceStream, destinationPath).ConfigureAwait(false);
     }
 
     private static async Task BufferedCopyAsync(FileStream sourceStream, string destinationPath)
@@ -33,14 +33,14 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
         {
             int bytesRead;
 #if NETCOREAPP3_1_OR_GREATER
-            while ((bytesRead = await sourceStream.ReadAsync(buffer.AsMemory(0, _bufferSize))) > 0)
+            while ((bytesRead = await sourceStream.ReadAsync(buffer.AsMemory(0, _bufferSize)).ConfigureAwait(false)) > 0)
             {
-                await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                await destinationStream.WriteAsync(buffer.AsMemory(0, bytesRead)).ConfigureAwait(false);
             }
 #else
-            while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, _bufferSize)) > 0)
+            while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, _bufferSize).ConfigureAwait(false)) > 0)
             {
-                await destinationStream.WriteAsync(buffer, 0, bytesRead);
+                await destinationStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
             }
 #endif
         }

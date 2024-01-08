@@ -46,7 +46,7 @@ public static class ParallelAsync
             {
                 while (partition.MoveNext())
                 {
-                    await body(partition.Current);
+                    await body(partition.Current).ConfigureAwait(false);
                 }
             }
         }

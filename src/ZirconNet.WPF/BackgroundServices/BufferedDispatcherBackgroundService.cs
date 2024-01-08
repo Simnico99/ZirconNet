@@ -20,7 +20,7 @@ internal sealed class BufferedDispatcherBackgroundService : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             _currentBufferedDispatcher.ProcessOneItem();
-            await Task.Delay(_currentBufferedDispatcher.Delay, stoppingToken);
+            await Task.Delay(_currentBufferedDispatcher.Delay, stoppingToken).ConfigureAwait(false);
         }
     }
 }
