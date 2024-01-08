@@ -3,6 +3,7 @@
 // </copyright>
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 #if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
@@ -24,7 +25,7 @@ public static class UseWpfApplicationLifetimeExtension
 #endif
     public static IHostBuilder UseWpfApplicationLifetime(this IHostBuilder builder)
     {
-        return builder.ConfigureServices((services) => services.AddSingleton<IHostLifetime, WpfApplicationLifetime>());
+        return builder.ConfigureServices((services) => services.TryAddSingleton<IHostLifetime, WpfApplicationLifetime>());
     }
 
     /// <summary>
@@ -40,8 +41,8 @@ public static class UseWpfApplicationLifetimeExtension
     {
         return builder.ConfigureServices((services) =>
         {
-            _ = services.AddSingleton<IHostLifetime, WpfApplicationLifetime>();
-            _ = services.Configure(configureOptions);
+            services.TryAddSingleton<IHostLifetime, WpfApplicationLifetime>();
+            services.Configure(configureOptions);
         });
     }
 
