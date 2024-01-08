@@ -3,6 +3,7 @@
 // </copyright>
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace ZirconNet.Microsoft.DependencyInjection.Hosting;
@@ -18,9 +19,9 @@ public static class AddBackgroundServiceExtension
     public static IServiceCollection AddBackgroundServices<TImplementation>(this IServiceCollection services)
         where TImplementation : BackgroundService
     {
-        _ = services.AddSingleton<TImplementation>();
-        _ = services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
-        _ = services.AddHostedService(x => x.GetRequiredService<TImplementation>());
+        services.TryAddSingleton<TImplementation>();
+        services.TryAddSingleton<BackgroundService>(provider => provider.GetRequiredService<TImplementation>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService>(provider => provider.GetRequiredService<TImplementation>()));
 
         return services;
     }
@@ -36,10 +37,10 @@ public static class AddBackgroundServiceExtension
         where TService : class
         where TImplementation : BackgroundService, TService
     {
-        _ = services.AddSingleton<TImplementation>();
-        _ = services.AddSingleton<TService, TImplementation>(x => x.GetRequiredService<TImplementation>());
-        _ = services.AddSingleton<BackgroundService, TImplementation>(x => x.GetRequiredService<TImplementation>());
-        _ = services.AddHostedService(x => x.GetRequiredService<TImplementation>());
+        services.TryAddSingleton<TImplementation>();
+        services.TryAddSingleton<TService>(provider => provider.GetRequiredService<TImplementation>());
+        services.TryAddSingleton<BackgroundService>(provider => provider.GetRequiredService<TImplementation>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService>(provider => provider.GetRequiredService<TImplementation>()));
 
         return services;
     }

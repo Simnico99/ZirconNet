@@ -3,6 +3,7 @@
 // </copyright>
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using ZirconNet.Core.Environments;
 
@@ -14,7 +15,7 @@ public static class AddEnvironmentManagerExtension
     {
         EnvironmentManager.Current.SetEnvironmentFromStartupArgs(args);
 
-        hostBuilder.ConfigureServices(services => services.AddSingleton<IEnvironmentManager, EnvironmentManagerDI>());
+        hostBuilder.ConfigureServices(services => services.TryAddSingleton<IEnvironmentManager, EnvironmentManagerDI>());
 
         hostBuilder.UseEnvironment(Environment.GetEnvironmentVariable("DOTNET_") ?? "Production");
         return hostBuilder;
