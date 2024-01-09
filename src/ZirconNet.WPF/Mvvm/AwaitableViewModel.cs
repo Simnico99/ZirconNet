@@ -15,7 +15,7 @@ public abstract class AwaitableViewModel : ViewModel
         RegisterViewModelReady();
     }
 
-    public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>();
+    public IWeakEvent<AwaitableViewModel> ReadyEvent { get; } = new WeakEvent<AwaitableViewModel>(true);
 
     public void IsReady()
     {

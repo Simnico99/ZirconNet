@@ -26,9 +26,9 @@ public sealed class ZipFileWrapper : FileWrapperBase<ZipFileWrapper>
     {
     }
 
-    public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>();
+    public IWeakEvent<string> Extracting { get; } = new WeakEvent<string>(true);
 
-    public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>();
+    public IWeakEvent<string> Extracted { get; } = new WeakEvent<string>(true);
 
     public async ValueTask UnzipAsync(string extractionPath)
     {
@@ -108,7 +108,12 @@ public sealed class ZipFileWrapper : FileWrapperBase<ZipFileWrapper>
     {
         var normalizedPath = originalPath.Replace(_slash, Path.DirectorySeparatorChar);
         var extractionName = normalizedPath[FullName.Length..];
+
+#if NETCOREAPP3_1_OR_GREATER
+        var extractionPathFullName = Path.Join(extractionPath, extractionName);
+#else
         var extractionPathFullName = Path.Combine(extractionPath.ToString(), extractionName.ToString());
+#endif
 
         return (normalizedPath.ToString(), extractionName.ToString(), extractionPathFullName);
     }

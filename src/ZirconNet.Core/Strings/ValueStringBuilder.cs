@@ -18,11 +18,6 @@ public ref partial struct ValueStringBuilder
 
     public ValueStringBuilder(Span<char> initialBuffer)
     {
-        var test = new WeakEvent();
-        var task = new Task<bool>(() => true);
-
-        test.Subscribe(() => task);
-
         _arrayToReturnToPool = null;
         _chars = initialBuffer;
         _pos = 0;

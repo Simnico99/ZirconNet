@@ -18,8 +18,11 @@ public abstract class BufferedCopyFileSystemInfo : FileSystemInfo
 
     protected static async Task BufferedCopyAsync(IFileWrapperBase fileWrapper, IDirectoryWrapperBase destination)
     {
+#if NETCOREAPP3_1_OR_GREATER
+        var destinationPath = Path.Join(destination.FullName, fileWrapper.Name);
+#else
         var destinationPath = Path.Combine(destination.FullName, fileWrapper.Name);
-
+#endif
         using var sourceStream = new FileStream(fileWrapper.FullName, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: _bufferSize, true);
         await BufferedCopyAsync(sourceStream, destinationPath).ConfigureAwait(false);
     }

@@ -38,9 +38,9 @@ public abstract class DirectoryWrapperBase<T> : BufferedCopyFileSystemInfo, IDir
 
     public T Root => (T)Activator.CreateInstance(typeof(T), _directoryInfo.Root, false, false)!;
 
-    public IWeakEvent<IFileWrapperBase> CopyingFile { get; } = new WeakEvent<IFileWrapperBase>();
+    public IWeakEvent<IFileWrapperBase> CopyingFile { get; } = new WeakEvent<IFileWrapperBase>(true);
 
-    public IWeakEvent<IFileWrapperBase> CopiedFile { get; } = new WeakEvent<IFileWrapperBase>();
+    public IWeakEvent<IFileWrapperBase> CopiedFile { get; } = new WeakEvent<IFileWrapperBase>(true);
 
     public async ValueTask CopyContentAsync(IDirectoryWrapperBase destination)
     {

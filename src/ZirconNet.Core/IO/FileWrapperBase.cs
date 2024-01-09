@@ -71,7 +71,11 @@ public abstract class FileWrapperBase<T> : BufferedCopyFileSystemInfo, IFileWrap
 
     public async ValueTask CopyToDirectoryAsync(IDirectoryWrapperBase directory)
     {
+#if NETCOREAPP3_1_OR_GREATER
+        var finalPath = Path.Join(directory.FullName, Name);
+#else
         var finalPath = Path.Combine(directory.FullName, Name);
+#endif
         Delete(new FileInfo(finalPath));
         while (IsFileLocked(FileInfo.FullName))
         {
