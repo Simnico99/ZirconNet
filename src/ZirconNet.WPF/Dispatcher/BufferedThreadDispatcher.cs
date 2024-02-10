@@ -15,12 +15,16 @@ public sealed class BufferedThreadDispatcher
 {
     private readonly System.Windows.Threading.Dispatcher _dispatcher;
     private readonly ConcurrentQueue<Action> _queue = new();
+    private readonly TaskCompletionSource<object?> _reusableTcs = new();
 
     private BufferedThreadDispatcher()
     {
         _dispatcher = Application.Current.Dispatcher;
     }
 
+    /// <summary>
+    /// Gets the current BufferedThreadDispatcher Instance.
+    /// </summary>
     public static BufferedThreadDispatcher Current { get; } = new();
 
     /// <summary>
@@ -33,7 +37,7 @@ public sealed class BufferedThreadDispatcher
         _queue.Enqueue(action);
     }
 
-    public Task<T> InvokeAsync<T>(Func<T> func)
+    public Task<T>? InvokeAsync<T>(Func<T> func)
     {
         var tcs = new TaskCompletionSource<T>();
         _queue.Enqueue(() =>
@@ -48,33 +52,33 @@ public sealed class BufferedThreadDispatcher
                 tcs.SetException(ex);
             }
         });
+
         return tcs.Task;
     }
 
     public Task InvokeAsync(Action act)
     {
-        var tcs = new TaskCompletionSource<object?>();
         _queue.Enqueue(() =>
         {
             try
             {
                 act();
-                tcs.SetResult(null);
+                _reusableTcs.SetResult(null);
             }
             catch (Exception ex)
             {
-                tcs.SetException(ex);
+                _reusableTcs.SetException(ex);
             }
         });
-        return tcs.Task;
+        return _reusableTcs.Task;
     }
 
     /// <summary>
     /// Process one item in the queue.
     /// </summary>
-    internal void ProcessOneItem()
+    internal void ProcessQueueItems()
     {
-        if (_queue.TryDequeue(out var action))
+        while (_queue.TryDequeue(out var action))
         {
             _dispatcher.Invoke(action, DispatcherPriority.Send);
         }
