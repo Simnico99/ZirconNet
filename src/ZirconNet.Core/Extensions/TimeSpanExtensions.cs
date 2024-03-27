@@ -4,7 +4,6 @@
 
 namespace ZirconNet.Core.Extensions;
 
-
 public static class TimeSpanExtensions
 {
     public static string ToMostRelevantUnit(this TimeSpan timeSpan)
@@ -31,5 +30,4 @@ public static class TimeSpanExtensions
         return timeSpan.Ticks * 100.0;
     }
 #endif
-
 }
