@@ -30,7 +30,7 @@ public static class FileInfoExtensions
 
     public static IFileWrapperBase AutoWrapByExtension(this FileInfo file, bool createFile = true, bool overwrite = false)
     {
-        var extension = file.Extension.ToLower();
+        var extension = file.Extension.ToLowerInvariant();
         return extension switch
         {
             ".jar" => new JarFileWrapper(file, createFile, overwrite),

@@ -36,6 +36,6 @@ public static class TaskHelper
             // ignore
         }
 
-        throw allTasks.Exception ?? throw new ();
+        throw allTasks.Exception ?? throw new();
     }
 }
