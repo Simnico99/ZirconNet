@@ -76,9 +76,9 @@ public sealed class BufferedThreadDispatcher
     /// <summary>
     /// Process one item in the queue.
     /// </summary>
-    internal void ProcessQueueItems()
+    public void ProcessOneItem()
     {
-        while (_queue.TryDequeue(out var action))
+        if (_queue.TryDequeue(out var action))
         {
             _dispatcher.Invoke(action, DispatcherPriority.Send);
         }
