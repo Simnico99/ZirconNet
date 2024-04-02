@@ -21,7 +21,7 @@ public static class AddBackgroundServiceExtension
     {
         services.TryAddSingleton<TImplementation>();
         services.TryAddSingleton<BackgroundService>(provider => provider.GetRequiredService<TImplementation>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService>(provider => provider.GetRequiredService<TImplementation>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, TImplementation>(provider => provider.GetRequiredService<TImplementation>()));
 
         return services;
     }
@@ -40,7 +40,7 @@ public static class AddBackgroundServiceExtension
         services.TryAddSingleton<TImplementation>();
         services.TryAddSingleton<TService>(provider => provider.GetRequiredService<TImplementation>());
         services.TryAddSingleton<BackgroundService>(provider => provider.GetRequiredService<TImplementation>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService>(provider => provider.GetRequiredService<TImplementation>()));
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, TImplementation>(provider => provider.GetRequiredService<TImplementation>()));
 
         return services;
     }
