@@ -10,5 +10,8 @@ public sealed class WpfApplicationLifetimeOptions
     /// Gets or sets a value indicating whether indicates if host lifetime status messages should be suppressed such as on startup.
     /// The default is false.
     /// </summary>
-    public bool SuppressStatusMessages { get; set; }
+    public bool SuppressStatusMessages
+    {
+        get; set;
+    }
 }

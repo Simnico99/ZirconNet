@@ -5,11 +5,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using System.Diagnostics;
+
 #if NET5_0_OR_GREATER
 using System.Runtime.Versioning;
 #endif
 using System.Windows;
-using ZirconNet.Microsoft.DependencyInjection.Hosting;
+using ZirconNet.Core.Environments;
+using ZirconNet.WPF.Debugging;
 using ZirconNet.WPF.Extensions;
 
 namespace ZirconNet.WPF.Hosting.Lifetime;
@@ -54,11 +57,11 @@ public static class UseWpfApplicationLifetimeExtension
     /// <param name="builder">The <see cref="IHostBuilder" /> to configure.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
-    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, CancellationToken cancellationToken = default)
+    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, bool showConsoleWithDebugger = false, bool showConsoleWithDebugEnvironment = false, CancellationToken cancellationToken = default)
         where T : Window
     {
         builder.UseWpfApplicationLifetime();
-        return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
+        return RunWpfApplicationAsyncInternal<T>(builder, showConsoleWithDebugger, showConsoleWithDebugEnvironment, cancellationToken);
     }
 
     /// <summary>
@@ -69,18 +72,18 @@ public static class UseWpfApplicationLifetimeExtension
     /// <param name="configureOptions">The delegate for configuring the <see cref="WpfApplicationLifetimeOptions"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> that can be used to cancel the console.</param>
     /// <returns>A <see cref="Task"/> that only completes when the token is triggered or shutdown is triggered.</returns>
-    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, CancellationToken cancellationToken = default)
+    public static Task RunWpfApplicationAsync<T>(this IHostBuilder builder, Action<WpfApplicationLifetimeOptions> configureOptions, bool showConsoleWithDebugger = false, bool showConsoleWithDebugEnvironment = false, CancellationToken cancellationToken = default)
         where T : Window
     {
         builder.UseWpfApplicationLifetime(configureOptions);
-        return RunWpfApplicationAsyncInternal<T>(builder, cancellationToken);
+        return RunWpfApplicationAsyncInternal<T>(builder, showConsoleWithDebugger, showConsoleWithDebugEnvironment, cancellationToken);
     }
 
-    private static async Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken)
+    private static async Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, bool showConsoleWithDebugger, bool showConsoleWithDebugEnvironment, CancellationToken cancellationToken)
         where T : Window
     {
-        builder.AddEnvironmentManager();
         builder.ConfigureServices(services => services.AddSingleton<T>());
+        ToggleDebugConsole(showConsoleWithDebugger, showConsoleWithDebugEnvironment);
         using var host = builder.Build();
         var window = host.Services.GetRequiredService<T>();
         var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
@@ -88,6 +91,16 @@ public static class UseWpfApplicationLifetimeExtension
 
         await host.StartAsync(cancellationToken).ConfigureAwait(false);
         await window.ShowDialogAsync().ConfigureAwait(false);
+        ToggleDebugConsole(showConsoleWithDebugger, showConsoleWithDebugEnvironment);
         await host.StopAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static void ToggleDebugConsole(bool showConsoleWithDebugger, bool showConsoleWithDebugEnvironment)
+    {
+        if ((EnvironmentManager.Current.IsDebug && showConsoleWithDebugEnvironment)
+            || (Debugger.IsAttached && showConsoleWithDebugger))
+        {
+            ConsoleManager.Toggle();
+        }
     }
 }

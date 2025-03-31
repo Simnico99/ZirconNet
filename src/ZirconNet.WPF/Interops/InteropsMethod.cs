@@ -9,18 +9,42 @@ namespace ZirconNet.WPF.Interops;
 
 public sealed partial class InteropMethods
 {
-    internal static void CreateConsole()
+    public static void CreateConsole()
     {
         AllocConsole();
     }
 
+    public static void DestroyConsole()
+    {
+        FreeConsole();
+    }
+
+    public static IntPtr GetConsoleWindowHandle()
+    {
+        return GetConsoleWindow();
+    }
+
 #if NET7_0_OR_GREATER
     [LibraryImport(ExternDll.Kernel32)]
-    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static partial void AllocConsole();
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool AllocConsole();
+
+    [LibraryImport(ExternDll.Kernel32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool FreeConsole();
+
+    [LibraryImport(ExternDll.Kernel32)]
+    private static partial IntPtr GetConsoleWindow();
 #else
     [DllImport(ExternDll.Kernel32)]
-    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static extern void AllocConsole();
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool AllocConsole();
+
+    [DllImport(ExternDll.Kernel32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool FreeConsole();
+
+    [DllImport(ExternDll.Kernel32)]
+    private static extern IntPtr GetConsoleWindow();
 #endif
 }
