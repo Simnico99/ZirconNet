@@ -36,7 +36,7 @@ public sealed class WpfHost
     private static IConfigurationBuilder RegisterConfigurations(IConfigurationBuilder configuration)
     {
         var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
-        var devStreamReader = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.appsettings.{Environment.GetEnvironmentVariable("DOTNET_")?.ToLower() ?? "production"}.json");
+        var devStreamReader = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.appsettings.{Environment.GetEnvironmentVariable("DOTNET_") ?? "Production"}.json");
         var streamReader = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.appsettings.json");
 
         if (streamReader is not null)
