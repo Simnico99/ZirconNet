@@ -14,22 +14,20 @@ public sealed class WpfHost
 #if NET6_0_OR_GREATER
     public static HostApplicationBuilder CreateDefaultBuilder(string[] args)
     {
-        var config = RegisterConfigurations(new ConfigurationBuilder()).Build();
         var builder = Host.CreateApplicationBuilder(args);
 
         builder.AddEnvironmentManager(args);
-        builder.Configuration.AddConfiguration(config);
+        builder.Configuration.AddConfiguration(RegisterConfigurations(new ConfigurationBuilder()).Build());
 
         return builder;
     }
 #else
     public static IHostBuilder CreateDefaultBuilder(string[] args)
     {
-        var config = RegisterConfigurations(new ConfigurationBuilder()).Build();
         var builder = new HostBuilder().ConfigureDefaults(args);
 
         builder.AddEnvironmentManager(args);
-        builder.ConfigureAppConfiguration(builder => builder.AddConfiguration(config));
+        builder.ConfigureAppConfiguration(builder => builder.AddConfiguration(RegisterConfigurations(new ConfigurationBuilder()).Build()));
 
         return builder;
     }
