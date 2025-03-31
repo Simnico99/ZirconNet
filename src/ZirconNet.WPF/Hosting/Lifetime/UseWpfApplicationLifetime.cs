@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using System.Runtime.Versioning;
 #endif
 using System.Windows;
+using ZirconNet.Microsoft.DependencyInjection.Hosting;
 using ZirconNet.WPF.Extensions;
 
 namespace ZirconNet.WPF.Hosting.Lifetime;
@@ -78,8 +79,8 @@ public static class UseWpfApplicationLifetimeExtension
     private static async Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, CancellationToken cancellationToken)
         where T : Window
     {
+        builder.AddEnvironmentManager();
         builder.ConfigureServices(services => services.AddSingleton<T>());
-
         using var host = builder.Build();
         var window = host.Services.GetRequiredService<T>();
         var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();

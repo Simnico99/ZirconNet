@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net461;net47;net48;netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net47;net48;net6.0;net7.0;net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -29,7 +29,6 @@
 	<ItemGroup>
 	  <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
 	</ItemGroup>
-
 
 	<ItemGroup>
 	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png" Link="ZirconNetLogo - 128x128.png">

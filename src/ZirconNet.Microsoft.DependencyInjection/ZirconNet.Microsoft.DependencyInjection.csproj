@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net461;net47;net48;netcoreapp3.1;net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net47;net48;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -26,23 +26,24 @@
 		<AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)'=='net7.0' or '$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net8.0'">
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+	<ItemGroup Condition="'$(TargetFramework)'=='net8.0' or '$(TargetFramework)'=='net9.0'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+		<PackageReference Include="System.Text.Json" Version="9.0.3" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' or '$(TargetFramework)'=='net5.0'">
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+	<ItemGroup Condition="'$(TargetFramework)'=='net6.0' or '$(TargetFramework)'=='net7.0'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="[8.0.1]" />
+		<PackageReference Include="System.Text.Json" Version="[8.0.5]" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)'=='net461' or '$(TargetFramework)'=='net47' or '$(TargetFramework)'=='net48'">
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-		<PackageReference Include="PolySharp" Version="1.14.1">
+
+	<ItemGroup Condition="'$(TargetFramework)'=='net47' or '$(TargetFramework)'=='net48'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="[6.0.1]" />
+		<PackageReference Include="PolySharp" Version="[1.14.1]">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
-
 	<ItemGroup>
 	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png" Link="ZirconNetLogo - 128x128.png">
 	    <PackagePath>\</PackagePath>

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net461;net47;net48;netcoreapp3.1;net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
+		<TargetFrameworks>net47;net48;net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
@@ -21,6 +21,7 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<LangVersion>latest</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TF_BUILD)' == 'true'">
