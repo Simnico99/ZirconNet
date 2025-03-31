@@ -30,7 +30,7 @@ public abstract class AwaitableViewModel : ViewModel
         }
 
         var registration = cancellationToken.Register(
-            delegate(object? state)
+            state =>
             {
                 if (state != null)
                 {
@@ -38,7 +38,7 @@ public abstract class AwaitableViewModel : ViewModel
                 }
             },
             _startupTcs);
-        return _startupTcs!.Task.ContinueWith((Task<object> _) => registration.Dispose(), cancellationToken);
+        return _startupTcs!.Task.ContinueWith(_ => registration.Dispose(), cancellationToken);
     }
 
     /// <summary>

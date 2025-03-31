@@ -9,13 +9,7 @@ namespace ZirconNet.WPF.Debugging;
 
 public static partial class ConsoleManager
 {
-    public static bool HasConsole
-    {
-        get
-        {
-            return InteropMethods.GetConsoleWindowHandle() != IntPtr.Zero;
-        }
-    }
+    public static bool HasConsole => InteropMethods.GetConsoleWindowHandle() != IntPtr.Zero;
 
     /// <summary>
     /// Creates a new console instance if the process is not attached to a console already.
