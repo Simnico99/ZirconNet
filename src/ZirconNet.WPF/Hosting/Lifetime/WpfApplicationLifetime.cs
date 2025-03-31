@@ -5,7 +5,6 @@
 using System.Runtime.Versioning;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ZirconNet.WPF.Hosting.Lifetime;
@@ -24,10 +23,12 @@ public sealed class WpfApplicationLifetime : IHostLifetime, IDisposable
     private CancellationTokenRegistration? _applicationStartedRegistration;
     private CancellationTokenRegistration? _applicationStoppingRegistration;
 
+    /*
     public WpfApplicationLifetime(IOptions<WpfApplicationLifetimeOptions> options, IHostApplicationLifetime hostApplicationLifetime, IHostEnvironment environment, IOptions<HostOptions> hostOptions)
     : this(options, hostApplicationLifetime, environment, hostOptions, NullLoggerFactory.Instance)
     {
     }
+    */
 
     public WpfApplicationLifetime(IOptions<WpfApplicationLifetimeOptions> options, IHostApplicationLifetime hostApplicationLifetime, IHostEnvironment environment, IOptions<HostOptions> hostOptions, ILoggerFactory loggerFactory)
     {
