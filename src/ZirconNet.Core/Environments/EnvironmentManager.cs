@@ -2,6 +2,7 @@
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
+using System.Diagnostics;
 using ZirconNet.Core.Enums;
 using ZirconNet.Core.Extensions;
 
@@ -38,17 +39,26 @@ public sealed class EnvironmentManager : IEnvironmentManager
     /// <summary>
     /// Gets return the current instance of the <see cref="EnvironmentManager"/>.
     /// </summary>
-    public static EnvironmentManager Current { get; }
+    public static EnvironmentManager Current
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the 2 only states Development and Production, when running in debug mode it reports Development.
     /// </summary>
-    public ApplicationEnvironment Environment { get; private set; }
+    public ApplicationEnvironment Environment
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Gets a value indicating whether reports debug when in Debug or Development mode.
     /// </summary>
-    public bool IsDebug { get; private set; }
+    public bool IsDebug
+    {
+        get; private set;
+    }
 
     /// <summary>
     /// Instance the environment from the startup arguments if present.
@@ -58,6 +68,14 @@ public sealed class EnvironmentManager : IEnvironmentManager
     /// <param name="debugArg">The argument used for comparison.</param>
     public void SetEnvironmentFromStartupArgs(string[]? args, string debugArg = "-debug")
     {
+        if (Debugger.IsAttached)
+        {
+            System.Environment.SetEnvironmentVariable("DOTNET_", "Development");
+            System.Environment.SetEnvironmentVariable("DOTNET_DEBUG", "true");
+            Environment = ApplicationEnvironment.Development;
+            return;
+        }
+
         if (args?.Length >= 1)
         {
             foreach (var i in 0..args.Length)
