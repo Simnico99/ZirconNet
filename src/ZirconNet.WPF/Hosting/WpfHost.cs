@@ -14,7 +14,8 @@ public sealed class WpfHost
     public static IHostBuilder CreateDefaultBuilder(string[] args)
     {
         var config = RegisterConfigurations(new ConfigurationBuilder()).Build();
-        var builder = Host.CreateDefaultBuilder(args);
+        var builder = new HostBuilder().ConfigureDefaults(args);
+
         builder.AddEnvironmentManager(args);
 
         builder.ConfigureAppConfiguration(builder => builder.AddConfiguration(config));

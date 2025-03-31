@@ -82,8 +82,8 @@ public static class UseWpfApplicationLifetimeExtension
     private static async Task RunWpfApplicationAsyncInternal<T>(IHostBuilder builder, bool showConsoleWithDebugger, bool showConsoleWithDebugEnvironment, CancellationToken cancellationToken)
         where T : Window
     {
-        builder.ConfigureServices(services => services.AddSingleton<T>());
         ToggleDebugConsole(showConsoleWithDebugger, showConsoleWithDebugEnvironment);
+        builder.ConfigureServices(services => services.AddSingleton<T>());
         using var host = builder.Build();
         var window = host.Services.GetRequiredService<T>();
         var applicationLifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
