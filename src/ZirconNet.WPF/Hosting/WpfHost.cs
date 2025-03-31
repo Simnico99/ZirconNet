@@ -11,17 +11,29 @@ namespace ZirconNet.WPF.Hosting;
 
 public sealed class WpfHost
 {
+#if NET6_0_OR_GREATER
+    public static IHostApplicationBuilder CreateDefaultBuilder(string[] args)
+    {
+        var config = RegisterConfigurations(new ConfigurationBuilder()).Build();
+        var builder = Host.CreateApplicationBuilder(args);
+
+        builder.AddEnvironmentManager(args);
+        builder.Configuration.AddConfiguration(config);
+
+        return builder;
+    }
+#else
     public static IHostBuilder CreateDefaultBuilder(string[] args)
     {
         var config = RegisterConfigurations(new ConfigurationBuilder()).Build();
         var builder = new HostBuilder().ConfigureDefaults(args);
 
         builder.AddEnvironmentManager(args);
-
         builder.ConfigureAppConfiguration(builder => builder.AddConfiguration(config));
 
         return builder;
     }
+#endif
 
     private static IConfigurationBuilder RegisterConfigurations(IConfigurationBuilder configuration)
     {

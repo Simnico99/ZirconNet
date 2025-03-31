@@ -10,11 +10,22 @@ namespace ZirconNet.Microsoft.DependencyInjection.Hosting;
 
 public static class AddEnvironmentManagerExtension
 {
+#if NET6_0_OR_GREATER
+    public static IHostApplicationBuilder AddEnvironmentManager(this IHostApplicationBuilder builder, string[]? args = default)
+    {
+        EnvironmentManager.Current.SetEnvironmentFromStartupArgs(args);
+        builder.Services.TryAddSingleton<IEnvironmentManager, EnvironmentManagerDI>();
+
+        return builder;
+    }
+#else
     public static IHostBuilder AddEnvironmentManager(this IHostBuilder hostBuilder, string[]? args = default)
     {
         EnvironmentManager.Current.SetEnvironmentFromStartupArgs(args);
-
         hostBuilder.ConfigureServices(services => services.TryAddSingleton<IEnvironmentManager, EnvironmentManagerDI>());
+
         return hostBuilder;
     }
+#endif
+
 }

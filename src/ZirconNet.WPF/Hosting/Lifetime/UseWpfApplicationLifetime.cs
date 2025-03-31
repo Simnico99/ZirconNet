@@ -29,7 +29,7 @@ public static class UseWpfApplicationLifetimeExtension
 #endif
     public static IHostBuilder UseWpfApplicationLifetime(this IHostBuilder builder)
     {
-        return builder.ConfigureServices((services) => services.TryAddSingleton<IHostLifetime, WpfApplicationLifetime>());
+        return builder.ConfigureServices((services) => services.AddSingleton<IHostLifetime, WpfApplicationLifetime>());
     }
 
     /// <summary>
