@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace ZirconNet.WPF.SourceGenerator.Mvvm;
 
 [Generator]
-public class HostIntegrationGenerator : IIncrementalGenerator
+public sealed class HostIntegrationGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {

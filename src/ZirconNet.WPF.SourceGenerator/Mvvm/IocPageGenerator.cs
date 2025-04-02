@@ -10,7 +10,7 @@ namespace ZirconNet.WPF.SourceGenerator.Mvvm;
 /// Generates partial classes for pages bound using <see cref="PageDataContextAttribute"/>.
 /// </summary>
 [Generator]
-internal class IocPageGenerator : IIncrementalGenerator
+public sealed class IocPageGenerator : IIncrementalGenerator
 {
     /// <inheritdoc/>
     public void Initialize(IncrementalGeneratorInitializationContext context)
