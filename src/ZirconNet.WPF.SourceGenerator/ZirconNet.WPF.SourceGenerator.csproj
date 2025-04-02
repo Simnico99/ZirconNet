@@ -3,17 +3,47 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-		<LangVersion>13</LangVersion>
-		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Simnico99</Authors>
+		<Description>These are libraries I use in alot of projects so I made them a NuGet package to stop having to copy code all over the place.</Description>
+		<Copyright>Copyright (c) 2022 Simnico99</Copyright>
+		<PackageProjectUrl>https://github.com/Simnico99/ZirconNet</PackageProjectUrl>
+		<PackageIcon>ZirconNetLogo - 128x128.png</PackageIcon>
+		<PackageReadmeFile>ReadmeNuget.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/Simnico99/ZirconNet</RepositoryUrl>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" PrivateAssets="all"/>
+	  <None Include="..\..\Logo\ZirconNetLogo - 128x128.png" Link="ZirconNetLogo - 128x128.png">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	  <None Include="..\..\ReadmeNuget.md" Link="ReadmeNuget.md">
+	    <PackagePath>\</PackagePath>
+	    <Pack>True</Pack>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 </Project>
