@@ -1,4 +1,4 @@
-﻿// <copyright file="UseWpfApplicationLifetime.cs" company="Zircon Technology">
+﻿// <copyright file="WpfApplicationLifeTimeExtensions.cs" company="Zircon Technology">
 // This software is distributed under the MIT license and its code is open-source and free for use, modification, and distribution.
 // </copyright>
 
