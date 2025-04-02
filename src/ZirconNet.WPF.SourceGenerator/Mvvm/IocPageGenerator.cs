@@ -90,7 +90,7 @@ namespace {{pageType.ContainingNamespace.ToDisplayString()}};
 
 public partial class {{pageType.Name}}
 {
-    private static IHost _appHost = ((App)Application.Current).Host;
+    private static IHost _appHost = ((App)App.Current).Host;
 
 {{propertyDeclarations}}
 }
